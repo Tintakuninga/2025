@@ -303,31 +303,73 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if(customerForm) {
+    if (customerForm) {
         customerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const nikVal = nikInput.value;
-            if(nikVal.length !== 16) {
-                showAlert("Gagal Menyimpan! NIK harus persis 16 digit.");
+            const nikVal = nikInput.value.trim();
+            const index = document.getElementById('editIndex').value;
+
+            // 1. VALIDASI PANJANG NIK (Persis 16 Digit)
+            if (nikVal.length !== 16 || isNaN(nikVal)) {
+                showAlert("Gagal Menyimpan! NIK harus persis 16 digit angka.");
                 return;
             }
 
-            const index = document.getElementById('editIndex').value;
-            const data = {
-                nik: nikVal,
-                nama: document.getElementById('nama').value,
-                status: document.getElementById('status').value,
-                tempat_lahir: document.getElementById('tempat_lahir').value,
-                tanggal_lahir: document.getElementById('tanggal_lahir').value
-            };
+            // 2. VALIDASI STRUKTUR STRUKTURAL NIK DUKCAPIL (Tanggal & Bulan Lahir)
+            const dd = parseInt(nikVal.substring(6, 8), 10);
+            const mm = parseInt(nikVal.substring(8, 10), 10);
 
+            // Bulan harus di antara 01 - 12
+            if (mm < 1 || mm > 12) {
+                showAlert("Gagal Menyimpan! Format NIK tidak valid (bulan lahir pada digit ke-9 & 10 salah).");
+                return;
+            }
+
+            // Tanggal lahir: Pria (1-31), Wanita (41-71)
+            const isValidHari = (dd >= 1 && dd <= 31) || (dd >= 41 && dd <= 71);
+            if (!isValidHari) {
+                showAlert("Gagal Menyimpan! Format NIK tidak valid (tanggal lahir pada digit ke-7 & 8 salah).");
+                return;
+            }
+
+            // 3. VALIDASI DUPLIKASI NIK (Cek Keberadaan Data di Cloud)
             try {
+                // Cek NIK di Firestore
+                const qNik = query(collection(db, "pelanggan"), where("nik", "==", nikVal));
+                const querySnap = await getDocs(qNik);
+
+                if (index === "-1") {
+                    // Tambah Data Baru: Jika NIK sudah ada, batalkan proses simpan
+                    if (!querySnap.empty) {
+                        showAlert(`Gagal Menyimpan! NIK ${nikVal} sudah terdaftar di sistem.`);
+                        return;
+                    }
+                } else {
+                    // Edit Data: Bolehkan jika NIK milik data itu sendiri, tetapi tolak jika digunakan pelanggan lain
+                    const docIdCurrent = customers[index].id;
+                    const isDuplicate = querySnap.docs.some(docItem => docItem.id !== docIdCurrent);
+                    if (isDuplicate) {
+                        showAlert(`Gagal Menyimpan! NIK ${nikVal} sudah digunakan oleh pelanggan lain.`);
+                        return;
+                    }
+                }
+
+                // 4. PROSES SIMPAN KE FIRESTORE (Jika seluruh validasi lolos)
+                const data = {
+                    nik: nikVal,
+                    nama: document.getElementById('nama').value.trim(),
+                    status: document.getElementById('status').value,
+                    tempat_lahir: document.getElementById('tempat_lahir').value.trim(),
+                    tanggal_lahir: document.getElementById('tanggal_lahir').value
+                };
+
                 if (index === "-1") {
                     await addDoc(collection(db, "pelanggan"), data);
                 } else {
                     const docId = customers[index].id;
                     await updateDoc(doc(db, "pelanggan", docId), data);
                 }
+
                 await loadCustomers();
                 closeModal('formModal');
                 showAlert("Data Pelanggan berhasil disimpan di Cloud!");
