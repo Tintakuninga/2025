@@ -64,6 +64,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     role: "user",
                     createdAt: new Date().toISOString()
                 });
+
+                // Kirim notifikasi pendaftaran pengguna baru ke sistem
+                try {
+                    await addDoc(collection(db, "notifikasi"), {
+                        judul: "Pengguna Baru Mendaftar",
+                        pesan: `${user.displayName} (${user.email}) telah bergabung ke aplikasi.`,
+                        isRead: false,
+                        timestamp: new Date()
+                    });
+                } catch (err) {
+                    console.error("Gagal mengirim notifikasi:", err);
+                }
             } else {
                 role = userDocSnap.data().role;
             }
