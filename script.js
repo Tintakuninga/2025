@@ -378,6 +378,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if(document.getElementById('invLastUpdate') && invData['lastUpdated']) {
                 document.getElementById('invLastUpdate').innerText = new Date(invData['lastUpdated']).toLocaleString('id-ID');
             }
+            if(document.getElementById('stat-stok3')) document.getElementById('stat-stok3').innerText = invData['3kg'] || 0;
+            if(document.getElementById('stat-stok5')) document.getElementById('stat-stok5').innerText = invData['5kg'] || 0;
+            if(document.getElementById('stat-stok12')) document.getElementById('stat-stok12').innerText = invData['12kg'] || 0;
         }
     }
 
@@ -420,7 +423,13 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             try {
                 await setDoc(doc(db, "settings", "inventaris"), data);
+                
                 document.getElementById('invLastUpdate').innerText = new Date(data.lastUpdated).toLocaleString('id-ID');
+                
+                if(document.getElementById('stat-stok3')) document.getElementById('stat-stok3').innerText = data['3kg'] || 0;
+                if(document.getElementById('stat-stok5')) document.getElementById('stat-stok5').innerText = data['5kg'] || 0;
+                if(document.getElementById('stat-stok12')) document.getElementById('stat-stok12').innerText = data['12kg'] || 0;
+                
                 showAlert("Data inventaris berhasil disimpan di Cloud!");
             } catch (error) {
                 console.error("Error saving inventory: ", error);
