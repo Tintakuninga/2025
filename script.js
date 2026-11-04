@@ -74,10 +74,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(loginScreen) loginScreen.style.display = "none";
                 if(appContent) appContent.style.display = "flex";
                 
-                // Update Profil di Sidebar
-                const userNameEl = document.querySelector('.user-name');
+                // Update Profil di Sidebar & Topbar
+                document.querySelectorAll('.user-name').forEach(el => el.innerText = user.displayName);
                 const userIdEl = document.querySelector('.user-id');
-                if(userNameEl) userNameEl.innerText = user.displayName;
                 if(userIdEl) userIdEl.innerText = "Admin Pangkalan";
                 
                 // Load data utama
@@ -85,16 +84,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadInventaris();
                 loadHarga();
             } else {
-                // MASUK SEBAGAI USER / PELANGGAN
-                if(loginScreen) {
-                    loginScreen.innerHTML = `
-                        <div class="login-card">
-                            <h2>Halo, ${user.displayName}</h2>
-                            <p>Anda saat ini login sebagai <b>Pengguna</b>.<br><br>Halaman khusus smartphone untuk pelanggan masih dalam tahap pengembangan.</p>
-                            <button class="btn-danger" id="btnTempLogout" style="width:100%; padding:10px; border-radius:6px; cursor:pointer;">Keluar / Ganti Akun</button>
-                        </div>`;
-                    document.getElementById('btnTempLogout').addEventListener('click', () => signOut(auth));
-                }
+                // MASUK SEBAGAI USER / PELANGGAN: OTOMATIS REDIREKT KE FOLDER USER
+                window.location.href = "./user/";
             }
         } else {
             // TIDAK ADA YANG LOGIN (LOGOUT)
@@ -111,13 +102,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnExit = document.querySelector('.btn-exit');
     if (btnExit) {
         btnExit.addEventListener('click', () => {
-            showConfirm("Yakin ingin keluar dari sistem?", async () => {
-                try {
-                    await signOut(auth);
-                } catch (error) {
-                    showAlert("Gagal keluar dari sistem.");
-                }
-            });
+            document.getElementById('modalLogout').style.display = "flex";
+        });
+    }
+
+    // Konfirmasi Logout pada Modal Khusus
+    const btnConfirmLogout = document.getElementById('btnConfirmLogout');
+    if(btnConfirmLogout) {
+        btnConfirmLogout.addEventListener('click', async () => {
+            closeModal('modalLogout');
+            try {
+                await signOut(auth);
+            } catch (error) {
+                showAlert("Gagal keluar dari sistem.");
+            }
         });
     }
 

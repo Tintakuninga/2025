@@ -334,6 +334,21 @@
         </div>
     </div>
 
+    <!-- MODAL LOGOUT (Khusus Keluar Sistem) -->
+    <div id="modalLogout" class="modal">
+        <div class="modal-content card-panel alert-modal">
+            <div class="alert-icon" style="color: var(--danger-color);">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 style="margin-bottom: 10px;">Konfirmasi</h3>
+            <p class="text-muted" style="margin-bottom: 20px;">Yakin ingin keluar dari sistem?</p>
+            <div class="form-grid-2">
+                <button class="btn-dark" onclick="closeModal('modalLogout')">Batal</button>
+                <button class="btn-danger" id="btnConfirmLogout" style="padding: 10px; font-weight: bold;">Ya, Keluar</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module" src="script.js"></script>
 </body>
 </html>
