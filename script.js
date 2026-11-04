@@ -89,6 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadCustomers();
                 loadInventaris();
                 loadHarga();
+                listenToNotifications();
             } else {
                 // MASUK SEBAGAI USER / PELANGGAN: OTOMATIS REDIREKT KE FOLDER USER
                 window.location.href = "./user/";
@@ -571,7 +572,4 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-
-    // Panggil fungsi ini saat Admin berhasil login (misalnya di dalam onAuthStateChanged role === "admin")
-    listenToNotifications();
 });
