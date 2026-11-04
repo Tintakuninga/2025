@@ -2,7 +2,7 @@
 // 1. IMPORT FIREBASE SDK (Versi 10 Modular)
 // =====================================================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, setDoc, getDoc, addDoc, updateDoc, deleteDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, setDoc, getDoc, addDoc, updateDoc, deleteDoc, query, orderBy, onSnapshot, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 // =====================================================================
@@ -503,73 +503,153 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // =====================================================================
-    // 9. LOGIC NOTIFIKASI & MODAL HISTORI
+    // 9. LOGIC DROPDOWN & MANAJEMEN NOTIFIKASI
     // =====================================================================
     const btnNotification = document.getElementById('btnNotification');
-    const btnMenuHistori = document.getElementById('btnMenuHistori');
-    
-    // Buka Modal Histori dari Ikon Lonceng
-    if (btnNotification) {
-        btnNotification.addEventListener('click', () => {
-            document.getElementById('modalHistori').style.display = "flex";
-            // Opsional: Hilangkan angka merah saat lonceng diklik
-            document.getElementById('notifBadge').style.display = "none";
+    const notifDropdown = document.getElementById('notifDropdown');
+    const btnLihatSemua = document.getElementById('btnLihatSemua');
+    let semuaDataNotif = []; // Untuk menyimpan data lokal agar bisa difilter
+
+    // Toggle (Buka/Tutup) Dropdown Lonceng
+    if (btnNotification && notifDropdown) {
+        btnNotification.addEventListener('click', (e) => {
+            e.stopPropagation();
+            notifDropdown.classList.toggle('show');
+            // Sembunyikan badge merah saat lonceng diklik (Opsional)
+            // document.getElementById('notifBadge').style.display = "none"; 
+        });
+
+        // Tutup dropdown jika user klik di luar area
+        document.addEventListener('click', (e) => {
+            if (!notifDropdown.contains(e.target) && e.target !== btnNotification && !btnNotification.contains(e.target)) {
+                notifDropdown.classList.remove('show');
+            }
         });
     }
 
-    // Buka Modal Histori dari Menu Dropdown Profil
-    if (btnMenuHistori) {
-        btnMenuHistori.addEventListener('click', () => {
+    // Buka Modal Saat Klik "Lihat Semua"
+    if (btnLihatSemua) {
+        btnLihatSemua.addEventListener('click', (e) => {
+            e.preventDefault();
+            notifDropdown.classList.remove('show');
             document.getElementById('modalHistori').style.display = "flex";
-            profileMenu.classList.remove('show'); // Tutup dropdown
+            renderModalList(); // Render ulang saat modal dibuka
         });
     }
 
-    // FUNGSI MEMUAT DATA NOTIFIKASI DARI FIRESTORE (REAL-TIME)
-    function listenToNotifications() {
+    // Filter Notifikasi di Modal (All / Unread / Read)
+    const filterNotif = document.getElementById('filterNotif');
+    if (filterNotif) {
+        filterNotif.addEventListener('change', () => renderModalList());
+    }
+
+    // Fungsi Render Notifikasi (Dropdown & Modal)
+    function renderNotifikasi() {
         const notifBadge = document.getElementById('notifBadge');
+        const notifDropdownList = document.getElementById('notifDropdownList');
+        let unreadCount = 0;
+
+        notifDropdownList.innerHTML = ""; 
+
+        if (semuaDataNotif.length === 0) {
+            notifDropdownList.innerHTML = `
+                <div class="notif-empty">
+                    <img src="https://cdn-icons-png.flaticon.com/512/7486/7486747.png" alt="Empty" style="width:60px; margin-bottom: 10px; opacity: 0.6;">
+                    <div>No notifications yet</div>
+                </div>`;
+            if(notifBadge) notifBadge.style.display = "none";
+            renderModalList();
+            return;
+        }
+
+        // Render maksimal 5 data terbaru ke Dropdown
+        semuaDataNotif.slice(0, 5).forEach((data) => {
+            if (!data.isRead) unreadCount++;
+            
+            const div = document.createElement("div");
+            div.className = `notif-item ${!data.isRead ? 'notif-unread' : ''}`;
+            div.innerHTML = `
+                <div class="notif-title">${data.judul || 'Info'}</div>
+                <div class="notif-desc">${data.pesan || ''}</div>
+                <div class="notif-time">${data.timestamp ? data.timestamp.toDate().toLocaleString('id-ID') : 'Baru saja'}</div>
+            `;
+            notifDropdownList.appendChild(div);
+        });
+
+        // Hitung total keseluruhan Unread untuk Badge
+        const totalUnread = semuaDataNotif.filter(n => !n.isRead).length;
+        if (totalUnread > 0 && notifBadge) {
+            notifBadge.innerText = totalUnread > 99 ? "99+" : totalUnread;
+            notifBadge.style.display = "flex";
+        } else if (notifBadge) {
+            notifBadge.style.display = "none";
+        }
+
+        renderModalList();
+    }
+
+    // Fungsi Render Khusus untuk List di dalam Modal (berdasarkan Filter)
+    function renderModalList() {
         const notificationList = document.getElementById('notificationList');
-        
-        // Asumsi: Anda membuat koleksi "notifikasi" di Firestore saat User menambahkan Mutasi Stok
+        if (!notificationList) return;
+
+        const selectedFilter = filterNotif ? filterNotif.value : 'all';
+        notificationList.innerHTML = "";
+
+        const dataDifilter = semuaDataNotif.filter(data => {
+            if (selectedFilter === 'unread') return data.isRead === false;
+            if (selectedFilter === 'read') return data.isRead === true;
+            return true; // 'all'
+        });
+
+        if (dataDifilter.length === 0) {
+            notificationList.innerHTML = `<div class="notif-empty">No more data</div>`;
+            return;
+        }
+
+        dataDifilter.forEach((data) => {
+            const div = document.createElement("div");
+            div.className = `notif-item ${!data.isRead ? 'notif-unread' : ''}`;
+            div.innerHTML = `
+                <div class="notif-title">${data.judul || 'Info'}</div>
+                <div class="notif-desc">${data.pesan || ''}</div>
+                <div class="notif-time">${data.timestamp ? data.timestamp.toDate().toLocaleString('id-ID') : 'Baru saja'}</div>
+            `;
+            notificationList.appendChild(div);
+        });
+    }
+
+    // Listener Utama dari Firestore (Gantikan fungsi listenToNotifications lama Anda)
+    function listenToNotifications() {
         const notifRef = collection(db, "notifikasi");
         const q = query(notifRef, orderBy("timestamp", "desc"));
         
         onSnapshot(q, (snapshot) => {
-            notificationList.innerHTML = ""; // Bersihkan list
-            let unreadCount = 0;
-
-            if (snapshot.empty) {
-                notificationList.innerHTML = `<p class="text-muted" style="text-align: center; padding: 20px;">Belum ada histori notifikasi.</p>`;
-                notifBadge.style.display = "none";
-                return;
-            }
-
+            semuaDataNotif = [];
             snapshot.forEach((doc) => {
-                const data = doc.data();
-                const isUnread = !data.isRead; // Cek apakah sudah dibaca
-                if (isUnread) unreadCount++;
-
-                // Format Waktu
-                const timeStr = data.timestamp ? data.timestamp.toDate().toLocaleString('id-ID') : 'Baru saja';
-
-                // Buat elemen HTML untuk setiap notifikasi
-                const div = document.createElement("div");
-                div.className = `notif-item ${isUnread ? 'notif-unread' : ''}`;
-                div.innerHTML = `
-                    <div class="notif-title">${data.judul || 'Info Mutasi Stok'}</div>
-                    <div class="notif-desc">${data.pesan || 'Ada penambahan data baru.'}</div>
-                    <div class="notif-time">${timeStr}</div>
-                `;
-                notificationList.appendChild(div);
+                semuaDataNotif.push({ id: doc.id, ...doc.data() });
             });
+            renderNotifikasi();
+        });
+    }
 
-            // Update Lencana (Badge) Angka Merah
-            if (unreadCount > 0) {
-                notifBadge.innerText = unreadCount > 99 ? "99+" : unreadCount;
-                notifBadge.style.display = "flex";
-            } else {
-                notifBadge.style.display = "none";
-            }
+    // Aksi "Tandai Semua Telah Dibaca" (Mark All as Read)
+    const btnMarkAllRead = document.getElementById('btnMarkAllRead');
+    if (btnMarkAllRead) {
+        btnMarkAllRead.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const unreadDocs = semuaDataNotif.filter(d => !d.isRead);
+            if(unreadDocs.length === 0) return showAlert("Semua notifikasi sudah dibaca.");
+
+            // Mengupdate status menjadi true di Firestore satu per satu
+            unreadDocs.forEach(async (docData) => {
+                const docRef = doc(db, "notifikasi", docData.id);
+                try {
+                    await updateDoc(docRef, { isRead: true });
+                } catch(error) {
+                    console.error("Gagal update notif: ", error);
+                }
+            });
         });
     }
 });
