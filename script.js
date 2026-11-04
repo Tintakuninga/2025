@@ -58,7 +58,6 @@ document.addEventListener('DOMContentLoaded', () => {
             let role = "user"; 
 
             if (!userDocSnap.exists()) {
-                // User baru pertama kali login, simpan sebagai 'user'
                 await setDoc(userDocRef, {
                     nama: user.displayName,
                     email: user.email,
@@ -70,35 +69,28 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (role === "admin") {
-                // MASUK SEBAGAI ADMIN
                 if(loginScreen) loginScreen.style.display = "none";
                 if(appContent) appContent.style.display = "flex";
                 
-                // Update Profil di Sidebar & Topbar
                 document.querySelectorAll('.user-name').forEach(el => el.innerText = user.displayName);
-                document.querySelectorAll('.user-email').forEach(el => el.innerText = user.email); // Menarik Email
+                document.querySelectorAll('.user-email').forEach(el => el.innerText = user.email);
                 
-                // Membuat Inisial Huruf (Contoh: S dari Sulfikar)
                 const initial = user.displayName ? user.displayName.charAt(0).toUpperCase() : 'A';
                 document.querySelectorAll('.user-initial, .avatar-circle').forEach(el => el.innerText = initial);
 
                 const userIdEl = document.querySelector('.user-id');
                 if(userIdEl) userIdEl.innerText = "Admin Pangkalan";
                 
-                // Load data utama
                 loadCustomers();
                 loadInventaris();
                 loadHarga();
                 listenToNotifications();
             } else {
-                // MASUK SEBAGAI USER / PELANGGAN: OTOMATIS REDIREKT KE FOLDER USER
                 window.location.href = "./user/";
             }
         } else {
-            // TIDAK ADA YANG LOGIN (LOGOUT)
             if(loginScreen) loginScreen.style.display = "flex";
             if(appContent) appContent.style.display = "none";
-            // Jika ada perubahan HTML di login screen akibat role user, refresh agar kembali normal
             if (loginScreen && loginScreen.innerHTML.includes('Halo,')) {
                 location.reload(); 
             }
@@ -121,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 await signOut(auth);
             } catch (error) {
-                showAlert("Gagal keluar dari sistem.");
+                showAlert("Gagal keluar dari sistem.", "Gagal", "error");
             }
         });
     }
@@ -132,7 +124,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeToggleBtn = document.getElementById('themeToggle');
     const themeIcon = themeToggleBtn ? themeToggleBtn.querySelector('i') : null;
     
-    // Cek preferensi tema di LocalStorage
     if (localStorage.getItem('lpg_theme') === 'light') {
         document.body.classList.add('light-theme');
         if(themeIcon) themeIcon.classList.replace('fa-sun', 'fa-moon');
@@ -164,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sections = document.querySelectorAll('.page-section');
     navItems.forEach(item => {
         item.addEventListener('click', (e) => {
-            if(item.classList.contains('btn-exit')) return; // Abaikan tombol exit
+            if(item.classList.contains('btn-exit')) return;
             e.preventDefault();
             navItems.forEach(i => i.classList.remove('active'));
             item.classList.add('active');
@@ -177,28 +168,63 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // =====================================================================
-    // 5. UTILITY & FUNGSI GLOBAL (MODAL, ALERT)
+    // 5. UTILITY & FUNGSI GLOBAL MODAL KUSTOM
     // =====================================================================
-    window.showAlert = function(message) {
-        document.getElementById('alertMessage').innerText = message;
-        document.getElementById('alertModal').style.display = "flex";
+    window.showAlert = function(message, title = "Informasi", type = "info") {
+        const modal = document.getElementById('alertModal');
+        const alertMsg = document.getElementById('alertMessage');
+        const alertIcon = document.getElementById('alertIcon');
+        const alertHeader = modal ? modal.querySelector('h3') : null;
+
+        if (modal && alertMsg) {
+            alertMsg.innerText = message;
+            if (alertHeader) alertHeader.innerText = title;
+
+            // Kustomisasi Icon & Warna sesuai jenis pesan
+            if (alertIcon) {
+                if (type === "error") {
+                    alertIcon.innerHTML = `<i class="fa-solid fa-circle-xmark"></i>`;
+                    alertIcon.style.color = "var(--danger-color)";
+                } else if (type === "success") {
+                    alertIcon.innerHTML = `<i class="fa-solid fa-circle-check"></i>`;
+                    alertIcon.style.color = "var(--green-color)";
+                } else if (type === "warning") {
+                    alertIcon.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i>`;
+                    alertIcon.style.color = "#f97316";
+                } else {
+                    alertIcon.innerHTML = `<i class="fa-solid fa-circle-info"></i>`;
+                    alertIcon.style.color = "var(--accent-blue)";
+                }
+            }
+            modal.style.display = "flex";
+        } else {
+            console.log(`[${title}] ${message}`);
+        }
     };
 
     window.closeModal = function(modalId) {
-        document.getElementById(modalId).style.display = "none";
+        const modal = document.getElementById(modalId);
+        if (modal) modal.style.display = "none";
     };
 
     let confirmCallback = null;
     window.showConfirm = function(message, callback) {
-        document.getElementById('confirmMessage').innerText = message;
-        document.getElementById('confirmModal').style.display = "flex";
-        confirmCallback = callback;
+        const confirmMsg = document.getElementById('confirmMessage');
+        const confirmModal = document.getElementById('confirmModal');
+        if (confirmMsg && confirmModal) {
+            confirmMsg.innerText = message;
+            confirmModal.style.display = "flex";
+            confirmCallback = callback;
+        }
     };
 
-    document.getElementById('btnConfirmYes').addEventListener('click', () => {
-        closeModal('confirmModal');
-        if(confirmCallback) confirmCallback();
-    });
+    const btnConfirmYes = document.getElementById('btnConfirmYes');
+    if (btnConfirmYes) {
+        btnConfirmYes.addEventListener('click', () => {
+            closeModal('confirmModal');
+            if (confirmCallback) confirmCallback();
+        });
+    }
 
     // Format Input Rupiah
     function formatRupiah(value) {
@@ -227,17 +253,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // =====================================================================
-    // 6. LOGIC DATA PELANGGAN (CRUD FIRESTORE)
+    // 6. LOGIC DATA PELANGGAN (CRUD FIRESTORE & VALIDASI NIK)
     // =====================================================================
     const tableBody = document.getElementById('customerTableBody');
     const customerForm = document.getElementById('customerForm');
     const nikInput = document.getElementById('nik');
     const nikError = document.getElementById('nikError');
 
-    // Validasi NIK 16 digit saat mengetik
     if(nikInput) {
         nikInput.addEventListener('input', function() {
-            this.value = this.value.replace(/\D/g, ''); // Hanya angka
+            this.value = this.value.replace(/\D/g, '');
             if(this.value.length !== 16 && this.value.length > 0) {
                 nikError.style.display = "block";
                 this.style.borderColor = "var(--danger-color)";
@@ -309,58 +334,52 @@ document.addEventListener('DOMContentLoaded', () => {
             const nikVal = nikInput.value.trim();
             const index = document.getElementById('editIndex').value;
 
-            // 1. VALIDASI PANJANG NIK (Persis 16 Digit)
+            // 1. Validasi NIK 16 Digit
             if (nikVal.length !== 16 || isNaN(nikVal)) {
-                showAlert("Gagal Menyimpan! NIK harus persis 16 digit angka.");
+                showAlert("Gagal Menyimpan! NIK harus persis 16 digit angka.", "Peringatan", "warning");
                 return;
             }
 
-            // 2. VALIDASI STRUKTUR STRUKTURAL NIK DUKCAPIL (Tanggal & Bulan Lahir)
+            // 2. Validasi Tanggal/Bulan Lahir Dukcapil
             const dd = parseInt(nikVal.substring(6, 8), 10);
             const mm = parseInt(nikVal.substring(8, 10), 10);
 
-            // Bulan harus di antara 01 - 12
             if (mm < 1 || mm > 12) {
-                showAlert("Gagal Menyimpan! Format NIK tidak valid (bulan lahir pada digit ke-9 & 10 salah).");
+                showAlert("Gagal Menyimpan! Format NIK tidak valid (bulan lahir pada digit ke-9 & 10 salah).", "Peringatan", "warning");
                 return;
             }
 
-            // Tanggal lahir: Pria (1-31), Wanita (41-71)
             const isValidHari = (dd >= 1 && dd <= 31) || (dd >= 41 && dd <= 71);
             if (!isValidHari) {
-                showAlert("Gagal Menyimpan! Format NIK tidak valid (tanggal lahir pada digit ke-7 & 8 salah).");
+                showAlert("Gagal Menyimpan! Format NIK tidak valid (tanggal lahir pada digit ke-7 & 8 salah).", "Peringatan", "warning");
                 return;
             }
 
-            // 3. VALIDASI DUPLIKASI NIK (Cek Keberadaan Data di Cloud)
+            // 3. Validasi Duplikasi NIK di Cloud
             try {
-                // Cek NIK di Firestore
                 const qNik = query(collection(db, "pelanggan"), where("nik", "==", nikVal));
                 const querySnap = await getDocs(qNik);
 
                 if (index === "-1") {
-                    // Tambah Data Baru: Jika NIK sudah ada, batalkan proses simpan
                     if (!querySnap.empty) {
-                        showAlert(`Gagal Menyimpan! NIK ${nikVal} sudah terdaftar di sistem.`);
+                        showAlert(`Gagal Menyimpan! NIK ${nikVal} sudah terdaftar di sistem.`, "NIK Duplikat", "error");
                         return;
                     }
                 } else {
-                    // Edit Data: Bolehkan jika NIK milik data itu sendiri, tetapi tolak jika digunakan pelanggan lain
                     const docIdCurrent = customers[index].id;
                     const isDuplicate = querySnap.docs.some(docItem => docItem.id !== docIdCurrent);
                     if (isDuplicate) {
-                        showAlert(`Gagal Menyimpan! NIK ${nikVal} sudah digunakan oleh pelanggan lain.`);
+                        showAlert(`Gagal Menyimpan! NIK ${nikVal} sudah digunakan oleh pelanggan lain.`, "NIK Duplikat", "error");
                         return;
                     }
                 }
 
-                // Ambil dan format Tanggal Lahir menjadi ISO format (YYYY-MM-DD)
+                // Ambil dan format Tanggal Lahir (YYYY-MM-DD)
                 const hari = String(document.getElementById('tgl_hari').value).padStart(2, '0');
                 const bulan = document.getElementById('tgl_bulan').value;
                 const tahun = document.getElementById('tgl_tahun').value;
                 const tglLahirFormatted = `${tahun}-${bulan}-${hari}`;
 
-                // 4. PROSES SIMPAN KE FIRESTORE (Jika seluruh validasi lolos)
                 const data = {
                     nik: nikVal,
                     nama: document.getElementById('nama').value.trim(),
@@ -378,10 +397,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 await loadCustomers();
                 closeModal('formModal');
-                showAlert("Data Pelanggan berhasil disimpan di Cloud!");
+                showAlert("Data Pelanggan berhasil disimpan di Cloud!", "Berhasil", "success");
             } catch (error) {
                 console.error("Error saving document: ", error);
-                showAlert("Terjadi kesalahan saat menyimpan data.");
+                showAlert("Terjadi kesalahan saat menyimpan data ke server.", "Gagal", "error");
             }
         });
     }
@@ -395,7 +414,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('tempat_lahir').value = c.tempat_lahir;
 
         if (c.tanggal_lahir) {
-            const parts = c.tanggal_lahir.split('-'); // [YYYY, MM, DD]
+            const parts = c.tanggal_lahir.split('-');
             if (parts.length === 3) {
                 document.getElementById('tgl_tahun').value = parts[0];
                 document.getElementById('tgl_bulan').value = parts[1];
@@ -413,10 +432,10 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 await deleteDoc(doc(db, "pelanggan", docId));
                 await loadCustomers();
-                showAlert("Data berhasil dihapus dari Cloud.");
+                showAlert("Data pelanggan berhasil dihapus dari Cloud.", "Berhasil", "success");
             } catch (error) {
                 console.error("Error deleting document: ", error);
-                showAlert("Gagal menghapus data.");
+                showAlert("Gagal menghapus data dari server.", "Gagal", "error");
             }
         });
     };
@@ -482,14 +501,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 await setDoc(doc(db, "settings", "inventaris"), data);
                 
                 document.getElementById('invLastUpdate').innerText = new Date(data.lastUpdated).toLocaleString('id-ID');
-                
                 if(document.getElementById('stat-stok3')) document.getElementById('stat-stok3').innerText = data['3kg'] || 0;
                 if(document.getElementById('stat-stok5')) document.getElementById('stat-stok5').innerText = data['5kg'] || 0;
                 if(document.getElementById('stat-stok12')) document.getElementById('stat-stok12').innerText = data['12kg'] || 0;
                 
-                showAlert("Data inventaris berhasil disimpan di Cloud!");
+                showAlert("Data inventaris berhasil disimpan di Cloud!", "Berhasil", "success");
             } catch (error) {
                 console.error("Error saving inventory: ", error);
+                showAlert("Gagal menyimpan inventaris.", "Gagal", "error");
             }
         });
     }
@@ -530,9 +549,10 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 await setDoc(doc(db, "settings", "harga"), data);
                 document.getElementById('priceLastUpdate').innerText = new Date(data.lastUpdated).toLocaleString('id-ID');
-                showAlert("Daftar Harga berhasil disimpan di Cloud!");
+                showAlert("Daftar Harga berhasil disimpan di Cloud!", "Berhasil", "success");
             } catch (error) {
                 console.error("Error saving prices: ", error);
+                showAlert("Gagal menyimpan daftar harga.", "Gagal", "error");
             }
         });
     }
@@ -544,14 +564,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const profileMenu = document.getElementById('profileMenu');
     
     if (profileBtn && profileMenu) {
-        // Buka tutup menu saat di klik
         profileBtn.addEventListener('click', (e) => {
-            e.stopPropagation(); // Mencegah klik bocor ke background
+            e.stopPropagation();
             profileBtn.classList.toggle('active');
             profileMenu.classList.toggle('show');
         });
         
-        // Tutup menu otomatis jika user mengklik area lain di layar
         document.addEventListener('click', (e) => {
             if (!profileBtn.contains(e.target)) {
                 profileBtn.classList.remove('active');
@@ -560,7 +578,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Sambungkan tombol Keluar di Dropdown ke Modal Logout
     const btnMenuLogout = document.getElementById('btnMenuLogout');
     if (btnMenuLogout) {
         btnMenuLogout.addEventListener('click', () => {
@@ -574,18 +591,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnNotification = document.getElementById('btnNotification');
     const notifDropdown = document.getElementById('notifDropdown');
     const btnLihatSemua = document.getElementById('btnLihatSemua');
-    let semuaDataNotif = []; // Untuk menyimpan data lokal agar bisa difilter
+    let semuaDataNotif = [];
 
-    // Toggle (Buka/Tutup) Dropdown Lonceng
     if (btnNotification && notifDropdown) {
         btnNotification.addEventListener('click', (e) => {
             e.stopPropagation();
             notifDropdown.classList.toggle('show');
-            // Sembunyikan badge merah saat lonceng diklik (Opsional)
-            // document.getElementById('notifBadge').style.display = "none"; 
         });
 
-        // Tutup dropdown jika user klik di luar area
         document.addEventListener('click', (e) => {
             if (!notifDropdown.contains(e.target) && e.target !== btnNotification && !btnNotification.contains(e.target)) {
                 notifDropdown.classList.remove('show');
@@ -593,23 +606,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Buka Modal Saat Klik "Lihat Semua"
     if (btnLihatSemua) {
         btnLihatSemua.addEventListener('click', (e) => {
             e.preventDefault();
             notifDropdown.classList.remove('show');
             document.getElementById('modalHistori').style.display = "flex";
-            renderModalList(); // Render ulang saat modal dibuka
+            renderModalList();
         });
     }
 
-    // Filter Notifikasi di Modal (All / Unread / Read)
     const filterNotif = document.getElementById('filterNotif');
     if (filterNotif) {
         filterNotif.addEventListener('change', () => renderModalList());
     }
 
-    // Fungsi Render Notifikasi (Dropdown & Modal)
     function renderNotifikasi() {
         const notifBadge = document.getElementById('notifBadge');
         const notifDropdownList = document.getElementById('notifDropdownList');
@@ -621,14 +631,13 @@ document.addEventListener('DOMContentLoaded', () => {
             notifDropdownList.innerHTML = `
                 <div class="notif-empty">
                     <img src="https://cdn-icons-png.flaticon.com/512/7486/7486747.png" alt="Empty" style="width:60px; margin-bottom: 10px; opacity: 0.6;">
-                    <div>No notifications yet</div>
+                    <div>Belum ada notifikasi</div>
                 </div>`;
             if(notifBadge) notifBadge.style.display = "none";
             renderModalList();
             return;
         }
 
-        // Render maksimal 5 data terbaru ke Dropdown
         semuaDataNotif.slice(0, 5).forEach((data) => {
             if (!data.isRead) unreadCount++;
             
@@ -642,7 +651,6 @@ document.addEventListener('DOMContentLoaded', () => {
             notifDropdownList.appendChild(div);
         });
 
-        // Hitung total keseluruhan Unread untuk Badge
         const totalUnread = semuaDataNotif.filter(n => !n.isRead).length;
         if (totalUnread > 0 && notifBadge) {
             notifBadge.innerText = totalUnread > 99 ? "99+" : totalUnread;
@@ -654,7 +662,6 @@ document.addEventListener('DOMContentLoaded', () => {
         renderModalList();
     }
 
-    // Fungsi Render Khusus untuk List di dalam Modal (berdasarkan Filter)
     function renderModalList() {
         const notificationList = document.getElementById('notificationList');
         if (!notificationList) return;
@@ -665,11 +672,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const dataDifilter = semuaDataNotif.filter(data => {
             if (selectedFilter === 'unread') return data.isRead === false;
             if (selectedFilter === 'read') return data.isRead === true;
-            return true; // 'all'
+            return true;
         });
 
         if (dataDifilter.length === 0) {
-            notificationList.innerHTML = `<div class="notif-empty">No more data</div>`;
+            notificationList.innerHTML = `<div class="notif-empty">Tidak ada data notifikasi</div>`;
             return;
         }
 
@@ -685,7 +692,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Listener Utama dari Firestore (Gantikan fungsi listenToNotifications lama Anda)
     function listenToNotifications() {
         const notifRef = collection(db, "notifikasi");
         const q = query(notifRef, orderBy("timestamp", "desc"));
@@ -699,15 +705,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Aksi "Tandai Semua Telah Dibaca" (Mark All as Read)
     const btnMarkAllRead = document.getElementById('btnMarkAllRead');
     if (btnMarkAllRead) {
         btnMarkAllRead.addEventListener('click', async (e) => {
             e.preventDefault();
             const unreadDocs = semuaDataNotif.filter(d => !d.isRead);
-            if(unreadDocs.length === 0) return showAlert("Semua notifikasi sudah dibaca.");
+            if(unreadDocs.length === 0) return showAlert("Semua notifikasi sudah dibaca.", "Informasi", "info");
 
-            // Mengupdate status menjadi true di Firestore satu per satu
             unreadDocs.forEach(async (docData) => {
                 const docRef = doc(db, "notifikasi", docData.id);
                 try {
@@ -720,26 +724,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // =====================================================================
-    // FITUR EXPORT CSV DATA PELANGGAN
+    // 10. FITUR IMPORT & EXPORT CSV (MENGGUNAKAN MODAL KUSTOM)
     // =====================================================================
     const btnExport = document.getElementById('btnExport');
     if (btnExport) {
         btnExport.addEventListener('click', () => {
             if (customers.length === 0) {
-                showAlert("Tidak ada data pelanggan untuk di-export.");
+                showAlert("Tidak ada data pelanggan untuk di-export.", "Perhatian", "warning");
                 return;
             }
 
-            // Buat Header CSV
             let csvContent = "data:text/csv;charset=utf-8,NIK,Nama Lengkap,Status Pemakaian,Tempat Lahir,Tanggal Lahir\n";
 
-            // Tambahkan Baris Data
             customers.forEach(c => {
                 const row = `"${c.nik}","${c.nama}","${c.status}","${c.tempat_lahir}","${c.tanggal_lahir}"`;
                 csvContent += row + "\n";
             });
 
-            // Trigger Download File
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
@@ -747,6 +748,77 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+        });
+    }
+
+    // LOGIKA IMPORT CSV
+    const importFileInput = document.getElementById('importFile');
+    if (importFileInput) {
+        importFileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+
+            reader.onload = async (event) => {
+                const text = event.target.result;
+                const rows = text.split('\n').map(row => row.trim()).filter(row => row.length > 0);
+
+                if (rows.length <= 1) {
+                    showAlert("Gagal! File CSV kosong atau hanya berisi header.", "Gagal Import", "error");
+                    importFileInput.value = '';
+                    return;
+                }
+
+                let successCount = 0;
+                let errorCount = 0;
+
+                for (let i = 1; i < rows.length; i++) {
+                    const rowData = rows[i].replace(/"/g, '').split(',');
+
+                    if (rowData.length >= 5) {
+                        const nikVal = rowData[0].trim();
+                        const namaVal = rowData[1].trim();
+                        const statusVal = rowData[2].trim();
+                        const tempatLahirVal = rowData[3].trim();
+                        const tglLahirVal = rowData[4].trim();
+
+                        if (nikVal.length === 16 && !isNaN(nikVal)) {
+                            const qNik = query(collection(db, "pelanggan"), where("nik", "==", nikVal));
+                            const querySnap = await getDocs(qNik);
+
+                            if (querySnap.empty) {
+                                const data = {
+                                    nik: nikVal,
+                                    nama: namaVal,
+                                    status: statusVal,
+                                    tempat_lahir: tempatLahirVal,
+                                    tanggal_lahir: tglLahirVal
+                                };
+
+                                try {
+                                    await addDoc(collection(db, "pelanggan"), data);
+                                    successCount++;
+                                } catch (err) {
+                                    errorCount++;
+                                }
+                            } else {
+                                errorCount++;
+                            }
+                        } else {
+                            errorCount++;
+                        }
+                    }
+                }
+
+                importFileInput.value = '';
+                await loadCustomers();
+
+                const msgResult = `Proses Import Selesai.\n\n• Berhasil: ${successCount} data\n• Dilewati / Gagal: ${errorCount} data (NIK duplikat/format tidak sesuai)`;
+                showAlert(msgResult, "Hasil Import CSV", successCount > 0 ? "success" : "warning");
+            };
+
+            reader.readAsText(file);
         });
     }
 });
