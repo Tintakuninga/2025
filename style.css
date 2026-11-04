@@ -147,3 +147,29 @@ select.form-input { appearance: none; font-weight: normal; }
 .btn-google:hover { background: #f1f1f1; }
 .btn-google i { color: #db4437; font-size: 18px; }
 .login-error { color: var(--danger-color); margin-top: 15px; font-size: 12px; display: none; }
+
+/* =========================================
+   TOPBAR PROFILE DROPDOWN
+   ========================================= */
+.profile-dropdown-container { display: flex; align-items: center; gap: 12px; cursor: pointer; position: relative; padding: 5px 10px; border-radius: 8px; transition: 0.2s; user-select: none; }
+.profile-dropdown-container:hover { background: rgba(255, 255, 255, 0.05); }
+body.light-theme .profile-dropdown-container:hover { background: rgba(0, 0, 0, 0.05); }
+
+.profile-info-text { display: flex; flex-direction: column; text-align: right; }
+.p-name { font-weight: bold; font-size: 14px; color: var(--text-main); line-height: 1.2; }
+.p-email { font-size: 11px; color: var(--text-muted); }
+
+.profile-arrow { font-size: 12px; color: var(--text-muted); transition: transform 0.3s ease; }
+.profile-dropdown-container.active .profile-arrow { transform: rotate(180deg); }
+
+/* Kotak Menu Melayang */
+.profile-menu { position: absolute; top: 120%; right: 0; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; width: 220px; padding: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); display: none; flex-direction: column; gap: 5px; z-index: 100; animation: fadeIn 0.2s ease; }
+.profile-menu.show { display: flex; }
+
+.menu-item { padding: 12px 15px; display: flex; align-items: center; gap: 12px; cursor: pointer; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--text-main); transition: 0.2s; }
+.menu-item i { font-size: 16px; width: 20px; text-align: center; }
+.menu-item:hover { background: rgba(255, 255, 255, 0.05); }
+body.light-theme .menu-item:hover { background: rgba(0, 0, 0, 0.05); }
+
+.menu-item.text-danger { color: var(--danger-color); }
+.menu-item.text-danger:hover { background: rgba(239, 68, 68, 0.1); }

@@ -61,11 +61,24 @@
                     <h2>Pangkalan Gas LPG</h2>
                 </div>
                 <div class="topbar-right">
-                    <div class="profile-dropdown">
-                        <div class="profile-info">
-                            <span class="p-name">Admin</span>
+                    <!-- Pembungkus Dropdown Profil -->
+                    <div class="profile-dropdown-container" id="profileDropdownBtn">
+                        <div class="profile-info-text">
+                            <span class="p-name user-name">Admin</span>
+                            <span class="p-email user-email">admin@email.com</span>
                         </div>
-                        <div class="avatar-small">A</div>
+                        <div class="avatar-small user-initial">A</div>
+                        <i class="fa-solid fa-chevron-down profile-arrow"></i>
+                        
+                        <!-- Menu Kotak Dropdown -->
+                        <div class="profile-menu" id="profileMenu">
+                            <div class="menu-item">
+                                <i class="fa-regular fa-user"></i> Pengaturan Akun
+                            </div>
+                            <div class="menu-item text-danger" id="btnMenuLogout">
+                                <i class="fa-solid fa-arrow-right-from-bracket"></i> Keluar
+                            </div>
+                        </div>
                     </div>
                 </div>
             </header>

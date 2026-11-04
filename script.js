@@ -76,6 +76,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Update Profil di Sidebar & Topbar
                 document.querySelectorAll('.user-name').forEach(el => el.innerText = user.displayName);
+                document.querySelectorAll('.user-email').forEach(el => el.innerText = user.email); // Menarik Email
+                
+                // Membuat Inisial Huruf (Contoh: S dari Sulfikar)
+                const initial = user.displayName ? user.displayName.charAt(0).toUpperCase() : 'A';
+                document.querySelectorAll('.user-initial, .avatar-circle').forEach(el => el.innerText = initial);
+
                 const userIdEl = document.querySelector('.user-id');
                 if(userIdEl) userIdEl.innerText = "Admin Pangkalan";
                 
@@ -461,6 +467,37 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 console.error("Error saving prices: ", error);
             }
+        });
+    }
+
+    // =====================================================================
+    // 8. LOGIC DROPDOWN PROFIL TOPBAR
+    // =====================================================================
+    const profileBtn = document.getElementById('profileDropdownBtn');
+    const profileMenu = document.getElementById('profileMenu');
+    
+    if (profileBtn && profileMenu) {
+        // Buka tutup menu saat di klik
+        profileBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Mencegah klik bocor ke background
+            profileBtn.classList.toggle('active');
+            profileMenu.classList.toggle('show');
+        });
+        
+        // Tutup menu otomatis jika user mengklik area lain di layar
+        document.addEventListener('click', (e) => {
+            if (!profileBtn.contains(e.target)) {
+                profileBtn.classList.remove('active');
+                profileMenu.classList.remove('show');
+            }
+        });
+    }
+
+    // Sambungkan tombol Keluar di Dropdown ke Modal Logout
+    const btnMenuLogout = document.getElementById('btnMenuLogout');
+    if (btnMenuLogout) {
+        btnMenuLogout.addEventListener('click', () => {
+            document.getElementById('modalLogout').style.display = "flex";
         });
     }
 });
