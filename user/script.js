@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, setDoc, getDoc, addDoc, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, setDoc, getDoc, addDoc, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 // [MASUKKAN FIREBASE CONFIG ANDA DI SINI SEPERTI BIASA]
@@ -168,14 +168,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('formStok').addEventListener('submit', async (e) => {
         e.preventDefault();
+        
+        const tipeInput = document.getElementById('stokTipe').value;
+        const tabungInput = document.getElementById('stokTabung').value;
+        const jumlahInput = parseInt(document.getElementById('stokJumlah').value);
+        
         const data = {
             userId: currentUserUid, // IDENTIFIKASI PEMILIK DATA
-            tabung: document.getElementById('stokTabung').value,
-            tipe: document.getElementById('stokTipe').value,
-            jumlah: parseInt(document.getElementById('stokJumlah').value),
+            tabung: tabungInput,
+            tipe: tipeInput,
+            jumlah: jumlahInput,
             tanggal: new Date().toISOString()
         };
+        
+        // 1. Simpan data mutasi stok
         await addDoc(collection(db, "mutasi_stok"), data);
+
+        // 2. --- TAMBAHAN BARU: KIRIM NOTIFIKASI KE ADMIN ---
+        try {
+            const userName = document.querySelector('.user-name').innerText || "User";
+            const tabungLabel = tabungInput === '3kg' ? '3 KG' : tabungInput === '5kg' ? '5.5 KG' : '12 KG';
+            const jenisMutasi = tipeInput === 'masuk' ? 'menambahkan (masuk)' : 'mengeluarkan (keluar)';
+
+            await addDoc(collection(db, "notifikasi"), {
+                judul: "Info Mutasi Stok Baru",
+                pesan: `${userName} ${jenisMutasi} ${jumlahInput} tabung ${tabungLabel}.`,
+                isRead: false,
+                timestamp: serverTimestamp()
+            });
+        } catch (error) {
+            console.error("Gagal mengirim notifikasi admin: ", error);
+        }
+        // ----------------------------------------------------
+
         closeModal('modalStok');
         loadStok();
     });
