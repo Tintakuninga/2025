@@ -574,5 +574,5 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Panggil fungsi ini saat Admin berhasil login (misalnya di dalam onAuthStateChanged role === "admin")
-    // listenToNotifications();
+    listenToNotifications();
 });
