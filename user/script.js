@@ -205,7 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <p>${formatTgl(data.tanggal)}</p>
                     </div>
                     <div class="list-item-right ${isMasuk ? 'text-blue' : 'text-danger'}">
-                        ${isMasuk ? 'MASUK' : 'KELUAR'} ${data.jumlah} Tbg
+                        ${isMasuk ? 'MASUK' : 'KELUAR'} ${data.jumlah} TBG
                     </div>
                 </div>
             `;
