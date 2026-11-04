@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pangkalan LPG - Mobile</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- LAYAR LOGIN -->
+    <div id="loginScreen" class="login-wrapper">
+        <div class="login-card">
+            <div class="login-logo"><i class="fa-solid fa-fire-flame-curved"></i></div>
+            <h2>LPG Mobile</h2>
+            <p>Sistem Operasional Harian</p>
+            <button id="btnGoogleLogin" class="btn-google">
+                <i class="fa-brands fa-google"></i> Login dengan Google
+            </button>
+            <p id="loginError" class="login-error"></p>
+        </div>
+    </div>
+
+    <!-- KONTEN APLIKASI -->
+    <div id="appContent" class="app-container" style="display: none;">
+        <!-- Topbar Mobile -->
+        <header class="mobile-topbar">
+            <div class="topbar-left">
+                <div class="avatar-small"><i class="fa-solid fa-user"></i></div>
+                <div>
+                    <h3 class="user-name" style="font-size: 14px;">User</h3>
+                    <p class="user-role" style="font-size: 11px; color: var(--text-muted);">Staff Pangkalan</p>
+                </div>
+            </div>
+            <div class="topbar-right">
+                <button id="themeToggle" class="icon-btn"><i class="fa-solid fa-sun"></i></button>
+                <button id="btnLogout" class="icon-btn text-danger"><i class="fa-solid fa-right-from-bracket"></i></button>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="content-body">
+            
+            <!-- SECTION: INFO HARGA (Sinkron dari Admin) -->
+            <section id="sec-harga" class="page-section active">
+                <h2 class="section-title">Harga Gas Hari Ini</h2>
+                <p class="text-muted" style="margin-bottom: 20px;">Pembaruan terakhir: <span id="priceLastUpdate">-</span></p>
+                
+                <div class="card-panel" style="margin-bottom: 15px;">
+                    <h4 class="text-green" style="margin-bottom: 15px;"><i class="fa-solid fa-tags"></i> Harga Jual Refill</h4>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <p class="stat-label">3 KG</p>
+                            <h3 id="harga3kg" class="stat-value text-blue">-</h3>
+                        </div>
+                        <div class="stat-card">
+                            <p class="stat-label">5.5 KG</p>
+                            <h3 id="harga5kg" class="stat-value">-</h3>
+                        </div>
+                        <div class="stat-card">
+                            <p class="stat-label">12 KG</p>
+                            <h3 id="harga12kg" class="stat-value">-</h3>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION: BUKU KAS -->
+            <section id="sec-kas" class="page-section">
+                <div class="page-header">
+                    <h2 class="section-title" style="margin:0; border:none;">Buku Kas</h2>
+                    <button class="btn-primary" id="btnAddKas"><i class="fa-solid fa-plus"></i> Catat</button>
+                </div>
+                
+                <div class="stats-grid" style="grid-template-columns: 1fr 1fr;">
+                    <div class="stat-card" style="padding: 15px;">
+                        <p class="stat-label">Pemasukan</p>
+                        <h4 id="totalMasuk" class="text-green" style="margin-top:5px;">Rp 0</h4>
+                    </div>
+                    <div class="stat-card" style="padding: 15px;">
+                        <p class="stat-label">Pengeluaran</p>
+                        <h4 id="totalKeluar" class="text-danger" style="margin-top:5px;">Rp 0</h4>
+                    </div>
+                </div>
+                <div class="card-panel" style="text-align:center; padding: 15px; margin-bottom: 20px;">
+                    <p class="stat-label">SALDO BERSIH</p>
+                    <h2 id="saldoBersih" class="text-blue">Rp 0</h2>
+                </div>
+
+                <div class="card-panel list-container" id="listKas">
+                    <!-- List Kas akan di-render di sini -->
+                </div>
+            </section>
+
+            <!-- SECTION: MUTASI STOK -->
+            <section id="sec-stok" class="page-section">
+                <div class="page-header">
+                    <h2 class="section-title" style="margin:0; border:none;">Mutasi Stok</h2>
+                    <button class="btn-primary" id="btnAddStok"><i class="fa-solid fa-plus"></i> Catat</button>
+                </div>
+
+                <div class="card-panel list-container" id="listStok">
+                    <!-- List Stok akan di-render di sini -->
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <a href="#" class="nav-item active" data-target="sec-harga">
+                <i class="fa-solid fa-tag"></i><span>Harga</span>
+            </a>
+            <a href="#" class="nav-item" data-target="sec-kas">
+                <i class="fa-solid fa-wallet"></i><span>Kas</span>
+            </a>
+            <a href="#" class="nav-item" data-target="sec-stok">
+                <i class="fa-solid fa-boxes-stacked"></i><span>Stok</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- MODAL FORM KAS -->
+    <div id="modalKas" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Catat Transaksi Kas</h3>
+                <span class="close-btn" onclick="closeModal('modalKas')">&times;</span>
+            </div>
+            <form id="formKas">
+                <div class="form-group">
+                    <label>Jenis Transaksi</label>
+                    <select id="kasTipe" class="form-input" required>
+                        <option value="masuk">Pemasukan (Jual Gas)</option>
+                        <option value="keluar">Pengeluaran (Beli Bensin, Makan, dll)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Nominal (Rp)</label>
+                    <input type="text" id="kasNominal" class="form-input price-input" required>
+                </div>
+                <div class="form-group">
+                    <label>Keterangan</label>
+                    <input type="text" id="kasKet" class="form-input" placeholder="Contoh: Laku 10 tabung 3kg" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn-primary" style="width:100%;">Simpan Kas</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL FORM STOK -->
+    <div id="modalStok" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Catat Mutasi Stok</h3>
+                <span class="close-btn" onclick="closeModal('modalStok')">&times;</span>
+            </div>
+            <form id="formStok">
+                <div class="form-group">
+                    <label>Jenis Tabung</label>
+                    <select id="stokTabung" class="form-input" required>
+                        <option value="3kg">Tabung 3 KG</option>
+                        <option value="5kg">Tabung 5.5 KG</option>
+                        <option value="12kg">Tabung 12 KG</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Jenis Mutasi</label>
+                    <select id="stokTipe" class="form-input" required>
+                        <option value="masuk">Tabung Masuk (Dari Agen)</option>
+                        <option value="keluar">Tabung Keluar (Laku Terjual)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Jumlah Tabung</label>
+                    <input type="number" id="stokJumlah" class="form-input" min="1" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn-primary" style="width:100%;">Simpan Stok</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
