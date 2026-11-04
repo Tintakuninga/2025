@@ -326,8 +326,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn-dark" onclick="closeModal('formModal')">Batal</button>
                     <button type="submit" class="btn-primary">Simpan Data</button>
+                    <button type="button" class="btn-dark" onclick="closeModal('formModal')">Batal</button>
                 </div>
             </form>
         </div>
@@ -341,7 +341,7 @@
             </div>
             <h3 style="margin-bottom: 10px;">Informasi</h3>
             <p id="alertMessage" class="text-muted" style="margin-bottom: 20px;"></p>
-            <button class="btn-primary" style="width: 100%;" onclick="closeModal('alertModal')">Mengerti</button>
+            <button class="btn-primary" style="width: 100%;" onclick="closeModal('alertModal')">Ok</button>
         </div>
     </div>
 
@@ -354,8 +354,8 @@
             <h3 style="margin-bottom: 10px;">Konfirmasi</h3>
             <p id="confirmMessage" class="text-muted" style="margin-bottom: 20px;"></p>
             <div class="form-grid-2">
+                <button class="btn-danger" id="btnConfirmYes" style="padding: 10px; font-weight: bold;">Hapus</button>
                 <button class="btn-dark" onclick="closeModal('confirmModal')">Batal</button>
-                <button class="btn-danger" id="btnConfirmYes" style="padding: 10px; font-weight: bold;">Ya, Hapus</button>
             </div>
         </div>
     </div>
@@ -369,8 +369,8 @@
             <h3 style="margin-bottom: 10px;">Konfirmasi</h3>
             <p class="text-muted" style="margin-bottom: 20px;">Yakin ingin keluar dari sistem?</p>
             <div class="form-grid-2">
+                <button class="btn-danger" id="btnConfirmLogout" style="padding: 10px; font-weight: bold;">Ya</button>
                 <button class="btn-dark" onclick="closeModal('modalLogout')">Batal</button>
-                <button class="btn-danger" id="btnConfirmLogout" style="padding: 10px; font-weight: bold;">Ya, Keluar</button>
             </div>
         </div>
     </div>
