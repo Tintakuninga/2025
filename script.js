@@ -525,7 +525,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // FUNGSI MEMUAT DATA NOTIFIKASI DARI FIRESTORE (REAL-TIME)
-    // Pastikan Anda mengimpor collection, query, orderBy, onSnapshot di bagian atas file
     function listenToNotifications() {
         const notifBadge = document.getElementById('notifBadge');
         const notificationList = document.getElementById('notificationList');

@@ -187,8 +187,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // 2. --- TAMBAHAN BARU: KIRIM NOTIFIKASI KE ADMIN ---
         try {
             const userName = document.querySelector('.user-name').innerText || "User";
-            const tabungLabel = tabungInput === '3kg' ? '3 KG' : tabungInput === '5kg' ? '5.5 KG' : '12 KG';
-            const jenisMutasi = tipeInput === 'masuk' ? 'menambahkan (masuk)' : 'mengeluarkan (keluar)';
+            const tabungLabel = tabungInput === '3kg' ? '3 kg' : tabungInput === '5kg' ? '5.5 kg' : '12 kg';
+            const jenisMutasi = tipeInput === 'masuk' ? 'menambahkan' : 'mengeluarkan';
 
             await addDoc(collection(db, "notifikasi"), {
                 judul: "Info Mutasi Stok Baru",
@@ -221,7 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         docsData.forEach(data => {
             const isMasuk = data.tipe === 'masuk';
-            let tabungLabel = data.tabung === '3kg' ? '3 KG' : data.tabung === '5kg' ? '5.5 KG' : '12 KG';
+            let tabungLabel = data.tabung === '3kg' ? '3 kg' : data.tabung === '5kg' ? '5.5 kg' : '12 kg';
 
             listStok.innerHTML += `
                 <div class="list-item">
