@@ -41,13 +41,13 @@
         <!-- Main Content Area -->
         <main class="content-body">
             
-            <!-- SECTION: INFO HARGA (Sinkron dari Admin) -->
+            <!-- SECTION: INFO HARGA -->
             <section id="sec-harga" class="page-section active">
-                <h2 class="section-title">Harga Gas Hari Ini</h2>
-                <p class="text-muted" style="margin-bottom: 20px;">Pembaruan terakhir: <span id="priceLastUpdate">-</span></p>
+                <h2 class="section-title text-center">Harga Gas Hari Ini</h2>
+                <p class="text-muted text-center" style="margin-bottom: 20px;">Pembaruan terakhir: <br><span id="priceLastUpdate">-</span></p>
                 
                 <div class="card-panel" style="margin-bottom: 15px;">
-                    <h4 class="text-green" style="margin-bottom: 15px;"><i class="fa-solid fa-tags"></i> Harga Jual Refill</h4>
+                    <h4 class="text-green text-center" style="margin-bottom: 15px;"><i class="fa-solid fa-tags"></i> Harga Jual Refill</h4>
                     <div class="stats-grid">
                         <div class="stat-card">
                             <p class="stat-label">3 KG</p>
@@ -67,10 +67,7 @@
 
             <!-- SECTION: BUKU KAS -->
             <section id="sec-kas" class="page-section">
-                <div class="page-header">
-                    <h2 class="section-title" style="margin:0; border:none;">Buku Kas</h2>
-                    <button class="btn-primary" id="btnAddKas"><i class="fa-solid fa-plus"></i> Catat</button>
-                </div>
+                <h2 class="section-title text-center">Buku Kas Pribadi</h2>
                 
                 <div class="stats-grid" style="grid-template-columns: 1fr 1fr;">
                     <div class="stat-card" style="padding: 15px;">
@@ -87,21 +84,22 @@
                     <h2 id="saldoBersih" class="text-blue">Rp 0</h2>
                 </div>
 
-                <div class="card-panel list-container" id="listKas">
-                    <!-- List Kas akan di-render di sini -->
+                <div class="list-container" id="listKas" style="padding-bottom: 80px;">
+                    <!-- List Kas -->
                 </div>
+                <!-- Tombol Bulat Melayang KAS -->
+                <button class="fab-btn" id="btnAddKas"><i class="fa-solid fa-plus"></i></button>
             </section>
 
             <!-- SECTION: MUTASI STOK -->
             <section id="sec-stok" class="page-section">
-                <div class="page-header">
-                    <h2 class="section-title" style="margin:0; border:none;">Mutasi Stok</h2>
-                    <button class="btn-primary" id="btnAddStok"><i class="fa-solid fa-plus"></i> Catat</button>
-                </div>
+                <h2 class="section-title text-center">Mutasi Stok Gudang</h2>
 
-                <div class="card-panel list-container" id="listStok">
-                    <!-- List Stok akan di-render di sini -->
+                <div class="list-container" id="listStok" style="padding-bottom: 80px;">
+                    <!-- List Stok -->
                 </div>
+                <!-- Tombol Bulat Melayang STOK -->
+                <button class="fab-btn" id="btnAddStok"><i class="fa-solid fa-plus"></i></button>
             </section>
 
         </main>
@@ -132,7 +130,7 @@
                     <label>Jenis Transaksi</label>
                     <select id="kasTipe" class="form-input" required>
                         <option value="masuk">Pemasukan (Jual Gas)</option>
-                        <option value="keluar">Pengeluaran (Beli Bensin, Makan, dll)</option>
+                        <option value="keluar">Pengeluaran (Beli Bensin, dll)</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -144,7 +142,7 @@
                     <input type="text" id="kasKet" class="form-input" placeholder="Contoh: Laku 10 tabung 3kg" required>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn-primary" style="width:100%;">Simpan Kas</button>
+                    <button type="submit" class="btn-primary" style="width:100%;">Simpan</button>
                 </div>
             </form>
         </div>
@@ -178,7 +176,7 @@
                     <input type="number" id="stokJumlah" class="form-input" min="1" required>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn-primary" style="width:100%;">Simpan Stok</button>
+                    <button type="submit" class="btn-primary" style="width:100%;">Simpan</button>
                 </div>
             </form>
         </div>
