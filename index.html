@@ -355,8 +355,26 @@
                         <input type="text" id="tempat_lahir" class="form-input" required>
                     </div>
                     <div class="form-group">
-                        <label>Tanggal Lahir</label>
-                        <input type="date" id="tanggal_lahir" class="form-input" required>
+                        <label>Tanggal Lahir (Hari / Bulan / Tahun)</label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="number" id="tgl_hari" class="form-input" placeholder="Tgl (DD)" min="1" max="31" required style="padding: 10px; text-align: center;">
+                            <select id="tgl_bulan" class="form-input" required style="padding: 10px;">
+                                <option value="">Bulan</option>
+                                <option value="01">Januari</option>
+                                <option value="02">Februari</option>
+                                <option value="03">Maret</option>
+                                <option value="04">April</option>
+                                <option value="05">Mei</option>
+                                <option value="06">Juni</option>
+                                <option value="07">Juli</option>
+                                <option value="08">Agustus</option>
+                                <option value="09">September</option>
+                                <option value="10">Oktober</option>
+                                <option value="11">November</option>
+                                <option value="12">Desember</option>
+                            </select>
+                            <input type="number" id="tgl_tahun" class="form-input" placeholder="Tahun (YYYY)" min="1930" max="2026" required style="padding: 10px; text-align: center;">
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">

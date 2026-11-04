@@ -354,13 +354,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
 
+                // Ambil dan format Tanggal Lahir menjadi ISO format (YYYY-MM-DD)
+                const hari = String(document.getElementById('tgl_hari').value).padStart(2, '0');
+                const bulan = document.getElementById('tgl_bulan').value;
+                const tahun = document.getElementById('tgl_tahun').value;
+                const tglLahirFormatted = `${tahun}-${bulan}-${hari}`;
+
                 // 4. PROSES SIMPAN KE FIRESTORE (Jika seluruh validasi lolos)
                 const data = {
                     nik: nikVal,
                     nama: document.getElementById('nama').value.trim(),
                     status: document.getElementById('status').value,
                     tempat_lahir: document.getElementById('tempat_lahir').value.trim(),
-                    tanggal_lahir: document.getElementById('tanggal_lahir').value
+                    tanggal_lahir: tglLahirFormatted
                 };
 
                 if (index === "-1") {
@@ -387,7 +393,16 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('nama').value = c.nama;
         document.getElementById('status').value = c.status;
         document.getElementById('tempat_lahir').value = c.tempat_lahir;
-        document.getElementById('tanggal_lahir').value = c.tanggal_lahir;
+
+        if (c.tanggal_lahir) {
+            const parts = c.tanggal_lahir.split('-'); // [YYYY, MM, DD]
+            if (parts.length === 3) {
+                document.getElementById('tgl_tahun').value = parts[0];
+                document.getElementById('tgl_bulan').value = parts[1];
+                document.getElementById('tgl_hari').value = parts[2];
+            }
+        }
+
         document.getElementById('modalTitle').innerText = "Edit Data Pelanggan";
         document.getElementById('formModal').style.display = "flex";
     };
@@ -701,6 +716,37 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error("Gagal update notif: ", error);
                 }
             });
+        });
+    }
+
+    // =====================================================================
+    // FITUR EXPORT CSV DATA PELANGGAN
+    // =====================================================================
+    const btnExport = document.getElementById('btnExport');
+    if (btnExport) {
+        btnExport.addEventListener('click', () => {
+            if (customers.length === 0) {
+                showAlert("Tidak ada data pelanggan untuk di-export.");
+                return;
+            }
+
+            // Buat Header CSV
+            let csvContent = "data:text/csv;charset=utf-8,NIK,Nama Lengkap,Status Pemakaian,Tempat Lahir,Tanggal Lahir\n";
+
+            // Tambahkan Baris Data
+            customers.forEach(c => {
+                const row = `"${c.nik}","${c.nama}","${c.status}","${c.tempat_lahir}","${c.tanggal_lahir}"`;
+                csvContent += row + "\n";
+            });
+
+            // Trigger Download File
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `database_pelanggan_lpg_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         });
     }
 });
