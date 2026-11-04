@@ -627,6 +627,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    const btnHistoriProfil = document.getElementById('btnHistoriProfil');
+    if (btnHistoriProfil) {
+        btnHistoriProfil.addEventListener('click', (e) => {
+            e.preventDefault();
+            const profileMenu = document.getElementById('profileMenu');
+            if(profileMenu) profileMenu.classList.remove('show');
+            document.getElementById('modalHistori').style.display = "flex";
+            renderModalList(); 
+        });
+    }
+
     const filterNotif = document.getElementById('filterNotif');
     if (filterNotif) {
         filterNotif.addEventListener('change', () => renderModalList());
