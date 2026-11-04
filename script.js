@@ -500,4 +500,79 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('modalLogout').style.display = "flex";
         });
     }
+
+    // =====================================================================
+    // 9. LOGIC NOTIFIKASI & MODAL HISTORI
+    // =====================================================================
+    const btnNotification = document.getElementById('btnNotification');
+    const btnMenuHistori = document.getElementById('btnMenuHistori');
+    
+    // Buka Modal Histori dari Ikon Lonceng
+    if (btnNotification) {
+        btnNotification.addEventListener('click', () => {
+            document.getElementById('modalHistori').style.display = "flex";
+            // Opsional: Hilangkan angka merah saat lonceng diklik
+            document.getElementById('notifBadge').style.display = "none";
+        });
+    }
+
+    // Buka Modal Histori dari Menu Dropdown Profil
+    if (btnMenuHistori) {
+        btnMenuHistori.addEventListener('click', () => {
+            document.getElementById('modalHistori').style.display = "flex";
+            profileMenu.classList.remove('show'); // Tutup dropdown
+        });
+    }
+
+    // FUNGSI MEMUAT DATA NOTIFIKASI DARI FIRESTORE (REAL-TIME)
+    // Pastikan Anda mengimpor collection, query, orderBy, onSnapshot di bagian atas file
+    function listenToNotifications() {
+        const notifBadge = document.getElementById('notifBadge');
+        const notificationList = document.getElementById('notificationList');
+        
+        // Asumsi: Anda membuat koleksi "notifikasi" di Firestore saat User menambahkan Mutasi Stok
+        const notifRef = collection(db, "notifikasi");
+        const q = query(notifRef, orderBy("timestamp", "desc"));
+        
+        onSnapshot(q, (snapshot) => {
+            notificationList.innerHTML = ""; // Bersihkan list
+            let unreadCount = 0;
+
+            if (snapshot.empty) {
+                notificationList.innerHTML = `<p class="text-muted" style="text-align: center; padding: 20px;">Belum ada histori notifikasi.</p>`;
+                notifBadge.style.display = "none";
+                return;
+            }
+
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                const isUnread = !data.isRead; // Cek apakah sudah dibaca
+                if (isUnread) unreadCount++;
+
+                // Format Waktu
+                const timeStr = data.timestamp ? data.timestamp.toDate().toLocaleString('id-ID') : 'Baru saja';
+
+                // Buat elemen HTML untuk setiap notifikasi
+                const div = document.createElement("div");
+                div.className = `notif-item ${isUnread ? 'notif-unread' : ''}`;
+                div.innerHTML = `
+                    <div class="notif-title">${data.judul || 'Info Mutasi Stok'}</div>
+                    <div class="notif-desc">${data.pesan || 'Ada penambahan data baru.'}</div>
+                    <div class="notif-time">${timeStr}</div>
+                `;
+                notificationList.appendChild(div);
+            });
+
+            // Update Lencana (Badge) Angka Merah
+            if (unreadCount > 0) {
+                notifBadge.innerText = unreadCount > 99 ? "99+" : unreadCount;
+                notifBadge.style.display = "flex";
+            } else {
+                notifBadge.style.display = "none";
+            }
+        });
+    }
+
+    // Panggil fungsi ini saat Admin berhasil login (misalnya di dalam onAuthStateChanged role === "admin")
+    // listenToNotifications();
 });

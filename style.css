@@ -173,3 +173,28 @@ body.light-theme .menu-item:hover { background: rgba(0, 0, 0, 0.05); }
 
 .menu-item.text-danger { color: var(--danger-color); }
 .menu-item.text-danger:hover { background: rgba(239, 68, 68, 0.1); }
+
+/* =========================================
+   NOTIFICATIONS & DIVIDER
+   ========================================= */
+.notification-container { position: relative; cursor: pointer; padding: 8px; border-radius: 8px; transition: 0.2s; color: var(--text-muted); display: flex; align-items: center; justify-content: center; }
+.notification-container i { font-size: 18px; }
+.notification-container:hover { background: rgba(255, 255, 255, 0.05); color: var(--text-main); }
+body.light-theme .notification-container:hover { background: rgba(0, 0, 0, 0.05); color: var(--text-main); }
+
+/* Lingkaran Angka Notifikasi */
+.notification-badge { position: absolute; top: 2px; right: 2px; background: var(--danger-color); color: #fff; font-size: 10px; font-weight: bold; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--topbar-bg); }
+
+/* Garis Pemisah (Divider) */
+.topbar-divider { width: 1px; height: 30px; background: var(--border-color); margin: 0 10px; }
+
+/* Desain List Histori dalam Modal */
+.notif-item { padding: 15px; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 6px; transition: 0.2s; }
+.notif-item:last-child { border-bottom: none; }
+.notif-item:hover { background: rgba(255, 255, 255, 0.02); }
+body.light-theme .notif-item:hover { background: rgba(0, 0, 0, 0.02); }
+
+.notif-title { font-weight: 600; font-size: 14px; color: var(--text-main); }
+.notif-desc { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
+.notif-time { font-size: 11px; color: var(--primary-color); align-self: flex-end; font-weight: 500; }
+.notif-unread { background: rgba(30, 144, 255, 0.08); border-left: 3px solid var(--primary-color); }
