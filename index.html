@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database LPG & Pangkalan</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- LAYAR LOGIN -->
+    <div id="loginScreen" class="login-wrapper">
+        <div class="login-card">
+            <div class="login-logo">
+                <i class="fa-solid fa-fire-flame-curved"></i>
+            </div>
+            <h2>Pangkalan LPG</h2>
+            <p>Sistem Informasi & Logbook</p>
+            <button id="btnGoogleLogin" class="btn-google">
+                <i class="fa-brands fa-google"></i> Login dengan Google
+            </button>
+            <p id="loginError" class="login-error"></p>
+        </div>
+    </div>
+
+    <div id="appContent" class="app-container" style="display: none;">
+        <!-- SIDEBAR NAVIGATION -->
+        <aside class="sidebar" id="sidebar">
+            <div class="user-profile">
+                <div class="avatar-circle">A</div>
+                <div class="user-name">Admin Pangkalan</div>
+                <div class="user-id">ID: LPG-001</div>
+            </div>
+
+            <div class="nav-section-label">MENU UTAMA</div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active" data-target="dashboard" title="Ringkasan">
+                    <i class="fa-solid fa-chart-pie"></i> <span class="nav-text">Ringkasan</span>
+                </a>
+                <a href="#" class="nav-item" data-target="data-pelanggan" title="Data Pelanggan">
+                    <i class="fa-solid fa-users"></i> <span class="nav-text">Data Pelanggan</span>
+                </a>
+                <a href="#" class="nav-item" data-target="inventaris" title="Inventaris Tabung">
+                    <i class="fa-solid fa-box-open"></i> <span class="nav-text">Inventaris Tabung</span>
+                </a>
+                <a href="#" class="nav-item" data-target="harga-gas" title="Harga Gas">
+                    <i class="fa-solid fa-tags"></i> <span class="nav-text">Harga Gas</span>
+                </a>
+            </nav>
+            <button class="btn-exit"><i class="fa-solid fa-right-from-bracket"></i> <span class="nav-text">Keluar</span></button>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="icon-btn" id="sidebarToggle" title="Buka/Tutup Menu"><i class="fa-solid fa-bars"></i></button>
+                    <!-- Tombol Ganti Tema (Dark/Light) -->
+                    <button class="icon-btn" id="themeToggle" title="Ganti Tema Mode"><i class="fa-solid fa-sun"></i></button>
+                    <h2>Pangkalan Gas LPG</h2>
+                </div>
+                <div class="topbar-right">
+                    <div class="profile-dropdown">
+                        <div class="profile-info">
+                            <span class="p-name">Admin</span>
+                        </div>
+                        <div class="avatar-small">A</div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-body">
+                <!-- 1. DASHBOARD RINGKASAN -->
+                <section id="dashboard" class="page-section active">
+                    <div class="page-header">
+                        <h2>Ringkasan Distribusi</h2>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <span class="stat-label">TOTAL PELANGGAN</span>
+                            <div class="stat-value" id="stat-total">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">RUMAH TANGGA</span>
+                            <div class="stat-value text-blue" id="stat-rt">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">USAHA MIKRO</span>
+                            <div class="stat-value text-green" id="stat-um">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">PETANI SASARAN</span>
+                            <div class="stat-value text-orange" id="stat-pt">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">NELAYAN SASARAN</span>
+                            <div class="stat-value text-cyan" id="stat-nl">0</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. DATA PELANGGAN -->
+                <section id="data-pelanggan" class="page-section">
+                    <div class="page-header">
+                        <h2>Database Pelanggan</h2>
+                        <div class="header-actions">
+                            <input type="file" id="importFile" accept=".csv" style="display: none;">
+                            <button class="btn-dark" onclick="document.getElementById('importFile').click()">
+                                <i class="fa-solid fa-file-import"></i> Import CSV
+                            </button>
+                            <button class="btn-dark" id="btnExport">
+                                <i class="fa-solid fa-file-export"></i> Export CSV
+                            </button>
+                            <button class="btn-primary" id="btnAddData">
+                                <i class="fa-solid fa-plus"></i> Tambah Data
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-panel">
+                        <div class="table-responsive">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>NIK</th>
+                                        <th>NAMA LENGKAP</th>
+                                        <th>STATUS</th>
+                                        <th>TEMPAT LAHIR</th>
+                                        <th>TGL LAHIR</th>
+                                        <th>AKSI</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="customerTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. INVENTARIS TABUNG -->
+                <section id="inventaris" class="page-section">
+                    <div class="page-header">
+                        <h2>Inventaris Tabung Kosong</h2>
+                    </div>
+                    <div class="card-panel">
+                        <p class="text-muted" style="margin-bottom: 20px;">
+                            <i class="fa-regular fa-clock"></i> Terakhir diperbarui: <strong id="invLastUpdate">-</strong>
+                        </p>
+                        <form id="formInventaris">
+                            <div class="form-grid-3">
+                                <div class="form-group">
+                                    <label>Tabung Kosong 3 Kg (Melon)</label>
+                                    <input type="number" id="inv3kg" class="form-input" min="0" placeholder="0">
+                                </div>
+                                <div class="form-group">
+                                    <label>Tabung Kosong 5.5 Kg (Bright Gas)</label>
+                                    <input type="number" id="inv5kg" class="form-input" min="0" placeholder="0">
+                                </div>
+                                <div class="form-group">
+                                    <label>Tabung Kosong 12 Kg</label>
+                                    <input type="number" id="inv12kg" class="form-input" min="0" placeholder="0">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn-primary" style="margin-top: 10px;">
+                                <i class="fa-solid fa-floppy-disk"></i> Simpan Inventaris
+                            </button>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- 4. HARGA GAS (Ditambah Harga Modal) -->
+                <section id="harga-gas" class="page-section">
+                    <div class="page-header">
+                        <h2>Daftar Harga Gas</h2>
+                    </div>
+                    <div class="card-panel">
+                        <p class="text-muted" style="margin-bottom: 20px;">
+                            <i class="fa-regular fa-clock"></i> Terakhir diperbarui: <strong id="priceLastUpdate">-</strong>
+                        </p>
+                        <form id="formHarga">
+                            
+                            <!-- Bagian Refill -->
+                            <div class="pricing-section">
+                                <h3 class="section-title">Harga Refill (Isi Ulang)</h3>
+                                <div class="form-grid-2">
+                                    <div class="price-box">
+                                        <h4><i class="fa-solid fa-box"></i> Harga Modal</h4>
+                                        <div class="form-group">
+                                            <label>Modal Refill 3 Kg (Rp)</label>
+                                            <input type="text" id="mRefill3" class="form-input price-input" inputmode="numeric" placeholder="0">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Modal Refill 5.5 Kg (Rp)</label>
+                                            <input type="text" id="mRefill5" class="form-input price-input" inputmode="numeric" placeholder="0">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Modal Refill 12 Kg (Rp)</label>
+                                            <input type="text" id="mRefill12" class="form-input price-input" inputmode="numeric" placeholder="0">
+                                        </div>
+                                    </div>
+                                    <div class="price-box">
+                                        <h4 style="color: var(--accent-blue);"><i class="fa-solid fa-tag"></i> Harga Jual</h4>
+                                        <div class="form-group">
+                                            <label>Jual Refill 3 Kg (Rp)</label>
+                                            <input type="text" id="jRefill3" class="form-input price-input" inputmode="numeric" placeholder="0">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Jual Refill 5.5 Kg (Rp)</label>
+                                            <input type="text" id="jRefill5" class="form-input price-input" inputmode="numeric" placeholder="0">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Jual Refill 12 Kg (Rp)</label>
+                                            <input type="text" id="jRefill12" class="form-input price-input" inputmode="numeric" placeholder="0">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Bagian Perdana -->
+                            <div class="pricing-section" style="margin-top: 30px;">
+                                <h3 class="section-title" style="color: var(--green-color);">Harga Perdana (Tabung + Isi)</h3>
+                                <div class="form-grid-2">
+                                    <div class="price-box">
+                                        <h4><i class="fa-solid fa-box"></i> Harga Modal</h4>
+                                        <div class="form-group">
+                                            <label>Modal Perdana 3 Kg (Rp)</label>
+                                            <input type="text" id="mFull3" class="form-input price-input" inputmode="numeric" placeholder="0">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Modal Perdana 5.5 Kg (Rp)</label>
+                                            <input type="text" id="mFull5" class="form-input price-input" inputmode="numeric" placeholder="0">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Modal Perdana 12 Kg (Rp)</label>
+                                            <input type="text" id="mFull12" class="form-input price-input" inputmode="numeric" placeholder="0">
+                                        </div>
+                                    </div>
+                                    <div class="price-box">
+                                        <h4 style="color: var(--green-color);"><i class="fa-solid fa-tag"></i> Harga Jual</h4>
+                                        <div class="form-group">
+                                            <label>Jual Perdana 3 Kg (Rp)</label>
+                                            <input type="text" id="jFull3" class="form-input price-input" inputmode="numeric" placeholder="0">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Jual Perdana 5.5 Kg (Rp)</label>
+                                            <input type="text" id="jFull5" class="form-input price-input" inputmode="numeric" placeholder="0">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Jual Perdana 12 Kg (Rp)</label>
+                                            <input type="text" id="jFull12" class="form-input price-input" inputmode="numeric" placeholder="0">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn-primary" style="margin-top: 25px;">
+                                <i class="fa-solid fa-floppy-disk"></i> Simpan Daftar Harga
+                            </button>
+                        </form>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL FORM TAMBAH/EDIT DATA PELANGGAN -->
+    <div id="formModal" class="modal">
+        <div class="modal-content card-panel">
+            <div class="modal-header">
+                <h3 id="modalTitle">Tambah Data</h3>
+                <span class="close-btn" onclick="closeModal('formModal')">&times;</span>
+            </div>
+            <form id="customerForm">
+                <input type="hidden" id="editIndex" value="-1">
+                <div class="form-group">
+                    <label>Nomor Induk Kependudukan (NIK)</label>
+                    <input type="text" id="nik" class="form-input" required placeholder="16 Digit NIK" inputmode="numeric" pattern="[0-9]{16}" maxlength="16">
+                    <small class="text-muted" id="nikError" style="color: var(--danger-color); display: none;">NIK harus persis 16 digit angka.</small>
+                </div>
+                <div class="form-group">
+                    <label>Nama Lengkap</label>
+                    <input type="text" id="nama" class="form-input" required placeholder="Sesuai KTP">
+                </div>
+                <div class="form-group">
+                    <label>Status Pemakaian</label>
+                    <select id="status" class="form-input" required>
+                        <option value="Rumah Tangga">Rumah Tangga</option>
+                        <option value="Usaha Mikro">Usaha Mikro</option>
+                        <option value="Petani Sasaran">Petani Sasaran</option>
+                        <option value="Nelayan Sasaran">Nelayan Sasaran</option>
+                    </select>
+                </div>
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label>Tempat Lahir</label>
+                        <input type="text" id="tempat_lahir" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Tanggal Lahir</label>
+                        <input type="date" id="tanggal_lahir" class="form-input" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-dark" onclick="closeModal('formModal')">Batal</button>
+                    <button type="submit" class="btn-primary">Simpan Data</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL ALERT KUSTOM -->
+    <div id="alertModal" class="modal">
+        <div class="modal-content card-panel alert-modal">
+            <div class="alert-icon" id="alertIcon">
+                <i class="fa-solid fa-circle-info"></i>
+            </div>
+            <h3 style="margin-bottom: 10px;">Informasi</h3>
+            <p id="alertMessage" class="text-muted" style="margin-bottom: 20px;"></p>
+            <button class="btn-primary" style="width: 100%;" onclick="closeModal('alertModal')">Mengerti</button>
+        </div>
+    </div>
+
+    <!-- MODAL KONFIRMASI (Untuk Hapus) -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content card-panel alert-modal">
+            <div class="alert-icon" style="color: var(--danger-color);">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 style="margin-bottom: 10px;">Konfirmasi</h3>
+            <p id="confirmMessage" class="text-muted" style="margin-bottom: 20px;"></p>
+            <div class="form-grid-2">
+                <button class="btn-dark" onclick="closeModal('confirmModal')">Batal</button>
+                <button class="btn-danger" id="btnConfirmYes" style="padding: 10px; font-weight: bold;">Ya, Hapus</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
