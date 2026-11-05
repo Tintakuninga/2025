@@ -362,16 +362,16 @@
                     <div class="modal-content card-panel" style="max-width: 500px;">
                         <div class="modal-header">
                             <h3>Input Mutasi Stok Masuk</h3>
-                            <button class="btn-close" onclick="closeModal('modalMutasi')"><i class="fa-solid fa-xmark"></i></button>
+                            <span class="close-btn" onclick="closeModal('modalMutasi')">&times;</span>
                         </div>
-                        <form id="formMutasi" style="display: flex; flex-direction: column; gap: 15px; margin-top: 15px;">
+                        <form id="formMutasi">
                             <div class="form-group">
                                 <label>Nama Agen / Sopir Pengantar</label>
-                                <input type="text" id="mutasiAgen" required placeholder="Contoh: PT. Pertamina / Pak Budi">
+                                <input type="text" id="mutasiAgen" class="form-input" required placeholder="Contoh: PT. Pertamina / Pak Budi">
                             </div>
                             <div class="form-group">
                                 <label>Jenis Tabung</label>
-                                <select id="mutasiJenis" required>
+                                <select id="mutasiJenis" class="form-input" required>
                                     <option value="3kg">LPG 3 Kg (Melon)</option>
                                     <option value="5kg">Bright Gas 5.5 Kg</option>
                                     <option value="12kg">Elpiji / Bright Gas 12 Kg</option>
@@ -380,14 +380,16 @@
                             <div class="form-grid-2">
                                 <div class="form-group">
                                     <label>Jumlah Bawaan (Tabung)</label>
-                                    <input type="number" id="mutasiMasuk" min="1" required placeholder="130">
+                                    <input type="number" id="mutasiMasuk" class="form-input" min="1" required placeholder="100">
                                 </div>
                                 <div class="form-group">
                                     <label>Jumlah Bocor / Rusak</label>
-                                    <input type="number" id="mutasiBocor" min="0" value="0" required placeholder="0">
+                                    <input type="number" id="mutasiBocor" class="form-input" min="0" value="0" required placeholder="0">
                                 </div>
                             </div>
-                            <button type="submit" class="btn-primary" style="margin-top: 10px; padding: 12px;"><i class="fa-solid fa-save"></i> Simpan & Tambah Stok</button>
+                            <div class="modal-footer" style="margin-top: 15px;">
+                                <button type="submit" class="btn-primary" style="width: 100%;"><i class="fa-solid fa-save"></i> Simpan & Tambah Stok</button>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -427,7 +429,7 @@
 
     <!-- MODAL FORM TAMBAH/EDIT DATA PELANGGAN -->
     <div id="formModal" class="modal">
-        <div class="modal-content card-panel">
+        <div class="modal-content card-panel" style="max-width: 600px;">
             <div class="modal-header">
                 <h3 id="modalTitle">Tambah Data</h3>
                 <span class="close-btn" onclick="closeModal('formModal')">&times;</span>
