@@ -97,7 +97,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadInventaris();
                 loadHarga();
                 listenToNotifications();
-                loadPesananMasuk(); // <-- Menjalankan sistem antrean pesanan
+                loadMutasiStok();
+                loadPesananMasuk();
             } else {
                 window.location.href = "./user/";
             }
@@ -984,6 +985,132 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 console.error("Gagal membatalkan pesanan:", error);
                 showAlert("Terjadi kesalahan saat membatalkan pesanan.", "Error", "error");
+            }
+        });
+    };
+
+    // =====================================================================
+    // 12. FITUR MUTASI STOK MASUK (DARI AGEN)
+    // =====================================================================
+    const tabelMutasi = document.getElementById('tabelMutasiStok');
+    const formMutasi = document.getElementById('formMutasi');
+    const btnTambahMutasi = document.getElementById('btnTambahMutasi');
+
+    if (btnTambahMutasi) {
+        btnTambahMutasi.addEventListener('click', () => {
+            if(formMutasi) formMutasi.reset();
+            document.getElementById('modalMutasi').style.display = 'flex';
+        });
+    }
+
+    function loadMutasiStok() {
+        if (!tabelMutasi) return;
+        
+        // Memanggil data riwayat dan diurutkan dari terbaru ke terlama (desc)
+        const qMutasi = query(collection(db, "mutasi_stok"), orderBy("tanggal", "desc"));
+        
+        onSnapshot(qMutasi, (snapshot) => {
+            tabelMutasi.innerHTML = '';
+            if (snapshot.empty) {
+                tabelMutasi.innerHTML = `<tr><td colspan="7" style="text-align:center;" class="text-muted">Belum ada riwayat stok masuk.</td></tr>`;
+                return;
+            }
+
+            snapshot.forEach(docSnap => {
+                const data = docSnap.data();
+                const idMutasi = docSnap.id;
+                
+                const waktu = data.tanggal ? data.tanggal.toDate().toLocaleString('id-ID', { 
+                    day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' 
+                }) : '-';
+                
+                let namaJenis = "LPG 3 Kg";
+                if(data.jenis === "5kg") namaJenis = "Bright Gas 5.5 Kg";
+                else if (data.jenis === "12kg") namaJenis = "LPG 12 Kg";
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${waktu}</td>
+                    <td><strong>${data.agen}</strong></td>
+                    <td>${namaJenis}</td>
+                    <td>${data.jumlahMasuk}</td>
+                    <td style="color: var(--danger-color); font-weight: bold;">${data.jumlahBocor > 0 ? data.jumlahBocor : '-'}</td>
+                    <td style="color: var(--green-color); font-weight: bold;">+ ${data.stokBersih}</td>
+                    <td>
+                        <button class="btn-danger" onclick="hapusRiwayatMutasi('${idMutasi}')" title="Hapus Riwayat">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tabelMutasi.appendChild(tr);
+            });
+        });
+    }
+
+    // Submit Input Data Mutasi
+    if (formMutasi) {
+        formMutasi.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const agen = document.getElementById('mutasiAgen').value.trim();
+            const jenis = document.getElementById('mutasiJenis').value;
+            const masuk = parseInt(document.getElementById('mutasiMasuk').value) || 0;
+            const bocor = parseInt(document.getElementById('mutasiBocor').value) || 0;
+            
+            // Stok murni yang akan ditambahkan ke sistem
+            const bersih = masuk - bocor;
+
+            if (bersih < 0) {
+                showAlert("Jumlah tabung bocor tidak boleh lebih besar dari tabung yang dibawa!", "Gagal", "error");
+                return;
+            }
+
+            // Meminta konfirmasi (Menggunakan showConfirmAction positif yang baru kita buat sebelumnya)
+            showConfirmAction(`Tambahkan data ke sistem? Stok gas ${jenis} akan bertambah +${bersih} tabung secara otomatis.`, async () => {
+                try {
+                    // A. Simpan ke database mutasi (Riwayat DO)
+                    await addDoc(collection(db, "mutasi_stok"), {
+                        agen: agen,
+                        jenis: jenis,
+                        jumlahMasuk: masuk,
+                        jumlahBocor: bocor,
+                        stokBersih: bersih,
+                        tanggal: serverTimestamp()
+                    });
+
+                    // B. Potong/Tambah Stok Inventaris Utama Otomatis
+                    const invRef = doc(db, "settings", "inventaris");
+                    const invSnap = await getDoc(invRef);
+                    if (invSnap.exists()) {
+                        const dataInv = invSnap.data();
+                        const stokSekarang = parseInt(dataInv[jenis] || 0);
+                        
+                        await updateDoc(invRef, {
+                            [jenis]: (stokSekarang + bersih).toString(),
+                            lastUpdated: new Date().toISOString()
+                        });
+                        
+                        // Segarkan tampilan kotak dashboard inventaris
+                        loadInventaris(); 
+                    }
+
+                    closeModal('modalMutasi');
+                    showAlert("Data DO berhasil disimpan dan stok otomatis bertambah!", "Berhasil", "success");
+                } catch (error) {
+                    console.error("Gagal menambah mutasi:", error);
+                    showAlert("Terjadi kesalahan saat memproses data.", "Error", "error");
+                }
+            });
+        });
+    }
+
+    // Hapus Riwayat
+    window.hapusRiwayatMutasi = (idMutasi) => {
+        showConfirm("Hapus riwayat surat jalan ini? (Perhatian: Stok inventaris tidak akan ditarik ulang secara otomatis, silakan edit manual inventaris jika diperlukan)", async () => {
+            try {
+                await deleteDoc(doc(db, "mutasi_stok", idMutasi));
+                showAlert("Riwayat berhasil dihapus.", "Terhapus", "success");
+            } catch (error) {
+                console.error("Error delete riwayat: ", error);
             }
         });
     };

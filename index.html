@@ -48,6 +48,9 @@
                 <a href="#" class="nav-item" data-target="harga-gas" title="Harga Gas">
                     <i class="fa-solid fa-tags"></i> <span class="nav-text">Harga Gas</span>
                 </a>
+                <a href="#" class="nav-item" data-target="mutasi-stok">
+                    <i class="fa-solid fa-truck-ramp-box"></i> Mutasi Stok
+                </a>
                 <a href="#" class="nav-item" data-target="pesanan-masuk" title="Pesanan Masuk">
                     <i class="fa-solid fa-cart-arrow-down"></i> <span class="nav-text">Pesanan Masuk</span>
                 </a>
@@ -320,6 +323,74 @@
                         </form>
                     </div>
                 </section>
+
+                <!-- HALAMAN MUTASI STOK MASUK -->
+                <section id="mutasi-stok" class="page-section">
+                    <div class="page-header">
+                        <h2>Riwayat Stok Masuk (DO Agen)</h2>
+                        <button id="btnTambahMutasi" class="btn-primary">
+                            <i class="fa-solid fa-plus"></i> Input Stok Masuk
+                        </button>
+                    </div>
+                    <div class="card-panel">
+                        <p class="text-muted" style="margin-bottom: 20px;">
+                            <i class="fa-solid fa-circle-info"></i> Daftar ini memuat riwayat pasokan gas dari agen. Tabung bocor akan otomatis dikurangkan dari total stok isi yang ditambahkan.
+                        </p>
+                        <div class="table-responsive">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>WAKTU MASUK</th>
+                                        <th>NAMA AGEN / SOPIR</th>
+                                        <th>JENIS TABUNG</th>
+                                        <th>JML. MASUK</th>
+                                        <th>BOCOR (RETUR)</th>
+                                        <th>STOK BERSIH</th>
+                                        <th>AKSI</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabelMutasiStok">
+                                    <!-- Data ditarik dari Firebase -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- MODAL INPUT MUTASI STOK -->
+                <div id="modalMutasi" class="modal">
+                    <div class="modal-content card-panel" style="max-width: 500px;">
+                        <div class="modal-header">
+                            <h3>Input Mutasi Stok Masuk</h3>
+                            <button class="btn-close" onclick="closeModal('modalMutasi')"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                        <form id="formMutasi" style="display: flex; flex-direction: column; gap: 15px; margin-top: 15px;">
+                            <div class="form-group">
+                                <label>Nama Agen / Sopir Pengantar</label>
+                                <input type="text" id="mutasiAgen" required placeholder="Contoh: PT. Pertamina / Pak Budi">
+                            </div>
+                            <div class="form-group">
+                                <label>Jenis Tabung</label>
+                                <select id="mutasiJenis" required>
+                                    <option value="3kg">LPG 3 Kg (Melon)</option>
+                                    <option value="5kg">Bright Gas 5.5 Kg</option>
+                                    <option value="12kg">Elpiji / Bright Gas 12 Kg</option>
+                                </select>
+                            </div>
+                            <div class="form-grid-2">
+                                <div class="form-group">
+                                    <label>Jumlah Bawaan (Tabung)</label>
+                                    <input type="number" id="mutasiMasuk" min="1" required placeholder="130">
+                                </div>
+                                <div class="form-group">
+                                    <label>Jumlah Bocor / Rusak</label>
+                                    <input type="number" id="mutasiBocor" min="0" value="0" required placeholder="0">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn-primary" style="margin-top: 10px; padding: 12px;"><i class="fa-solid fa-save"></i> Simpan & Tambah Stok</button>
+                        </form>
+                    </div>
+                </div>
 
                 <!-- HALAMAN PESANAN MASUK -->
                 <section id="pesanan-masuk" class="page-section">
