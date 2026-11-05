@@ -2,7 +2,7 @@
 // 1. IMPORT FIREBASE SDK (Versi 10 Modular)
 // =====================================================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, setDoc, getDoc, addDoc, updateDoc, deleteDoc, query, orderBy, onSnapshot, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, setDoc, getDoc, addDoc, updateDoc, deleteDoc, query, orderBy, onSnapshot, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 // =====================================================================
@@ -56,22 +56,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const userDocRef = doc(db, "pengguna", user.uid);
             const userDocSnap = await getDoc(userDocRef);
             let role = "user"; 
-            let status = "pending"; 
 
             if (!userDocSnap.exists()) {
                 await setDoc(userDocRef, {
                     nama: user.displayName,
                     email: user.email,
                     role: "user",
-                    status: "pending", // Status awal terkunci
                     createdAt: new Date().toISOString()
                 });
 
-                // Kirim notifikasi pendaftaran pengguna baru ke admin
+                // Kirim notifikasi pendaftaran pengguna baru ke sistem
                 try {
                     await addDoc(collection(db, "notifikasi"), {
                         judul: "Pengguna Baru Mendaftar",
-                        pesan: `${user.displayName} mendaftar dan menunggu persetujuan Anda.`,
+                        pesan: `${user.displayName} (${user.email}) telah bergabung ke aplikasi.`,
                         isRead: false,
                         timestamp: new Date()
                     });
@@ -79,10 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error("Gagal mengirim notifikasi:", err);
                 }
             } else {
-                const data = userDocSnap.data();
-                role = data.role || "user";
-                // Anggap akun lama yang tidak punya status adalah approved
-                status = data.status || "approved"; 
+                role = userDocSnap.data().role;
             }
 
             if (role === "admin") {
@@ -101,19 +96,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadCustomers();
                 loadInventaris();
                 loadHarga();
-                loadPendingUsers(); // Memuat data user pending
                 listenToNotifications();
+                loadPesananMasuk(); // <-- Menjalankan sistem antrean pesanan
             } else {
-                // BLOKIR AKSES JIKA STATUS MASIH PENDING
-                if (status === "pending") {
-                    await signOut(auth);
-                    if (loginError) {
-                        loginError.style.display = "block";
-                        loginError.innerText = "Akun Anda sedang menunggu persetujuan admin. Silakan cek kembali nanti.";
-                    }
-                    return;
-                }
-                // Jika sudah di-approve, arahkan ke halaman user
                 window.location.href = "./user/";
             }
         } else {
@@ -274,7 +259,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Format Tanggal
+    // Format Tanggal (Digunakan untuk tabel data)
     function formatTanggal(dateString) {
         if(!dateString) return "-";
         return new Date(dateString).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -402,7 +387,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
 
-                // Ambil dan format Tanggal Lahir (YYYY-MM-DD)
                 const hari = String(document.getElementById('tgl_hari').value).padStart(2, '0');
                 const bulan = document.getElementById('tgl_bulan').value;
                 const tahun = document.getElementById('tgl_tahun').value;
@@ -476,9 +460,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
             const invData = docSnap.data();
-            if(document.getElementById('inv3kg') && invData['3kg']) document.getElementById('inv3kg').value = invData['3kg'];
-            if(document.getElementById('inv5kg') && invData['5kg']) document.getElementById('inv5kg').value = invData['5kg'];
-            if(document.getElementById('inv12kg') && invData['12kg']) document.getElementById('inv12kg').value = invData['12kg'];
+            if(document.getElementById('inv3kg') && invData['3kg'] !== undefined) document.getElementById('inv3kg').value = invData['3kg'];
+            if(document.getElementById('inv5kg') && invData['5kg'] !== undefined) document.getElementById('inv5kg').value = invData['5kg'];
+            if(document.getElementById('inv12kg') && invData['12kg'] !== undefined) document.getElementById('inv12kg').value = invData['12kg'];
             if(document.getElementById('invLastUpdate') && invData['lastUpdated']) {
                 document.getElementById('invLastUpdate').innerText = new Date(invData['lastUpdated']).toLocaleString('id-ID');
             }
@@ -790,7 +774,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // LOGIKA IMPORT CSV
     const importFileInput = document.getElementById('importFile');
     if (importFileInput) {
         importFileInput.addEventListener('change', (e) => {
@@ -862,64 +845,125 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // =====================================================================
-    // FITUR PERSETUJUAN AKUN (ADMIN APPROVAL)
+    // 11. FITUR PESANAN MASUK (ANTREAN DARI USER)
     // =====================================================================
-    const approvalTableBody = document.getElementById('approvalTableBody');
+    const tabelPesananMasuk = document.getElementById('tabelPesananMasuk');
 
-    async function loadPendingUsers() {
-        if (!approvalTableBody) return;
+    function loadPesananMasuk() {
+        if (!tabelPesananMasuk) return;
         
-        // Ambil data user yang statusnya masih 'pending'
-        const qPending = query(collection(db, "pengguna"), where("status", "==", "pending"));
-        onSnapshot(qPending, (snapshot) => {
-            approvalTableBody.innerHTML = '';
+        const qPesanan = query(collection(db, "antrean_pesanan"), where("statusPesanan", "==", "Menunggu"));
+        
+        onSnapshot(qPesanan, (snapshot) => {
+            tabelPesananMasuk.innerHTML = '';
             if (snapshot.empty) {
-                approvalTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;" class="text-muted">Tidak ada akun yang menunggu persetujuan.</td></tr>`;
+                tabelPesananMasuk.innerHTML = `<tr><td colspan="7" style="text-align:center;" class="text-muted">Belum ada pesanan masuk saat ini.</td></tr>`;
                 return;
             }
 
             snapshot.forEach((docSnap) => {
-                const u = docSnap.data();
-                const uid = docSnap.id;
+                const data = docSnap.data();
+                const idPesanan = docSnap.id;
+                
+                const waktuOrder = data.tanggalOrder ? data.tanggalOrder.toDate() : new Date();
+                const waktuStr = waktuOrder.toLocaleString('id-ID', { 
+                    day: 'numeric', month: 'short', year: 'numeric', 
+                    hour: '2-digit', minute: '2-digit' 
+                });
+                
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td><strong>${u.nama}</strong></td>
-                    <td>${u.email}</td>
-                    <td>${formatTanggal(u.createdAt)}</td>
-                    <td><span class="badge-status badge-pt"><i class="fa-regular fa-clock"></i> Pending</span></td>
+                    <td><strong>${data.namaLengkap || 'Tanpa Nama'}</strong></td>
+                    <td>${data.nikKtp || '-'}</td>
+                    <td>${data.jenisTabung || '-'}</td>
+                    <td>${data.jumlahTabung || 0} Tabung</td>
+                    <td>Rp ${(data.totalHarga || 0).toLocaleString('id-ID')}</td>
+                    <td>${waktuStr}</td>
                     <td>
-                        <button class="btn-primary" onclick="approveUser('${uid}')" style="padding: 6px 12px; margin-right:5px;" title="Setujui"><i class="fa-solid fa-check"></i></button>
-                        <button class="btn-danger" onclick="rejectUser('${uid}')" title="Tolak"><i class="fa-solid fa-xmark"></i></button>
+                        <button class="btn-primary" onclick="selesaikanPesanan('${idPesanan}', '${data.jenisTabung}', ${data.jumlahTabung}, ${data.totalHarga})" style="padding: 6px 12px; font-size: 0.85rem;" title="Selesai & Potong Stok">
+                            <i class="fa-solid fa-check"></i>
+                        </button>
+                        <button class="btn-danger" onclick="batalkanPesanan('${idPesanan}')" style="padding: 6px 12px; font-size: 0.85rem;" title="Batalkan">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
                     </td>
                 `;
-                approvalTableBody.appendChild(tr);
+                tabelPesananMasuk.appendChild(tr);
             });
         });
     }
 
-    // Fungsi Setujui Akun
-    window.approveUser = (uid) => {
-        showConfirm("Setujui akun ini untuk mengakses sistem?", async () => {
+    // Fungsi Global agar bisa dipanggil via Atribut HTML onclick
+    window.selesaikanPesanan = (idPesanan, jenisTabung, jumlah, totalHarga) => {
+        showConfirm("Tandai pesanan selesai? Stok gas akan otomatis berkurang.", async () => {
             try {
-                await updateDoc(doc(db, "pengguna", uid), { status: "approved" });
-                showAlert("Akun berhasil disetujui. Pengguna sekarang dapat login.", "Berhasil", "success");
-            } catch (e) {
-                console.error(e);
-                showAlert("Gagal menyetujui akun.", "Error", "error");
+                // A. Ubah Status Pesanan
+                await updateDoc(doc(db, "antrean_pesanan", idPesanan), { 
+                    statusPesanan: "Selesai",
+                    tanggalSelesai: serverTimestamp() 
+                });
+
+                // B. Cek Inventaris di koleksi "settings" & Potong Stok secara Dinamis
+                const invRef = doc(db, "settings", "inventaris");
+                const invSnap = await getDoc(invRef);
+                
+                if (invSnap.exists()) {
+                    const invData = invSnap.data();
+                    let key = null;
+                    const jenisStr = (jenisTabung || "").toLowerCase();
+                    
+                    // Deteksi string jenis tabung untuk mencocokkan field database
+                    if (jenisStr.includes('3')) key = '3kg';
+                    else if (jenisStr.includes('5')) key = '5kg';
+                    else if (jenisStr.includes('12')) key = '12kg';
+
+                    if (key && invData[key] !== undefined) {
+                        const stokSekarang = parseInt(invData[key]) || 0;
+                        const sisaStok = Math.max(0, stokSekarang - parseInt(jumlah));
+                        
+                        await updateDoc(invRef, { 
+                            [key]: sisaStok.toString(),
+                            lastUpdated: new Date().toISOString()
+                        });
+                        
+                        // Perbarui tampilan statistik inventaris secara otomatis
+                        loadInventaris();
+                    }
+                }
+
+                // C. Catat Rekap Penjualan Opsional ke Laporan Keuangan
+                try {
+                    await addDoc(collection(db, "laporan_keuangan"), {
+                        jenis: "pemasukan",
+                        keterangan: `Penjualan ${jenisTabung} via Antrean (NIK: ${idPesanan.substring(0,5)})`,
+                        nominal: parseInt(totalHarga) || 0,
+                        tanggal: new Date().toISOString()
+                    });
+                } catch (e) {
+                    console.warn("Pencatatan laporan_keuangan dilewati.");
+                }
+
+                showAlert("Pesanan selesai! Stok telah diperbarui otomatis.", "Berhasil", "success");
+            } catch (error) {
+                console.error("Gagal menyelesaikan pesanan:", error);
+                showAlert("Terjadi kesalahan saat memproses pesanan.", "Error", "error");
             }
         });
     };
 
-    // Fungsi Tolak Akun (Hapus Data Pendaftaran)
-    window.rejectUser = (uid) => {
-        showConfirm("Tolak dan hapus data pendaftaran ini?", async () => {
+    window.batalkanPesanan = (idPesanan) => {
+        showConfirm("Batalkan pesanan ini? (Stok tidak akan dipotong)", async () => {
             try {
-                await deleteDoc(doc(db, "pengguna", uid));
-                showAlert("Pendaftaran akun berhasil ditolak.", "Ditolak", "success");
-            } catch (e) {
-                console.error(e);
-                showAlert("Gagal menolak pendaftaran.", "Error", "error");
+                await updateDoc(doc(db, "antrean_pesanan", idPesanan), { 
+                    statusPesanan: "Dibatalkan",
+                    tanggalBatal: serverTimestamp()
+                });
+                showAlert("Pesanan berhasil dibatalkan.", "Berhasil", "success");
+            } catch (error) {
+                console.error("Gagal membatalkan pesanan:", error);
+                showAlert("Terjadi kesalahan saat membatalkan pesanan.", "Error", "error");
             }
         });
     };
+
 });

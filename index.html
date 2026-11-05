@@ -48,8 +48,8 @@
                 <a href="#" class="nav-item" data-target="harga-gas" title="Harga Gas">
                     <i class="fa-solid fa-tags"></i> <span class="nav-text">Harga Gas</span>
                 </a>
-                <a href="#" class="nav-item" data-target="persetujuan-akun" title="Persetujuan Akun">
-                    <i class="fa-solid fa-user-check"></i> <span class="nav-text">Persetujuan Akun</span>
+                <a href="#" class="nav-item" data-target="pesanan-masuk" title="Pesanan Masuk">
+                    <i class="fa-solid fa-cart-arrow-down"></i> <span class="nav-text">Pesanan Masuk</span>
                 </a>
             </nav>
             <button class="btn-exit"><i class="fa-solid fa-right-from-bracket"></i> <span class="nav-text">Keluar</span></button>
@@ -321,28 +321,30 @@
                     </div>
                 </section>
 
-                <!-- 5. PERSETUJUAN AKUN (APPROVAL) -->
-                <section id="persetujuan-akun" class="page-section">
+                <!-- HALAMAN PESANAN MASUK -->
+                <section id="pesanan-masuk" class="page-section">
                     <div class="page-header">
-                        <h2>Persetujuan Akun Baru</h2>
+                        <h2>Pesanan Masuk (Antrean)</h2>
                     </div>
                     <div class="card-panel">
                         <p class="text-muted" style="margin-bottom: 20px;">
-                            <i class="fa-solid fa-circle-info"></i> Daftar pengguna yang baru mendaftar dan menunggu izin akses sistem.
+                            <i class="fa-solid fa-circle-info"></i> Daftar ini memuat antrean pesanan dari pelanggan. Klik <strong>Selesai</strong> untuk memotong stok secara otomatis.
                         </p>
                         <div class="table-responsive">
                             <table class="custom-table">
                                 <thead>
                                     <tr>
-                                        <th>NAMA</th>
-                                        <th>EMAIL</th>
-                                        <th>TGL DAFTAR</th>
-                                        <th>STATUS</th>
+                                        <th>PELANGGAN</th>
+                                        <th>NIK</th>
+                                        <th>JENIS TABUNG</th>
+                                        <th>JUMLAH</th>
+                                        <th>TOTAL HARGA</th>
+                                        <th>WAKTU</th>
                                         <th>AKSI</th>
                                     </tr>
                                 </thead>
-                                <tbody id="approvalTableBody">
-                                    <!-- Data user pending dimuat di sini -->
+                                <tbody id="tabelPesananMasuk">
+                                    <!-- Data ditarik dari Firebase -->
                                 </tbody>
                             </table>
                         </div>
