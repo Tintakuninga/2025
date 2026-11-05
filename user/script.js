@@ -219,10 +219,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Load Stok dari Admin & Update UI Tombol Plus-Minus
+    // Load Stok dari Admin & Update UI Tombol Plus-Minus serta Halaman Harga
     function loadStokInfo() {
         onSnapshot(doc(db, "settings", "inventaris"), (docSnap) => {
-            const elStok3kg = document.getElementById('infoStok3kg');
+            // Ambil elemen HTML di halaman Harga
+            const elStokHarga3kg = document.getElementById('stokHarga3kg');
+            const elStokHarga5kg = document.getElementById('stokHarga5kg');
+            const elStokHarga12kg = document.getElementById('stokHarga12kg');
             
             if (docSnap.exists()) {
                 const dataInv = docSnap.data();
@@ -231,20 +234,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 stokSekarangAdmin['5kg'] = parseInt(dataInv['5kg'] || 0, 10);
                 stokSekarangAdmin['12kg'] = parseInt(dataInv['12kg'] || 0, 10);
                 
-                // Update tampilan teks Dashboard Stok
-                if(elStok3kg) {
-                    if(stokSekarangAdmin['3kg'] <= 0) {
-                        elStok3kg.classList.remove('text-blue');
-                        elStok3kg.classList.add('text-danger');
-                        elStok3kg.innerText = "HABIS";
+                // Fungsi bantuan untuk mengubah teks & warna stok
+                const updateTampilanStok = (elemen, jumlahStok) => {
+                    if (!elemen) return;
+                    if (jumlahStok <= 0) {
+                        elemen.classList.remove('text-blue');
+                        elemen.classList.add('text-danger');
+                        elemen.innerText = "HABIS";
                     } else {
-                        elStok3kg.classList.add('text-blue');
-                        elStok3kg.classList.remove('text-danger');
-                        elStok3kg.innerText = stokSekarangAdmin['3kg'] + " TBG";
+                        elemen.classList.add('text-blue');
+                        elemen.classList.remove('text-danger');
+                        elemen.innerText = jumlahStok + " TBG";
                     }
-                }
+                };
 
-                // Segarkan logika tombol jumlah setiap kali stok berubah
+                // Update tampilan stok di halaman "Harga"
+                updateTampilanStok(elStokHarga3kg, stokSekarangAdmin['3kg']);
+                updateTampilanStok(elStokHarga5kg, stokSekarangAdmin['5kg']);
+                updateTampilanStok(elStokHarga12kg, stokSekarangAdmin['12kg']);
+
+                // Segarkan logika tombol jumlah pesanan setiap kali stok berubah
                 updateQtyUI();
             }
         }, (error) => {
