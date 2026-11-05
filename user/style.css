@@ -210,3 +210,18 @@ body.light-theme .fab-btn {
 .btn-whatsapp:hover {
     background-color: #128C7E;
 }
+
+/* ============================
+   TOMBOL PLUS MINUS (QTY)
+   ============================ */
+.btn-qty {
+    flex: 1;
+    padding: 12px;
+    background: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    color: var(--text-main); /* Mengikuti warna tema (Gelap/Terang) otomatis */
+    border-radius: 8px;
+    font-size: 20px;
+    cursor: pointer;
+    font-weight: bold;
+}
