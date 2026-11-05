@@ -401,16 +401,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     tanggal: serverTimestamp()
                 });
 
-                alert("Pesanan berhasil dikirim ke Admin! Anda akan diarahkan ke WhatsApp untuk konfirmasi.");
-
-                // Redirect WhatsApp
-                const pesanWa = `Halo Admin Pangkalan, saya ingin memesan gas:\n\n*Nama:* ${nama}\n*NIK:* ${nik}\n*Pesanan:* ${jumlah} Tabung Refill ${jenisLabel}\n*Total Bayar:* Rp ${formatRupiah(totalHarga)}\n\nMohon konfirmasi pesanan saya. Terima kasih.`;
-                const waUrl = `https://wa.me/${nomorWaAdmin}?text=${encodeURIComponent(pesanWa)}`;
-                window.open(waUrl, '_blank');
-
-                // Reset Form (kecuali nama dan NIK agar tidak lelah mengetik ulang jika beli lagi)
                 orderJumlah.value = 1;
                 updateQtyUI();
+
+                const pesanWa = `Halo Admin Pangkalan, saya ingin memesan gas:\n\n*Nama:* ${nama}\n*NIK:* ${nik}\n*Pesanan:* ${jumlah} Tabung Refill ${jenisLabel}\n*Total Bayar:* Rp ${formatRupiah(totalHarga)}\n\nMohon konfirmasi pesanan saya. Terima kasih.`;
+                const waUrl = `https://wa.me/${nomorWaAdmin}?text=${encodeURIComponent(pesanWa)}`;
+                
+                window.location.href = waUrl; 
 
             } catch (error) {
                 console.error("Gagal membuat pesanan:", error);
