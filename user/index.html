@@ -92,15 +92,54 @@
                 <button class="fab-btn" id="btnAddKas"><i class="fa-solid fa-plus"></i></button>
             </section>
 
-            <!-- SECTION: MUTASI STOK -->
-            <section id="sec-stok" class="page-section">
-                <h2 class="section-title text-center">Mutasi Stok</h2>
-
-                <div class="list-container" id="listStok" style="padding-bottom: 80px;">
-                    <!-- List Stok -->
+            <!-- SECTION: FORM PEMESANAN -->
+            <section id="sec-pesan" class="page-section">
+                <h2 class="section-title text-center">Pesan Gas Online</h2>
+                
+                <!-- Info Stok dari Admin -->
+                <div class="card-panel" style="margin-bottom: 20px;">
+                    <h4 class="text-center" style="margin-bottom: 10px;"><i class="fa-solid fa-boxes-stacked"></i> Stok Tersedia Saat Ini</h4>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <p class="stat-label">Refill 3 kg</p>
+                            <h3 id="infoStok3kg" class="stat-value text-blue">-</h3>
+                        </div>
+                    </div>
                 </div>
-                <!-- Tombol Bulat Melayang STOK -->
-                <button class="fab-btn" id="btnAddStok"><i class="fa-solid fa-plus"></i></button>
+
+                <!-- Form Pesanan -->
+                <div class="card-panel">
+                    <form id="formPesanan">
+                        <div class="form-group">
+                            <label>Nama Lengkap (Sesuai KTP)</label>
+                            <input type="text" id="orderNama" class="form-input" placeholder="Masukkan nama" required>
+                        </div>
+                        <div class="form-group">
+                            <label>NIK KTP (16 Digit)</label>
+                            <input type="number" id="orderNik" class="form-input" placeholder="Contoh: 737101..." required minlength="16">
+                        </div>
+                        <div class="form-group">
+                            <label>Jenis Tabung</label>
+                            <select id="orderJenis" class="form-input" required>
+                                <option value="3kg">Refill 3 kg</option>
+                                <option value="5kg">Refill 5.5 kg</option>
+                                <option value="12kg">Refill 12 kg</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Jumlah Tabung</label>
+                            <input type="number" id="orderJumlah" class="form-input" value="1" min="1" required>
+                        </div>
+                        <div class="form-group" style="background: var(--bg-dark); padding: 15px; border-radius: 8px; margin-top: 20px; text-align: center;">
+                            <label>Total Pembayaran</label>
+                            <h2 id="orderTotal" class="text-green">Rp 0</h2>
+                        </div>
+                        
+                        <button type="submit" class="btn-primary btn-whatsapp" style="width:100%; margin-top: 10px; font-size: 16px;">
+                            <i class="fa-brands fa-whatsapp"></i> Pesan & Lanjut ke WA
+                        </button>
+                    </form>
+                </div>
             </section>
 
         </main>
@@ -113,8 +152,9 @@
             <a href="#" class="nav-item" data-target="sec-kas">
                 <i class="fa-solid fa-wallet"></i><span>Kas</span>
             </a>
-            <a href="#" class="nav-item" data-target="sec-stok">
-                <i class="fa-solid fa-boxes-stacked"></i><span>Stok</span>
+            <!-- UBAH BAGIAN INI -->
+            <a href="#" class="nav-item" data-target="sec-pesan">
+                <i class="fa-brands fa-whatsapp"></i><span>Pesan</span>
             </a>
         </nav>
     </div>
