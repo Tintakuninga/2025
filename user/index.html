@@ -30,7 +30,7 @@
                 <div class="avatar-small"><i class="fa-solid fa-user"></i></div>
                 <div>
                     <h3 class="user-name" style="font-size: 14px;">User</h3>
-                    <p class="user-role" style="font-size: 11px; color: var(--text-muted);">Staff Pangkalan</p>
+                    <p class="user-role" style="font-size: 11px; color: var(--text-muted);">Pelanggan Terdaftar</p>
                 </div>
             </div>
             <div class="topbar-right">
@@ -149,12 +149,11 @@
             <a href="#" class="nav-item active" data-target="sec-harga">
                 <i class="fa-solid fa-tag"></i><span>Harga</span>
             </a>
-            <a href="#" class="nav-item" data-target="sec-kas">
-                <i class="fa-solid fa-wallet"></i><span>Kas</span>
-            </a>
-            <!-- UBAH BAGIAN INI -->
             <a href="#" class="nav-item" data-target="sec-pesan">
                 <i class="fa-brands fa-whatsapp"></i><span>Pesan</span>
+            </a>
+            <a href="#" class="nav-item" data-target="sec-kas">
+                <i class="fa-solid fa-wallet"></i><span>Kas</span>
             </a>
         </nav>
     </div>
@@ -181,40 +180,6 @@
                 <div class="form-group">
                     <label>Keterangan</label>
                     <input type="text" id="kasKet" class="form-input" placeholder="Contoh: Laku 10 tabung 3kg" required>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn-primary" style="width:100%;">Simpan</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL FORM STOK -->
-    <div id="modalStok" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Catat Mutasi Stok</h3>
-                <span class="close-btn" onclick="closeModal('modalStok')">&times;</span>
-            </div>
-            <form id="formStok">
-                <div class="form-group">
-                    <label>Jenis Tabung</label>
-                    <select id="stokTabung" class="form-input" required>
-                        <option value="3kg">Tabung 3 kg</option>
-                        <option value="5kg">Tabung 5.5 kg</option>
-                        <option value="12kg">Tabung 12 kg</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Jenis Mutasi</label>
-                    <select id="stokTipe" class="form-input" required>
-                        <option value="masuk">Tabung Masuk (Dari Agen)</option>
-                        <option value="keluar">Tabung Keluar (Laku Terjual)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Jumlah Tabung</label>
-                    <input type="number" id="stokJumlah" class="form-input" min="1" required>
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class="btn-primary" style="width:100%;">Simpan</button>

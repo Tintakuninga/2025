@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, setDoc, getDoc, addDoc, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, setDoc, getDoc, addDoc, query, where, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 // [FIREBASE CONFIG]
@@ -21,7 +21,6 @@ const provider = new GoogleAuthProvider();
 let currentUserUid = null;
 let hargaSekarang = { '3kg': 0, '5kg': 0, '12kg': 0 };
 
-// PENTING: Ganti dengan Nomor WhatsApp Anda yang diawali kode negara 62 (Tanpa + atau 0)
 const nomorWaAdmin = "6282291582220"; 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -109,27 +108,26 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- 1. LOAD HARGA GAS ---
-    async function loadHarga() {
-        try {
-            const docSnap = await getDoc(doc(db, "settings", "harga"));
+    // --- 1. LOAD HARGA GAS (REAL-TIME) ---
+    function loadHarga() {
+        onSnapshot(doc(db, "settings", "harga"), (docSnap) => {
             if (docSnap.exists() && docSnap.data().jual) {
                 const jual = docSnap.data().jual.refill;
                 
-                // Simpan harga ke memori global untuk kalkulasi Order
                 hargaSekarang['3kg'] = jual['3kg'] || 0;
                 hargaSekarang['5kg'] = jual['5kg'] || 0;
                 hargaSekarang['12kg'] = jual['12kg'] || 0;
                 
-                // Tampilkan ke UI Harga
                 document.getElementById('harga3kg').innerText = "Rp " + formatRupiah(hargaSekarang['3kg']);
                 document.getElementById('harga5kg').innerText = "Rp " + formatRupiah(hargaSekarang['5kg']);
                 document.getElementById('harga12kg').innerText = "Rp " + formatRupiah(hargaSekarang['12kg']);
                 document.getElementById('priceLastUpdate').innerText = formatTgl(docSnap.data().lastUpdated);
                 
-                hitungTotalPesanan(); // Hitung ulang total order jika harga berubah
+                hitungTotalPesanan(); // Update otomatis total di form pesanan jika harga berubah saat user sedang mengisi form
             }
-        } catch(e) { console.error("Error load harga:", e); }
+        }, (error) => {
+            console.error("Gagal mendengarkan perubahan harga:", error);
+        });
     }
 
     // --- 2. BUKU KAS PRIBADI ---
@@ -203,18 +201,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 3. FITUR PEMESANAN GAS & WA ---
     
-    // Load Stok Tersedia dari Admin
-    async function loadStokInfo() {
-        try {
-            const docSnap = await getDoc(doc(db, "settings", "stok"));
+    // Load Stok Tersedia dari Admin (REAL-TIME DARI 'inventaris')
+    function loadStokInfo() {
+        // Sinkron dengan dokumen 'inventaris' yang dipakai admin
+        onSnapshot(doc(db, "settings", "inventaris"), (docSnap) => {
+            const elStok3kg = document.getElementById('infoStok3kg');
             if (docSnap.exists()) {
-                const elStok3kg = document.getElementById('infoStok3kg');
-                if(elStok3kg) elStok3kg.innerText = (docSnap.data()['3kg'] || 0) + " TBG";
+                // Menyesuaikan dengan struktur data inventaris admin
+                const stok3kg = docSnap.data()['3kg']?.sisaTabung || 0;
+                
+                if(elStok3kg) {
+                    elStok3kg.innerText = stok3kg + " TBG";
+                    // Opsional: Beri warna merah jika stok habis
+                    if(stok3kg <= 0) {
+                        elStok3kg.classList.remove('text-blue');
+                        elStok3kg.classList.add('text-danger');
+                        elStok3kg.innerText = "HABIS";
+                    } else {
+                        elStok3kg.classList.add('text-blue');
+                        elStok3kg.classList.remove('text-danger');
+                    }
+                }
             } else {
-                const elStok3kg = document.getElementById('infoStok3kg');
                 if(elStok3kg) elStok3kg.innerText = "Belum ada data";
             }
-        } catch(e) { console.error("Error load stok info:", e); }
+        }, (error) => {
+            console.error("Gagal mendengarkan data stok:", error);
+        });
     }
 
     // Kalkulasi Harga Otomatis di Form
