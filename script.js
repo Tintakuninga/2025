@@ -265,6 +265,28 @@ document.addEventListener('DOMContentLoaded', () => {
         return new Date(dateString).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
     }
 
+    // ==========================================
+    // FUNGSI KONFIRMASI POSITIF (SELESAI/UBAH)
+    // ==========================================
+    let confirmActionCallback = null;
+    window.showConfirmAction = function(message, callback) {
+        const confirmActionMsg = document.getElementById('confirmActionMessage');
+        const confirmActionModal = document.getElementById('confirmActionModal');
+        if (confirmActionMsg && confirmActionModal) {
+            confirmActionMsg.innerText = message;
+            confirmActionModal.style.display = "flex";
+            confirmActionCallback = callback;
+        }
+    };
+
+    const btnConfirmActionYes = document.getElementById('btnConfirmActionYes');
+    if (btnConfirmActionYes) {
+        btnConfirmActionYes.addEventListener('click', () => {
+            closeModal('confirmActionModal');
+            if (confirmActionCallback) confirmActionCallback();
+        });
+    }
+
     // =====================================================================
     // 6. LOGIC DATA PELANGGAN (CRUD FIRESTORE & VALIDASI NIK)
     // =====================================================================
@@ -895,7 +917,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Fungsi Global agar bisa dipanggil via Atribut HTML onclick
     window.selesaikanPesanan = (idPesanan, jenisTabung, jumlah, totalHarga) => {
-        showConfirm("Tandai pesanan selesai? Stok gas akan otomatis berkurang.", async () => {
+        showConfirmAction("Tandai pesanan selesai? Stok gas akan otomatis berkurang.", async () => {
             try {
                 // A. Ubah Status Pesanan
                 await updateDoc(doc(db, "antrean_pesanan", idPesanan), { 

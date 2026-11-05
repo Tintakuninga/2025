@@ -444,6 +444,21 @@
         </div>
     </div>
 
+    <!-- MODAL KONFIRMASI AKSI POSITIF (Untuk Selesai/Setuju) -->
+    <div id="confirmActionModal" class="modal">
+        <div class="modal-content card-panel alert-modal">
+            <div class="alert-icon" style="color: var(--green-color);">
+                <i class="fa-solid fa-circle-question"></i>
+            </div>
+            <h3 style="margin-bottom: 10px;">Konfirmasi Pesanan</h3>
+            <p id="confirmActionMessage" class="text-muted" style="margin-bottom: 20px;"></p>
+            <div class="form-grid-2">
+                <button class="btn-primary" id="btnConfirmActionYes" style="padding: 10px; font-weight: bold;">Ya, Setuju</button>
+                <button class="btn-dark" onclick="closeModal('confirmActionModal')">Batal</button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL LOGOUT (Khusus Keluar Sistem) -->
     <div id="modalLogout" class="modal">
         <div class="modal-content card-panel alert-modal">
