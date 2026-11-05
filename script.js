@@ -56,20 +56,22 @@ document.addEventListener('DOMContentLoaded', () => {
             const userDocRef = doc(db, "pengguna", user.uid);
             const userDocSnap = await getDoc(userDocRef);
             let role = "user"; 
+            let status = "pending"; 
 
             if (!userDocSnap.exists()) {
                 await setDoc(userDocRef, {
                     nama: user.displayName,
                     email: user.email,
                     role: "user",
+                    status: "pending", // Status awal terkunci
                     createdAt: new Date().toISOString()
                 });
 
-                // Kirim notifikasi pendaftaran pengguna baru ke sistem
+                // Kirim notifikasi pendaftaran pengguna baru ke admin
                 try {
                     await addDoc(collection(db, "notifikasi"), {
                         judul: "Pengguna Baru Mendaftar",
-                        pesan: `${user.displayName} (${user.email}) telah bergabung ke aplikasi.`,
+                        pesan: `${user.displayName} mendaftar dan menunggu persetujuan Anda.`,
                         isRead: false,
                         timestamp: new Date()
                     });
@@ -77,7 +79,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error("Gagal mengirim notifikasi:", err);
                 }
             } else {
-                role = userDocSnap.data().role;
+                const data = userDocSnap.data();
+                role = data.role || "user";
+                // Anggap akun lama yang tidak punya status adalah approved
+                status = data.status || "approved"; 
             }
 
             if (role === "admin") {
@@ -96,8 +101,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadCustomers();
                 loadInventaris();
                 loadHarga();
+                loadPendingUsers(); // Memuat data user pending
                 listenToNotifications();
             } else {
+                // BLOKIR AKSES JIKA STATUS MASIH PENDING
+                if (status === "pending") {
+                    await signOut(auth);
+                    if (loginError) {
+                        loginError.style.display = "block";
+                        loginError.innerText = "Akun Anda sedang menunggu persetujuan admin. Silakan cek kembali nanti.";
+                    }
+                    return;
+                }
+                // Jika sudah di-approve, arahkan ke halaman user
                 window.location.href = "./user/";
             }
         } else {
@@ -844,4 +860,66 @@ document.addEventListener('DOMContentLoaded', () => {
             reader.readAsText(file);
         });
     }
+
+    // =====================================================================
+    // FITUR PERSETUJUAN AKUN (ADMIN APPROVAL)
+    // =====================================================================
+    const approvalTableBody = document.getElementById('approvalTableBody');
+
+    async function loadPendingUsers() {
+        if (!approvalTableBody) return;
+        
+        // Ambil data user yang statusnya masih 'pending'
+        const qPending = query(collection(db, "pengguna"), where("status", "==", "pending"));
+        onSnapshot(qPending, (snapshot) => {
+            approvalTableBody.innerHTML = '';
+            if (snapshot.empty) {
+                approvalTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;" class="text-muted">Tidak ada akun yang menunggu persetujuan.</td></tr>`;
+                return;
+            }
+
+            snapshot.forEach((docSnap) => {
+                const u = docSnap.data();
+                const uid = docSnap.id;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${u.nama}</strong></td>
+                    <td>${u.email}</td>
+                    <td>${formatTanggal(u.createdAt)}</td>
+                    <td><span class="badge-status badge-pt"><i class="fa-regular fa-clock"></i> Pending</span></td>
+                    <td>
+                        <button class="btn-primary" onclick="approveUser('${uid}')" style="padding: 6px 12px; margin-right:5px;" title="Setujui"><i class="fa-solid fa-check"></i></button>
+                        <button class="btn-danger" onclick="rejectUser('${uid}')" title="Tolak"><i class="fa-solid fa-xmark"></i></button>
+                    </td>
+                `;
+                approvalTableBody.appendChild(tr);
+            });
+        });
+    }
+
+    // Fungsi Setujui Akun
+    window.approveUser = (uid) => {
+        showConfirm("Setujui akun ini untuk mengakses sistem?", async () => {
+            try {
+                await updateDoc(doc(db, "pengguna", uid), { status: "approved" });
+                showAlert("Akun berhasil disetujui. Pengguna sekarang dapat login.", "Berhasil", "success");
+            } catch (e) {
+                console.error(e);
+                showAlert("Gagal menyetujui akun.", "Error", "error");
+            }
+        });
+    };
+
+    // Fungsi Tolak Akun (Hapus Data Pendaftaran)
+    window.rejectUser = (uid) => {
+        showConfirm("Tolak dan hapus data pendaftaran ini?", async () => {
+            try {
+                await deleteDoc(doc(db, "pengguna", uid));
+                showAlert("Pendaftaran akun berhasil ditolak.", "Ditolak", "success");
+            } catch (e) {
+                console.error(e);
+                showAlert("Gagal menolak pendaftaran.", "Error", "error");
+            }
+        });
+    };
 });

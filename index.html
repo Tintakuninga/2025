@@ -48,6 +48,9 @@
                 <a href="#" class="nav-item" data-target="harga-gas" title="Harga Gas">
                     <i class="fa-solid fa-tags"></i> <span class="nav-text">Harga Gas</span>
                 </a>
+                <a href="#" class="nav-item" data-target="persetujuan-akun" title="Persetujuan Akun">
+                    <i class="fa-solid fa-user-check"></i> <span class="nav-text">Persetujuan Akun</span>
+                </a>
             </nav>
             <button class="btn-exit"><i class="fa-solid fa-right-from-bracket"></i> <span class="nav-text">Keluar</span></button>
         </aside>
@@ -315,6 +318,34 @@
                                 <i class="fa-solid fa-floppy-disk"></i> Simpan Daftar Harga
                             </button>
                         </form>
+                    </div>
+                </section>
+
+                <!-- 5. PERSETUJUAN AKUN (APPROVAL) -->
+                <section id="persetujuan-akun" class="page-section">
+                    <div class="page-header">
+                        <h2>Persetujuan Akun Baru</h2>
+                    </div>
+                    <div class="card-panel">
+                        <p class="text-muted" style="margin-bottom: 20px;">
+                            <i class="fa-solid fa-circle-info"></i> Daftar pengguna yang baru mendaftar dan menunggu izin akses sistem.
+                        </p>
+                        <div class="table-responsive">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>NAMA</th>
+                                        <th>EMAIL</th>
+                                        <th>TGL DAFTAR</th>
+                                        <th>STATUS</th>
+                                        <th>AKSI</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="approvalTableBody">
+                                    <!-- Data user pending dimuat di sini -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </section>
             </div>
