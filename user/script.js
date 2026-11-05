@@ -201,18 +201,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 3. FITUR PEMESANAN GAS & WA ---
     
-    // Load Stok Tersedia dari Admin (REAL-TIME DARI 'inventaris')
+    // --- Load Stok Tersedia dari Admin (REAL-TIME DARI 'inventaris') ---
     function loadStokInfo() {
-        // Sinkron dengan dokumen 'inventaris' yang dipakai admin
         onSnapshot(doc(db, "settings", "inventaris"), (docSnap) => {
             const elStok3kg = document.getElementById('infoStok3kg');
+            
             if (docSnap.exists()) {
-                // Menyesuaikan dengan struktur data inventaris admin
-                const stok3kg = docSnap.data()['3kg']?.sisaTabung || 0;
+                // Mengambil nilai langsung dari field '3kg'
+                let stok3kgMentah = docSnap.data()['3kg'] || "0";
+                
+                // Karena di database tersimpan sebagai string ("130"), kita ubah jadi angka (integer)
+                let stok3kg = parseInt(stok3kgMentah, 10);
                 
                 if(elStok3kg) {
-                    elStok3kg.innerText = stok3kg + " TBG";
-                    // Opsional: Beri warna merah jika stok habis
                     if(stok3kg <= 0) {
                         elStok3kg.classList.remove('text-blue');
                         elStok3kg.classList.add('text-danger');
@@ -220,6 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     } else {
                         elStok3kg.classList.add('text-blue');
                         elStok3kg.classList.remove('text-danger');
+                        elStok3kg.innerText = stok3kg + " TBG";
                     }
                 }
             } else {
