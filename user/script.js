@@ -58,10 +58,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('appContent').style.display = "flex";
             document.querySelector('.user-name').innerText = user.displayName;
             
-            // Isi otomatis nama di form pemesanan
-            const inputNama = document.getElementById('orderNama');
-            if(inputNama) inputNama.value = user.displayName;
-            
             // Load Data Utama
             loadHarga();
             loadKas();
@@ -201,74 +197,189 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 3. FITUR PEMESANAN GAS & WA ---
     
-    // --- Load Stok Tersedia dari Admin (REAL-TIME DARI 'inventaris') ---
+    // Variabel Global untuk menyimpan stok real-time
+    let stokSekarangAdmin = { '3kg': 0, '5kg': 0, '12kg': 0 };
+
+    // Validasi Input NIK Real-Time (Hanya Angka & 16 Digit)
+    const orderNik = document.getElementById('orderNik');
+    const nikError = document.getElementById('nikError');
+
+    if (orderNik) {
+        orderNik.addEventListener('input', function() {
+            this.value = this.value.replace(/\D/g, ''); // Buang semua huruf/karakter selain angka
+            
+            if (this.value.length > 0 && this.value.length !== 16) {
+                nikError.style.display = 'block';
+                nikError.innerText = "NIK harus persis 16 digit angka.";
+                this.style.borderColor = "var(--danger-color)";
+            } else {
+                nikError.style.display = 'none';
+                this.style.borderColor = "var(--border-color)";
+            }
+        });
+    }
+
+    // Load Stok dari Admin & Update UI Tombol Plus-Minus
     function loadStokInfo() {
         onSnapshot(doc(db, "settings", "inventaris"), (docSnap) => {
             const elStok3kg = document.getElementById('infoStok3kg');
             
             if (docSnap.exists()) {
-                // Mengambil nilai langsung dari field '3kg'
-                let stok3kgMentah = docSnap.data()['3kg'] || "0";
+                const dataInv = docSnap.data();
+                // Simpan stok ke memori lokal
+                stokSekarangAdmin['3kg'] = parseInt(dataInv['3kg'] || 0, 10);
+                stokSekarangAdmin['5kg'] = parseInt(dataInv['5kg'] || 0, 10);
+                stokSekarangAdmin['12kg'] = parseInt(dataInv['12kg'] || 0, 10);
                 
-                // Karena di database tersimpan sebagai string ("130"), kita ubah jadi angka (integer)
-                let stok3kg = parseInt(stok3kgMentah, 10);
-                
+                // Update tampilan teks Dashboard Stok
                 if(elStok3kg) {
-                    if(stok3kg <= 0) {
+                    if(stokSekarangAdmin['3kg'] <= 0) {
                         elStok3kg.classList.remove('text-blue');
                         elStok3kg.classList.add('text-danger');
                         elStok3kg.innerText = "HABIS";
                     } else {
                         elStok3kg.classList.add('text-blue');
                         elStok3kg.classList.remove('text-danger');
-                        elStok3kg.innerText = stok3kg + " TBG";
+                        elStok3kg.innerText = stokSekarangAdmin['3kg'] + " TBG";
                     }
                 }
-            } else {
-                if(elStok3kg) elStok3kg.innerText = "Belum ada data";
+
+                // Segarkan logika tombol jumlah setiap kali stok berubah
+                updateQtyUI();
             }
         }, (error) => {
             console.error("Gagal mendengarkan data stok:", error);
         });
     }
 
-    // Kalkulasi Harga Otomatis di Form
+    // --- LOGIKA TOMBOL PLUS MINUS ---
+    const btnMinQty = document.getElementById('btnMinQty');
+    const btnAddQty = document.getElementById('btnAddQty');
+    const orderJumlah = document.getElementById('orderJumlah');
+    const orderJenis = document.getElementById('orderJenis');
+    const stokWarning = document.getElementById('stokWarning');
+    const btnSubmitPesanan = document.getElementById('btnSubmitPesanan');
+
+    function updateQtyUI() {
+        if (!orderJumlah || !orderJenis) return;
+
+        const jenis = orderJenis.value;
+        const maxStok = stokSekarangAdmin[jenis] || 0;
+        let currentQty = parseInt(orderJumlah.value) || 0;
+
+        if (maxStok <= 0) {
+            // Jika Habis: Kunci di 0
+            orderJumlah.value = 0;
+            btnMinQty.disabled = true;
+            btnAddQty.disabled = true;
+            btnMinQty.style.opacity = "0.5";
+            btnAddQty.style.opacity = "0.5";
+            stokWarning.innerText = `Stok ${jenis.toUpperCase()} saat ini HABIS.`;
+            stokWarning.style.display = "block";
+            btnSubmitPesanan.disabled = true;
+            btnSubmitPesanan.style.opacity = "0.5";
+        } else {
+            // Jika Tersedia: Aktifkan input
+            btnSubmitPesanan.disabled = false;
+            btnSubmitPesanan.style.opacity = "1";
+
+            if (currentQty === 0) currentQty = 1; // Minimal 1 jika ada stok
+            if (currentQty > maxStok) currentQty = maxStok; // Jangan lewat batas stok
+            
+            orderJumlah.value = currentQty;
+
+            // Kontrol Nyala/Mati tombol Plus Minus
+            btnMinQty.disabled = currentQty <= 1;
+            btnMinQty.style.opacity = currentQty <= 1 ? "0.5" : "1";
+            
+            btnAddQty.disabled = currentQty >= maxStok;
+            btnAddQty.style.opacity = currentQty >= maxStok ? "0.5" : "1";
+            
+            if(currentQty >= maxStok) {
+                stokWarning.innerText = `Batas maksimal pesanan (${maxStok} Tabung).`;
+                stokWarning.style.display = "block";
+            } else {
+                stokWarning.style.display = "none";
+            }
+        }
+        hitungTotalPesanan();
+    }
+
+    // Trigger Perubahan
+    if (orderJenis) orderJenis.addEventListener('change', () => {
+        orderJumlah.value = 0; // Paksa reset saat ganti tabung
+        updateQtyUI();
+    });
+
+    if (btnAddQty) btnAddQty.addEventListener('click', () => {
+        const jenis = orderJenis.value;
+        const maxStok = stokSekarangAdmin[jenis] || 0;
+        let currentQty = parseInt(orderJumlah.value) || 0;
+        if (currentQty < maxStok) {
+            orderJumlah.value = currentQty + 1;
+            updateQtyUI();
+        }
+    });
+
+    if (btnMinQty) btnMinQty.addEventListener('click', () => {
+        let currentQty = parseInt(orderJumlah.value) || 0;
+        if (currentQty > 1) {
+            orderJumlah.value = currentQty - 1;
+            updateQtyUI();
+        }
+    });
+
     function hitungTotalPesanan() {
-        const elJenis = document.getElementById('orderJenis');
-        const elJumlah = document.getElementById('orderJumlah');
         const elTotal = document.getElementById('orderTotal');
+        if(!orderJenis || !orderJumlah || !elTotal) return 0;
         
-        if(!elJenis || !elJumlah || !elTotal) return 0;
-        
-        const jenis = elJenis.value;
-        const jumlah = parseInt(elJumlah.value) || 0;
+        const jenis = orderJenis.value;
+        const jumlah = parseInt(orderJumlah.value) || 0;
         const total = (hargaSekarang[jenis] || 0) * jumlah;
         
         elTotal.innerText = "Rp " + formatRupiah(total);
         return total;
     }
 
-    // Trigger Perhitungan saat User ubah Jenis / Jumlah
-    const orderJenis = document.getElementById('orderJenis');
-    if(orderJenis) orderJenis.addEventListener('change', hitungTotalPesanan);
-    
-    const orderJumlah = document.getElementById('orderJumlah');
-    if(orderJumlah) orderJumlah.addEventListener('input', hitungTotalPesanan);
-
-    // Proses Submit Pesanan
+    // --- PROSES SUBMIT PESANAN ---
     const formPesanan = document.getElementById('formPesanan');
     if(formPesanan) {
         formPesanan.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const nama = document.getElementById('orderNama').value;
-            const nik = document.getElementById('orderNik').value;
+            const nama = document.getElementById('orderNama').value.trim();
+            const nik = document.getElementById('orderNik').value.trim();
             const jenis = document.getElementById('orderJenis').value;
-            const jumlah = parseInt(document.getElementById('orderJumlah').value) || 1;
+            const jumlah = parseInt(document.getElementById('orderJumlah').value) || 0;
             const totalHarga = hitungTotalPesanan();
 
+            // 1. Validasi Keamanan NIK KTP
+            if (nik.length !== 16) {
+                alert("Pemesanan Gagal: NIK KTP harus persis 16 digit angka.");
+                return;
+            }
+            
+            // Validasi format angka bulan & tanggal lahir di KTP (Karakter ke-7 sampai ke-10)
+            const dd = parseInt(nik.substring(6, 8), 10);
+            const mm = parseInt(nik.substring(8, 10), 10);
+            if (mm < 1 || mm > 12) {
+                alert("Pemesanan Gagal: NIK tidak sesuai standar kependudukan (Kode Bulan Lahir salah).");
+                return;
+            }
+            const isValidHari = (dd >= 1 && dd <= 31) || (dd >= 41 && dd <= 71);
+            if (!isValidHari) {
+                alert("Pemesanan Gagal: NIK tidak sesuai standar kependudukan (Kode Tanggal Lahir salah).");
+                return;
+            }
+
+            // 2. Validasi Stok
+            if (jumlah <= 0 || jumlah > (stokSekarangAdmin[jenis] || 0)) {
+                alert("Pesanan ditolak: Jumlah pesanan tidak valid atau stok telah habis.");
+                return;
+            }
+
             try {
-                // 1. Simpan ke database (Antrean Pesanan Admin)
+                // Simpan ke Antrean
                 await addDoc(collection(db, "antrean_pesanan"), {
                     userId: currentUserUid,
                     namaLengkap: nama,
@@ -280,16 +391,26 @@ document.addEventListener('DOMContentLoaded', () => {
                     tanggalOrder: serverTimestamp() 
                 });
 
-                // 2. Format Pesan WhatsApp & Redirect
+                // Kirim Notifikasi Admin
                 const jenisLabel = jenis === '3kg' ? '3 kg' : jenis === '5kg' ? '5.5 kg' : '12 kg';
+                await addDoc(collection(db, "notifikasi"), {
+                    tipe: "pesanan_baru",
+                    pesan: `Pesanan baru: ${jumlah} tabung ${jenisLabel} dari ${nama}`,
+                    userId: currentUserUid,
+                    dibaca: false, 
+                    tanggal: serverTimestamp()
+                });
+
+                alert("Pesanan berhasil dikirim ke Admin! Anda akan diarahkan ke WhatsApp untuk konfirmasi.");
+
+                // Redirect WhatsApp
                 const pesanWa = `Halo Admin Pangkalan, saya ingin memesan gas:\n\n*Nama:* ${nama}\n*NIK:* ${nik}\n*Pesanan:* ${jumlah} Tabung Refill ${jenisLabel}\n*Total Bayar:* Rp ${formatRupiah(totalHarga)}\n\nMohon konfirmasi pesanan saya. Terima kasih.`;
-                
                 const waUrl = `https://wa.me/${nomorWaAdmin}?text=${encodeURIComponent(pesanWa)}`;
                 window.open(waUrl, '_blank');
 
-                // 3. Reset Jumlah ke default (1)
-                document.getElementById('orderJumlah').value = 1;
-                hitungTotalPesanan();
+                // Reset Form (kecuali nama dan NIK agar tidak lelah mengetik ulang jika beli lagi)
+                orderJumlah.value = 1;
+                updateQtyUI();
 
             } catch (error) {
                 console.error("Gagal membuat pesanan:", error);
@@ -297,4 +418,4 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-});
+}); // End DOMContentLoaded
