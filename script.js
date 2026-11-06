@@ -871,6 +871,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // 11. FITUR PESANAN MASUK (ANTREAN DARI USER)
     // =====================================================================
     const tabelPesananMasuk = document.getElementById('tabelPesananMasuk');
+    
+    // Variabel penanda agar notifikasi tidak muncul beruntun saat halaman pertama kali dimuat
+    let isInitialPesananLoad = true; 
 
     function loadPesananMasuk() {
         if (!tabelPesananMasuk) return;
@@ -878,6 +881,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const qPesanan = query(collection(db, "antrean_pesanan"), where("statusPesanan", "==", "Menunggu"));
         
         onSnapshot(qPesanan, (snapshot) => {
+            
+            // === FITUR NOTIFIKASI REAL-TIME PESANAN BARU ===
+            snapshot.docChanges().forEach((change) => {
+                // Deteksi jika ada data "added" (baru) dan ini bukan saat pertama kali halaman di-refresh
+                if (change.type === "added" && !isInitialPesananLoad) {
+                    const dataBaru = change.doc.data();
+                    const nama = dataBaru.namaLengkap || 'Pelanggan';
+                    const jumlah = dataBaru.jumlahTabung || 0;
+                    const jenis = dataBaru.jenisTabung || 'Tabung';
+                    
+                    // Memunculkan Pop-up Alert di layar Admin
+                    showAlert(`Ada pesanan masuk dari ${nama} (${jumlah}x ${jenis}). Silakan cek menu Pesanan Masuk!`, "Pesanan Baru!", "success");
+                }
+            });
+            
+            // Setelah pengecekan pertama selesai, matikan penanda awal
+            isInitialPesananLoad = false;
+            // ===============================================
+
             tabelPesananMasuk.innerHTML = '';
             if (snapshot.empty) {
                 tabelPesananMasuk.innerHTML = `<tr><td colspan="7" style="text-align:center;" class="text-muted">Belum ada pesanan masuk saat ini.</td></tr>`;
