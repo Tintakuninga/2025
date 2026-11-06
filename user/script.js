@@ -467,4 +467,76 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // ==========================================
+    // FITUR PWA (SERVICE WORKER, INSTALL & UPDATE)
+    // ==========================================
+
+    let deferredPrompt;
+    const installBtn = document.getElementById('pwaInstallBtn');
+    const updateBanner = document.getElementById('pwaUpdateBanner');
+    const updateBtn = document.getElementById('pwaUpdateBtn');
+
+    // 1. Logika Tombol Install
+    window.addEventListener('beforeinstallprompt', (e) => {
+        // Mencegah browser langsung memunculkan pop-up bawaan
+        e.preventDefault();
+        deferredPrompt = e;
+        
+        // Munculkan tombol Install yang nempel di kanan
+        if(installBtn) installBtn.style.display = 'flex';
+    });
+
+    if(installBtn) {
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt(); // Munculkan pop-up install
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    console.log('User menginstal aplikasi');
+                }
+                deferredPrompt = null;
+                installBtn.style.display = 'none'; // Sembunyikan tombol setelah di-install
+            }
+        });
+    }
+
+    // 2. Registrasi Service Worker & Deteksi Update
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js').then((registration) => {
+                console.log('Service Worker Terdaftar:', registration);
+
+                // Deteksi jika ada update Service Worker (Versi baru)
+                registration.addEventListener('updatefound', () => {
+                    const newWorker = registration.installing;
+                    newWorker.addEventListener('statechange', () => {
+                        // Jika ada pekerja (worker) baru yang menunggu, berarti ada update
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            if(updateBanner) updateBanner.style.display = 'flex';
+                            
+                            // Jika tombol update ditekan
+                            if(updateBtn) {
+                                updateBtn.addEventListener('click', () => {
+                                    // Paksa service worker baru untuk aktif
+                                    newWorker.postMessage({ action: 'skipWaiting' });
+                                });
+                            }
+                        }
+                    });
+                });
+            }).catch((err) => {
+                console.log('Gagal mendaftarkan Service Worker:', err);
+            });
+        });
+
+        // Refresh halaman secara otomatis saat versi baru berhasil diaktifkan
+        let refreshing;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (!refreshing) {
+                window.location.reload();
+                refreshing = true;
+            }
+        });
+    }
 }); // End DOMContentLoaded
