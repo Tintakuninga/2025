@@ -210,7 +210,6 @@ body.light-theme .notif-item:hover { background: rgba(0, 0, 0, 0.03); }
 
 /* ==========================================================================
    RESPONSIVE DESIGN KHUSUS SMARTPHONE & TABLET (Max-width: 768px)
-   Pastikan kode ini diletakkan di bagian PALING BAWAH file CSS Anda.
    ========================================================================== */
 
 @media screen and (max-width: 768px) {
@@ -218,16 +217,15 @@ body.light-theme .notif-item:hover { background: rgba(0, 0, 0, 0.03); }
     /* 1. KOTAK RINGKASAN (DASHBOARD STATS) */
     .stats-grid {
         display: grid;
-        grid-template-columns: 1fr; /* Ubah menjadi 1 tumpukan memanjang ke bawah */
+        grid-template-columns: 1fr; /* 1 kolom penuh */
         gap: 15px;
-        padding: 10px;
     }
 
     /* 2. TABEL DATA (SCROLL HORIZONTAL) */
     .table-responsive {
         width: 100%;
-        overflow-x: auto; /* Memunculkan scroll horizontal */
-        -webkit-overflow-scrolling: touch; /* Efek scroll mulus di iPhone/iOS */
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
         margin-bottom: 20px;
         border: 1px solid var(--border-color);
         border-radius: 8px;
@@ -235,60 +233,93 @@ body.light-theme .notif-item:hover { background: rgba(0, 0, 0, 0.03); }
     
     .custom-table {
         width: 100%;
-        min-width: 600px; /* Tabel tidak akan menyusut melebihi 600px, mencegah teks berantakan */
+        min-width: 600px;
     }
 
-    /* 3. SIDEBAR (OFF-CANVAS / SEMBUNYI OTOMATIS) */
+    /* 3. SIDEBAR (PERBAIKAN OVERLAP) */
     .sidebar {
         position: fixed;
-        left: -100%; /* Sembunyikan ke luar layar kiri */
+        left: -100%; /* Sembunyikan sepenuhnya ke kiri */
         top: 0;
+        width: 250px !important; /* Kembalikan lebar penuh saat dibuka */
         height: 100vh;
-        z-index: 999;
+        z-index: 1050; /* Pastikan di atas konten lain */
         transition: left 0.3s ease;
-        box-shadow: 2px 0 10px rgba(0,0,0,0.5);
+        box-shadow: 2px 0 15px rgba(0,0,0,0.7);
+        padding: 20px !important; 
     }
     
-    /* Class .collapsed atau .show dikendalikan oleh tombol hamburger di script.js */
-    .sidebar.collapsed, .sidebar.show {
-        left: 0; /* Munculkan sidebar saat ditekan */
+    /* Memunculkan sidebar (mendukung class collapsed, show, atau active dari JS) */
+    .sidebar.collapsed, .sidebar.show, .sidebar.active {
+        left: 0; 
     }
 
-    /* 4. MAIN CONTENT & HEADER */
+    /* Paksa teks dan ikon sidebar tampil penuh di mobile meskipun mode 'collapsed' aktif */
+    .sidebar .user-name, 
+    .sidebar .user-id, 
+    .sidebar .nav-section-label, 
+    .sidebar .nav-text {
+        display: block !important;
+    }
+    
+    .sidebar .nav-item {
+        justify-content: flex-start !important;
+        padding: 12px 15px !important;
+    }
+
+    .sidebar .avatar-circle {
+        width: 70px !important;
+        height: 70px !important;
+        font-size: 28px !important;
+    }
+
+    .sidebar .btn-exit {
+        display: block !important;
+    }
+
+    /* 4. MAIN CONTENT & HEADER (PERBAIKAN TOPBAR) */
     .main-content {
-        margin-left: 0 !important; /* Hilangkan margin kiri karena sidebar hilang */
+        margin-left: 0 !important;
         width: 100%;
         padding: 10px;
     }
 
     .topbar {
         padding: 10px;
-        flex-wrap: wrap; /* Izinkan elemen header turun ke bawah jika sempit */
+        flex-wrap: nowrap; /* Cegah elemen turun ke baris baru */
+        gap: 8px;
     }
 
-    /* Sembunyikan nama email/admin di topbar agar tidak sesak, sisakan foto/inisial saja */
-    .topbar .user-email {
+    .topbar-left, .topbar-right {
+        gap: 8px;
+    }
+
+    .topbar-left h2 {
+        font-size: 15px; /* Perkecil judul agar muat di layar hp */
+        white-space: nowrap;
+        margin-left: 0;
+    }
+
+    /* Sembunyikan teks profil dan garis pemisah di topbar agar tidak sesak */
+    .profile-info-text, .topbar-divider {
         display: none;
     }
 
     /* 5. MODAL / POP-UP FORM */
     .modal-content {
-        width: 95% !important; /* Lebarkan modal mendekati tepi layar hp */
+        width: 95% !important;
         max-height: 90vh;
-        overflow-y: auto; /* Izinkan scroll vertikal di dalam modal jika form panjang */
+        overflow-y: auto;
         margin: 5vh auto;
         padding: 15px;
     }
 
     /* 6. TOMBOL AKSI PADA TABEL */
-    /* Buat tombol aksi (edit/hapus/selesai) lebih besar agar mudah disentuh jari (Touch Target) */
     .btn-primary, .btn-danger, .btn-edit, button {
         min-height: 40px;
         padding: 8px 12px;
-        margin: 2px;
     }
     
-    /* Form input fields take full width */
     .form-grid-2, .form-grid-3 {
         grid-template-columns: 1fr;
     }
