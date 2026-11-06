@@ -475,11 +475,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Kirim Notifikasi Admin
                 const jenisLabel = jenis === '3kg' ? '3 kg' : jenis === '5kg' ? '5.5 kg' : '12 kg';
                 await addDoc(collection(db, "notifikasi"), {
-                    tipe: "pesanan_baru",
+                    judul: "Pesanan Masuk (Antrean)",
                     pesan: `Pesanan baru: ${jumlah} tabung ${jenisLabel} dari ${nama}`,
-                    userId: currentUserUid,
-                    dibaca: false, 
-                    tanggal: serverTimestamp()
+                    isRead: false,
+                    timestamp: serverTimestamp()
                 });
 
                 orderJumlah.value = 1;
