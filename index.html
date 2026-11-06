@@ -568,6 +568,22 @@
         </div>
     </div>
 
+    <script>
+        document.addEventListener('click', function(event) {
+            if (window.innerWidth <= 768) {
+                const sidebar = document.getElementById('sidebar'); 
+                const menuBtn = document.getElementById('sidebarToggle'); 
+
+                if (!sidebar || !menuBtn) return; 
+
+                const isSidebarOpen = !sidebar.classList.contains('collapsed');
+
+                if (isSidebarOpen && !sidebar.contains(event.target) && !menuBtn.contains(event.target)) {
+                    sidebar.classList.add('collapsed'); 
+                }
+            }
+        });
+    </script>
     <script type="module" src="script.js"></script>
 </body>
 </html>

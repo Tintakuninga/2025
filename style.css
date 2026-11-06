@@ -323,6 +323,20 @@ body.light-theme .notif-item:hover { background: rgba(0, 0, 0, 0.03); }
     .form-grid-2, .form-grid-3 {
         grid-template-columns: 1fr;
     }
+
+    /* 7. Notification-dropdown */
+    .notification-dropdown {
+        position: absolute !important;
+        top: 100% !important;
+        
+        left: 50% !important;
+        right: auto !important;
+        
+        transform: translateX(-65%) !important; 
+        
+        width: 320px !important;
+        max-width: 90vw !important;
+    }
 }
 
 /* ==========================================================================
