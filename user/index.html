@@ -228,6 +228,26 @@
         </div>
     </div>
 
+    <!-- MODAL KONFIRMASI LOGOUT -->
+    <div id="modalLogout" class="modal">
+        <div class="modal-content text-center" style="padding: 30px 20px;">
+            <div style="font-size: 40px; color: var(--danger-color); margin-bottom: 10px;">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </div>
+            <h3 style="margin-bottom: 10px;">Konfirmasi Keluar</h3>
+            <p style="color: var(--text-muted); margin-bottom: 25px;">Apakah Anda yakin ingin keluar dari aplikasi?</p>
+            
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <button type="button" class="btn-primary" id="btnBatalLogout" style="flex: 1; background: var(--bg-dark); border: 1px solid var(--border-color); color: var(--text-main);">
+                    Batal
+                </button>
+                <button type="button" class="btn-primary" id="btnKonfirmLogout" style="flex: 1; background: var(--danger-color); color: white;">
+                    Ya, Keluar
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script type="module" src="script.js"></script>
 </body>
 </html>

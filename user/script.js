@@ -50,19 +50,33 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
 
-    //tombol logout
+    // --- FITUR LOGOUT DENGAN MODAL ---
     const btnLogout = document.getElementById('btnLogout');
-    if (btnLogout) {
+    const modalLogout = document.getElementById('modalLogout');
+    const btnBatalLogout = document.getElementById('btnBatalLogout');
+    const btnKonfirmLogout = document.getElementById('btnKonfirmLogout');
+
+    if (btnLogout && modalLogout) {
+        // Tampilkan modal dari bawah layar saat tombol logout diklik
         btnLogout.addEventListener('click', () => {
-            const yakinKeluar = confirm("Apakah Anda yakin ingin keluar dari aplikasi?");
-            if (yakinKeluar) {
-                signOut(auth).then(() => {
-                    console.log("User berhasil logout.");
-                }).catch((error) => {
-                    console.error("Gagal logout:", error);
-                    alert("Terjadi kesalahan saat logout.");
-                });
-            }
+            modalLogout.style.display = 'flex';
+        });
+
+        // Tutup modal jika user menekan tombol Batal
+        btnBatalLogout.addEventListener('click', () => {
+            modalLogout.style.display = 'none';
+        });
+
+        // Proses logout ke Firebase jika user menekan Ya, Keluar
+        btnKonfirmLogout.addEventListener('click', () => {
+            signOut(auth).then(() => {
+                modalLogout.style.display = 'none';
+                console.log("User berhasil logout.");
+                // Setelah logout berhasil, onAuthStateChanged otomatis melempar user ke halaman login
+            }).catch((error) => {
+                console.error("Gagal logout:", error);
+                alert("Terjadi kesalahan saat logout.");
+            });
         });
     }
 
