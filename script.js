@@ -169,8 +169,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.addEventListener('click', (e) => {
             if (window.innerWidth <= 768) {
-                if (!sidebar.contains(e.target) && !sidebarToggleBtn.contains(e.target)) {
-                    sidebar.classList.add('collapsed'); 
+                
+                const isSidebarOpen = sidebar.classList.contains('collapsed');
+                
+                if (isSidebarOpen && !sidebar.contains(e.target) && !sidebarToggleBtn.contains(e.target)) {
+                    
+                    sidebar.classList.remove('collapsed'); 
                 }
             }
         });
