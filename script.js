@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         judul: "Pengguna Baru Mendaftar",
                         pesan: `${user.displayName} (${user.email}) telah bergabung ke aplikasi.`,
                         isRead: false,
-                        timestamp: new Date()
+                        timestamp: serverTimestamp()
                     });
                 } catch (err) {
                     console.error("Gagal mengirim notifikasi:", err);
