@@ -421,7 +421,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } else {
                 // Jika 5.5kg atau 12kg, ubah NIK menjadi tanda strip agar rapi di WA dan Database
-                finalNik = "non-subsidi"; 
+                finalNik = "-";
             }
 
             // 2. Validasi Stok
