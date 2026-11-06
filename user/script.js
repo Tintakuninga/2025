@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Helper: Format Rupiah
     function formatRupiah(angka) { 
-        return new Intl.NumberFormat('id-ID').format(angka); 
+        return new Intl.NumberFormat('id-ID').format(angka);
     }
 
     // --- AUTENTIKASI ---
@@ -49,7 +49,22 @@ document.addEventListener('DOMContentLoaded', () => {
         catch (error) { document.getElementById('loginError').innerText = error.message; }
     });
     
-    document.getElementById('btnLogout').addEventListener('click', () => signOut(auth));
+
+    //tombol logout
+    const btnLogout = document.getElementById('btnLogout');
+    if (btnLogout) {
+        btnLogout.addEventListener('click', () => {
+            const yakinKeluar = confirm("Apakah Anda yakin ingin keluar dari aplikasi?");
+            if (yakinKeluar) {
+                signOut(auth).then(() => {
+                    console.log("User berhasil logout.");
+                }).catch((error) => {
+                    console.error("Gagal logout:", error);
+                    alert("Terjadi kesalahan saat logout.");
+                });
+            }
+        });
+    }
 
     onAuthStateChanged(auth, async (user) => {
         if (user) {

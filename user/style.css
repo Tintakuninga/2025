@@ -196,10 +196,19 @@ body.light-theme .fab-btn {
 }
 .login-logo { font-size: 40px; color: var(--accent-blue); margin-bottom: 10px; }
 .btn-google { 
-    background: white; color: #444; border: none; padding: 12px; 
-    width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; 
-    display: flex; align-items: center; justify-content: center; 
-    gap: 10px; margin-top: 20px; 
+    background: white; 
+    color: #444; 
+    border: 1px solid #d1d5db;
+    padding: 12px; 
+    width: 100%; 
+    border-radius: 8px; 
+    font-weight: bold; 
+    cursor: pointer; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 10px; 
+    margin-top: 20px; 
 }
 .login-error { color: var(--danger-color); margin-top: 15px; font-size: 12px; }
 
