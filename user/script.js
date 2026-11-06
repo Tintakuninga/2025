@@ -333,9 +333,26 @@ document.addEventListener('DOMContentLoaded', () => {
         hitungTotalPesanan();
     }
 
-    // Trigger Perubahan
+    // Trigger Perubahan saat Jenis Tabung Dipilih
     if (orderJenis) orderJenis.addEventListener('change', () => {
-        orderJumlah.value = 0; // Paksa reset saat ganti tabung
+        const jenis = orderJenis.value;
+        const nikGroup = document.getElementById('nikGroup');
+        const orderNikInput = document.getElementById('orderNik');
+
+        if (jenis === '3kg') {
+            // Tampilkan dan Wajibkan NIK untuk 3kg
+            nikGroup.style.display = 'block';
+            orderNikInput.required = true;
+        } else {
+            // Sembunyikan dan Hapus Kewajiban NIK untuk 5.5kg & 12kg
+            nikGroup.style.display = 'none';
+            orderNikInput.required = false;
+            orderNikInput.value = ''; // Kosongkan nilainya
+            document.getElementById('nikError').style.display = 'none';
+            orderNikInput.style.borderColor = "var(--border-color)";
+        }
+
+        orderJumlah.value = 0; // Paksa reset jumlah saat ganti tabung
         updateQtyUI();
     });
 
@@ -381,23 +398,30 @@ document.addEventListener('DOMContentLoaded', () => {
             const jumlah = parseInt(document.getElementById('orderJumlah').value) || 0;
             const totalHarga = hitungTotalPesanan();
 
-            // 1. Validasi Keamanan NIK KTP
-            if (nik.length !== 16) {
-                alert("Pemesanan Gagal: NIK KTP harus persis 16 digit angka.");
-                return;
-            }
+            // 1. Validasi Keamanan NIK KTP (Hanya Berlaku untuk Gas 3kg)
+            let finalNik = nik;
             
-            // Validasi format angka bulan & tanggal lahir di KTP (Karakter ke-7 sampai ke-10)
-            const dd = parseInt(nik.substring(6, 8), 10);
-            const mm = parseInt(nik.substring(8, 10), 10);
-            if (mm < 1 || mm > 12) {
-                alert("Pemesanan Gagal: NIK tidak sesuai standar kependudukan (Kode Bulan Lahir salah).");
-                return;
-            }
-            const isValidHari = (dd >= 1 && dd <= 31) || (dd >= 41 && dd <= 71);
-            if (!isValidHari) {
-                alert("Pemesanan Gagal: NIK tidak sesuai standar kependudukan (Kode Tanggal Lahir salah).");
-                return;
+            if (jenis === '3kg') {
+                if (nik.length !== 16) {
+                    alert("Pemesanan Gagal: NIK KTP harus persis 16 digit angka untuk gas 3 kg.");
+                    return;
+                }
+                
+                // Validasi format angka bulan & tanggal lahir di KTP
+                const dd = parseInt(nik.substring(6, 8), 10);
+                const mm = parseInt(nik.substring(8, 10), 10);
+                if (mm < 1 || mm > 12) {
+                    alert("Pemesanan Gagal: NIK tidak sesuai standar (Kode Bulan Lahir salah).");
+                    return;
+                }
+                const isValidHari = (dd >= 1 && dd <= 31) || (dd >= 41 && dd <= 71);
+                if (!isValidHari) {
+                    alert("Pemesanan Gagal: NIK tidak sesuai standar (Kode Tanggal Lahir salah).");
+                    return;
+                }
+            } else {
+                // Jika 5.5kg atau 12kg, ubah NIK menjadi tanda strip agar rapi di WA dan Database
+                finalNik = "-"; 
             }
 
             // 2. Validasi Stok

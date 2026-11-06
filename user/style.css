@@ -35,6 +35,10 @@ body {
     font-size: 14px; 
     padding-bottom: 70px; 
     transition: 0.3s ease; 
+
+    overflow: hidden; 
+    height: 100vh;
+    overscroll-behavior-y: none;
 }
 
 /* ============================
