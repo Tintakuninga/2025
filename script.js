@@ -160,8 +160,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // Toggle Sidebar
     const sidebarToggleBtn = document.getElementById('sidebarToggle');
     const sidebar = document.getElementById('sidebar');
+    
     if (sidebarToggleBtn && sidebar) {
-        sidebarToggleBtn.addEventListener('click', () => sidebar.classList.toggle('collapsed'));
+        sidebarToggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            sidebar.classList.toggle('collapsed');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768) {
+                if (!sidebar.contains(e.target) && !sidebarToggleBtn.contains(e.target)) {
+                    sidebar.classList.add('collapsed'); 
+                }
+            }
+        });
     }
 
     // Navigasi Menu Sidebar
