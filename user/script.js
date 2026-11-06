@@ -421,7 +421,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } else {
                 // Jika 5.5kg atau 12kg, ubah NIK menjadi tanda strip agar rapi di WA dan Database
-                finalNik = "-"; 
+                finalNik = "non-subsidi"; 
             }
 
             // 2. Validasi Stok
@@ -435,7 +435,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 await addDoc(collection(db, "antrean_pesanan"), {
                     userId: currentUserUid,
                     namaLengkap: nama,
-                    nikKtp: nik,
+                    nikKtp: finalNik,
                     jenisTabung: jenis,
                     jumlahTabung: jumlah,
                     totalHarga: totalHarga,
@@ -456,7 +456,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 orderJumlah.value = 1;
                 updateQtyUI();
 
-                const pesanWa = `Halo Admin Pangkalan, saya ingin memesan gas:\n\n*Nama:* ${nama}\n*NIK:* ${nik}\n*Pesanan:* ${jumlah} Tabung Refill ${jenisLabel}\n*Total Bayar:* Rp ${formatRupiah(totalHarga)}\n\nMohon konfirmasi pesanan saya. Terima kasih.`;
+                const pesanWa = `Halo Admin Pangkalan, saya ingin memesan gas:\n\n*Nama:* ${nama}\n*NIK:* ${finalNik}\n*Pesanan:* ${jumlah} Tabung Refill ${jenisLabel}\n*Total Bayar:* Rp ${formatRupiah(totalHarga)}\n\nMohon konfirmasi pesanan saya. Terima kasih.`;
                 const waUrl = `https://wa.me/${nomorWaAdmin}?text=${encodeURIComponent(pesanWa)}`;
                 
                 window.location.href = waUrl; 
