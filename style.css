@@ -325,7 +325,7 @@ body.light-theme .notif-item:hover { background: rgba(0, 0, 0, 0.03); }
     }
 
     /* 7. Notification-dropdown */
-    .notification-dropdown { /* Pastikan nama class sesuai dengan elemen Anda */
+    .notif-dropdown {
         position: fixed !important;
         top: 50% !important;
         left: 50% !important;
