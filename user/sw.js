@@ -1,10 +1,10 @@
-const CACHE_NAME = 'lpg-pwa-v2';
+const CACHE_NAME = 'lpg-pwa-v3';
 const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/style.css',
-  '/script.js',
-  '/manifest.json',
+  './',
+  './index.html',
+  './style.css',
+  './script.js',
+  './manifest.json',
   '../icon-192.png',
   '../icon-512.png'
 ];
