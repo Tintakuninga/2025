@@ -545,11 +545,15 @@ document.addEventListener('DOMContentLoaded', () => {
                             if(updateBanner) updateBanner.style.display = 'flex';
                             
                             // Jika tombol update ditekan
-                            if(updateBtn) {
-                                updateBtn.addEventListener('click', () => {
+                            if (updateBtn) {
+                                updateBtn.onclick = () => {
+                                    // Sembunyikan banner saat ditekan agar terlihat ada respons
+                                    updateBanner.style.display = 'none'; 
+                                    updateBtn.innerHTML = "Memperbarui...";
+                                    
                                     // Paksa service worker baru untuk aktif
                                     newWorker.postMessage({ action: 'skipWaiting' });
-                                });
+                                };
                             }
                         }
                     });

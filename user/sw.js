@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lpg-pwa-v4';
+const CACHE_NAME = 'lpg-pwa-v5';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -29,6 +29,9 @@ self.addEventListener('activate', (event) => {
           }
         })
       );
+    }).then(() => {
+      // Baris ini penting agar halaman langsung dikendalikan oleh versi baru
+      return self.clients.claim(); 
     })
   );
 });
