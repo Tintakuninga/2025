@@ -71,10 +71,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- UI & NAVIGASI MOBILE ---
     const themeBtn = document.getElementById('themeToggle');
-    if (localStorage.getItem('lpg_theme') === 'light') document.body.classList.add('light-theme');
+    const themeIcon = themeBtn.querySelector('i');
+
+    if (localStorage.getItem('lpg_theme') === 'light') {
+        document.body.classList.add('light-theme');
+        themeIcon.classList.remove('fa-sun');
+        themeIcon.classList.add('fa-moon'); // Ubah ke bulan jika mode terang
+    }
+
     themeBtn.addEventListener('click', () => {
         document.body.classList.toggle('light-theme');
-        localStorage.setItem('lpg_theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
+        const isLight = document.body.classList.contains('light-theme');
+        
+        // Simpan preferensi tema
+        localStorage.setItem('lpg_theme', isLight ? 'light' : 'dark');
+        
+        // Ganti ikon sesuai tema aktif
+        if (isLight) {
+            themeIcon.classList.remove('fa-sun');
+            themeIcon.classList.add('fa-moon');
+        } else {
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+        }
     });
 
     const navItems = document.querySelectorAll('.bottom-nav .nav-item');
