@@ -66,44 +66,45 @@
         <!-- Main Content Area -->
         <main class="content-body">
             
-            <!-- SECTION: INFO HARGA -->
+            <!-- SECTION: INFO HARGA & STOK -->
             <section id="sec-harga" class="page-section active">
                 <h2 class="section-title text-center">PANGKALAN HASMAWATI</h2>
                 <p class="text-muted text-center" style="margin-bottom: 20px;">Pembaruan terakhir: <br><span id="priceLastUpdate">-</span></p>
                 
-                <div class="card-panel" style="margin-bottom: 15px;">
-                    <h4 class="text-green text-center" style="margin-bottom: 15px;"><i class="fa-solid fa-tags"></i> Harga Jual Refill</h4>
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <p class="stat-label">3 kg</p>
-                            <h3 id="harga3kg" class="stat-value">-</h3>
+                <div class="list-container">
+                    <!-- Produk 3 KG -->
+                    <div class="card-panel" style="display: flex; align-items: center; padding: 15px; margin-bottom: 5px;">
+                        <div style="flex: 1;">
+                            <p class="stat-label"><i class="fa-solid fa-tags text-green"></i> Refill 3 KG</p>
+                            <h2 id="harga3kg" style="margin-top: 5px; font-size: 20px;">-</h2>
                         </div>
-                        <div class="stat-card">
-                            <p class="stat-label">5.5 kg</p>
-                            <h3 id="harga5kg" class="stat-value">-</h3>
-                        </div>
-                        <div class="stat-card">
-                            <p class="stat-label">12 kg</p>
-                            <h3 id="harga12kg" class="stat-value">-</h3>
+                        <div style="text-align: right; border-left: 1px solid var(--border-color); padding-left: 15px; min-width: 100px;">
+                            <p class="stat-label">Stok Tersedia</p>
+                            <h3 id="stokHarga3kg" class="text-blue" style="margin-top: 5px; font-size: 18px;">-</h3>
                         </div>
                     </div>
-                </div>
 
-                <!-- Panel Stok Tersedia -->
-                <div class="card-panel" style="margin-bottom: 15px;">
-                    <h4 class="text-blue text-center" style="margin-bottom: 15px;"><i class="fa-solid fa-boxes-stacked"></i> Stok Tersedia Saat Ini</h4>
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <p class="stat-label">3 KG</p>
-                            <h3 id="stokHarga3kg" class="stat-value">-</h3>
+                    <!-- Produk 5.5 KG -->
+                    <div class="card-panel" style="display: flex; align-items: center; padding: 15px; margin-bottom: 5px;">
+                        <div style="flex: 1;">
+                            <p class="stat-label"><i class="fa-solid fa-tags text-green"></i> Refill 5.5 KG</p>
+                            <h2 id="harga5kg" style="margin-top: 5px; font-size: 20px;">-</h2>
                         </div>
-                        <div class="stat-card">
-                            <p class="stat-label">5.5 KG</p>
-                            <h3 id="stokHarga5kg" class="stat-value">-</h3>
+                        <div style="text-align: right; border-left: 1px solid var(--border-color); padding-left: 15px; min-width: 100px;">
+                            <p class="stat-label">Stok Tersedia</p>
+                            <h3 id="stokHarga5kg" class="text-blue" style="margin-top: 5px; font-size: 18px;">-</h3>
                         </div>
-                        <div class="stat-card">
-                            <p class="stat-label">12 KG</p>
-                            <h3 id="stokHarga12kg" class="stat-value">-</h3>
+                    </div>
+
+                    <!-- Produk 12 KG -->
+                    <div class="card-panel" style="display: flex; align-items: center; padding: 15px; margin-bottom: 5px;">
+                        <div style="flex: 1;">
+                            <p class="stat-label"><i class="fa-solid fa-tags text-green"></i> Refill 12 KG</p>
+                            <h2 id="harga12kg" style="margin-top: 5px; font-size: 20px;">-</h2>
+                        </div>
+                        <div style="text-align: right; border-left: 1px solid var(--border-color); padding-left: 15px; min-width: 100px;">
+                            <p class="stat-label">Stok Tersedia</p>
+                            <h3 id="stokHarga12kg" class="text-blue" style="margin-top: 5px; font-size: 18px;">-</h3>
                         </div>
                     </div>
                 </div>
