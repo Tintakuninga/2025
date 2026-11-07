@@ -108,9 +108,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeItem = document.getElementById('themeToggleItem');
     const themeIcon = themeItem ? themeItem.querySelector('i') : null;
 
-    if (localStorage.getItem('lpg_theme') === 'light') {
+    // Cek preferensi tema di penyimpanan perangkat (localStorage)
+    const currentTheme = localStorage.getItem('lpg_theme');
+    
+    // Jika memori kosong (pengguna baru) ATAU memilih 'light', jadikan terang
+    if (currentTheme === null || currentTheme === 'light') {
         document.body.classList.add('light-theme');
-        if (themeIcon) { themeIcon.classList.remove('fa-sun'); themeIcon.classList.add('fa-moon'); }
+        if (themeIcon) { 
+            themeIcon.classList.remove('fa-sun'); 
+            themeIcon.classList.add('fa-moon'); 
+        }
+    } else {
+        // Jika pengguna sudah secara eksplisit memilih 'dark'
+        document.body.classList.remove('light-theme');
+        if (themeIcon) { 
+            themeIcon.classList.remove('fa-moon'); 
+            themeIcon.classList.add('fa-sun'); 
+        }
     }
 
     if (themeItem) {
@@ -119,12 +133,16 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.classList.toggle('light-theme');
             const isLight = document.body.classList.contains('light-theme');
             
+            // Simpan pilihan ke memori
             localStorage.setItem('lpg_theme', isLight ? 'light' : 'dark');
             
+            // Ubah ikon di menu dropdown
             if (isLight) {
-                themeIcon.classList.remove('fa-sun'); themeIcon.classList.add('fa-moon');
+                themeIcon.classList.remove('fa-sun'); 
+                themeIcon.classList.add('fa-moon');
             } else {
-                themeIcon.classList.remove('fa-moon'); themeIcon.classList.add('fa-sun');
+                themeIcon.classList.remove('fa-moon'); 
+                themeIcon.classList.add('fa-sun');
             }
             
             // Tutup dropdown setelah ditekan
