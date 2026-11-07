@@ -196,9 +196,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('harga3kg').innerText = "Rp " + formatRupiah(hargaSekarang['3kg']);
                 document.getElementById('harga5kg').innerText = "Rp " + formatRupiah(hargaSekarang['5kg']);
                 document.getElementById('harga12kg').innerText = "Rp " + formatRupiah(hargaSekarang['12kg']);
-                document.getElementById('priceLastUpdate').innerText = formatTgl(docSnap.data().lastUpdated);
+                // document.getElementById('priceLastUpdate').innerText = formatTgl(docSnap.data().lastUpdated);
                 
-                hitungTotalPesanan(); // Update otomatis total di form pesanan jika harga berubah saat user sedang mengisi form
+                hitungTotalPesanan();
             }
         }, (error) => {
             console.error("Gagal mendengarkan perubahan harga:", error);
@@ -308,6 +308,13 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (docSnap.exists()) {
                 const dataInv = docSnap.data();
+
+                // Mengambil waktu pembaruan dari data stok
+                const elPriceLastUpdate = document.getElementById('priceLastUpdate');
+                if (elPriceLastUpdate && dataInv.lastUpdated) {
+                    elPriceLastUpdate.innerText = formatTgl(dataInv.lastUpdated);
+                }
+
                 // Simpan stok ke memori lokal
                 stokSekarangAdmin['3kg'] = parseInt(dataInv['3kg'] || 0, 10);
                 stokSekarangAdmin['5kg'] = parseInt(dataInv['5kg'] || 0, 10);
@@ -332,7 +339,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateTampilanStok(elStokHarga5kg, stokSekarangAdmin['5kg']);
                 updateTampilanStok(elStokHarga12kg, stokSekarangAdmin['12kg']);
 
-                // Segarkan logika tombol jumlah pesanan setiap kali stok berubah
                 updateQtyUI();
             }
         }, (error) => {

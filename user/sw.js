@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lpg-pwa-v9';
+const CACHE_NAME = 'lpg-pwa-v10';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
