@@ -1153,4 +1153,93 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    // =====================================================================
+    // 13. FITUR HISTORI PESANAN (SELESAI / BATAL)
+    // =====================================================================
+    const tabelHistoriPesanan = document.getElementById('tabelHistoriPesanan');
+
+    // Menghubungkan tombol "Histori" di menu dropdown profil ke section baru
+    const btnMenuHistoryProfile = document.getElementById('btnHistoriProfil');
+    if (btnMenuHistoryProfile) {
+        // Hapus event listener lama yang mengarah ke modal notifikasi
+        btnMenuHistoryProfile.replaceWith(btnMenuHistoryProfile.cloneNode(true));
+        
+        document.getElementById('btnHistoriProfil').addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            // Sembunyikan semua section
+            document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active'));
+            // Hapus class active di menu sidebar agar tidak bingung
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            
+            // Tampilkan section histori pesanan
+            const historiSection = document.getElementById('histori-pesanan');
+            if (historiSection) historiSection.classList.add('active');
+            
+            // Tutup dropdown profil
+            const profileMenu = document.getElementById('profileMenu');
+            if(profileMenu) profileMenu.classList.remove('show');
+            
+            // Muat data histori dari Firebase
+            loadHistoriPesanan();
+        });
+    }
+
+    function loadHistoriPesanan() {
+        if (!tabelHistoriPesanan) return;
+        
+        // Ambil pesanan yang statusnya BUKAN "Menunggu" (Selesai atau Dibatalkan)
+        const qHistori = query(collection(db, "antrean_pesanan"), where("statusPesanan", "!=", "Menunggu"));
+        
+        onSnapshot(qHistori, (snapshot) => {
+            tabelHistoriPesanan.innerHTML = '';
+            
+            if (snapshot.empty) {
+                tabelHistoriPesanan.innerHTML = `<tr><td colspan="7" style="text-align:center;" class="text-muted">Belum ada riwayat pesanan (selesai/batal).</td></tr>`;
+                return;
+            }
+
+            // Firebase query dengan '!=' tidak bisa langsung di-orderBy waktu jika field berbeda. 
+            // Kita urutkan manual secara menurun (terbaru di atas) berdasarkan waktu update terakhir
+            let dataArray = [];
+            snapshot.forEach(docSnap => {
+                let data = docSnap.data();
+                // Gunakan tanggal selesai atau tanggal batal sebagai patokan pengurutan
+                data.sortTime = data.tanggalSelesai ? data.tanggalSelesai.toDate().getTime() : 
+                               (data.tanggalBatal ? data.tanggalBatal.toDate().getTime() : 
+                               (data.tanggalOrder ? data.tanggalOrder.toDate().getTime() : 0));
+                dataArray.push(data);
+            });
+            
+            // Urutkan array
+            dataArray.sort((a, b) => b.sortTime - a.sortTime);
+
+            dataArray.forEach((data) => {
+                // Tentukan waktu yang ditampilkan
+                let waktuTampil = "-";
+                if (data.statusPesanan === "Selesai" && data.tanggalSelesai) {
+                    waktuTampil = data.tanggalSelesai.toDate().toLocaleString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                } else if (data.statusPesanan === "Dibatalkan" && data.tanggalBatal) {
+                    waktuTampil = data.tanggalBatal.toDate().toLocaleString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                }
+
+                // Tentukan badge status
+                let statusBadge = data.statusPesanan === 'Selesai' 
+                    ? `<span class="badge-status badge-um"><i class="fa-solid fa-check"></i> Selesai</span>` 
+                    : `<span class="badge-status" style="background: rgba(239, 68, 68, 0.1); color: var(--danger-color); border: 1px solid rgba(239, 68, 68, 0.3);"><i class="fa-solid fa-xmark"></i> Dibatalkan</span>`;
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${waktuTampil}</td>
+                    <td><strong>${data.namaLengkap || '-'}</strong></td>
+                    <td>${data.nikKtp || '-'}</td>
+                    <td>${data.jenisTabung || '-'}</td>
+                    <td>${data.jumlahTabung || 0} Tabung</td>
+                    <td>Rp ${(data.totalHarga || 0).toLocaleString('id-ID')}</td>
+                    <td>${statusBadge}</td>
+                `;
+                tabelHistoriPesanan.appendChild(tr);
+            });
+        });
+    }
 });
