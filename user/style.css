@@ -285,3 +285,53 @@ body.light-theme .fab-btn {
     gap: 15px;
     white-space: nowrap;
 }
+
+/* ============================
+   OVERFLOW MENU (Titik Tiga)
+   ============================ */
+.overflow-menu-card {
+    display: none; /* Disembunyikan secara default */
+    position: absolute;
+    top: 50px; /* Jarak dari atas */
+    right: 0;
+    width: 200px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.4);
+    z-index: 2000;
+    flex-direction: column;
+    padding: 8px;
+    animation: fadeIn 0.2s ease;
+}
+.overflow-menu-card.show {
+    display: flex; /* Ditampilkan saat diklik */
+}
+
+/* Item di dalam Menu Titik Tiga */
+.overflow-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-main);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+.overflow-item i {
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+}
+.overflow-item:hover, .overflow-item:active {
+    background: rgba(255, 255, 255, 0.05);
+}
+body.light-theme .overflow-item:hover, body.light-theme .overflow-item:active {
+    background: rgba(0, 0, 0, 0.05);
+}
+.overflow-item.text-danger:hover {
+    background: rgba(239, 68, 68, 0.1);
+}

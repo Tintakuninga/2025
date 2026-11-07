@@ -46,9 +46,20 @@
                     <p class="user-role" style="font-size: 11px; color: var(--text-muted);">Pelanggan Terdaftar</p>
                 </div>
             </div>
-            <div class="topbar-right">
-                <button id="themeToggle" class="icon-btn"><i class="fa-solid fa-sun"></i></button>
-                <button id="btnLogout" class="icon-btn text-danger"><i class="fa-solid fa-right-from-bracket"></i></button>
+            <div class="topbar-right" style="position: relative;">
+                <button id="btnShareApp" class="icon-btn" style="background: transparent; border: none; font-size: 18px;"><i class="fa-solid fa-share-nodes"></i></button>               
+                <button id="btnOverflowMenu" class="icon-btn" style="background: transparent; border: none; font-size: 20px;"><i class="fa-solid fa-ellipsis-vertical"></i></button>               
+                <div id="overflowDropdown" class="overflow-menu-card">
+                    <div class="overflow-item" id="themeToggleItem">
+                        <i class="fa-solid fa-sun"></i> <span>Ganti Tema</span>
+                    </div>
+                    <a href="https://wa.me/6282291582220" target="_blank" class="overflow-item" style="text-decoration: none; color: inherit;">
+                        <i class="fa-brands fa-whatsapp text-green"></i> <span>Hubungi Pangkalan</span>
+                    </a>
+                    <div class="overflow-item text-danger" id="btnLogoutItem">
+                        <i class="fa-solid fa-right-from-bracket"></i> <span>Keluar</span>
+                    </div>
+                </div>
             </div>
         </header>
 

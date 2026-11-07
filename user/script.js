@@ -49,34 +49,23 @@ document.addEventListener('DOMContentLoaded', () => {
         catch (error) { document.getElementById('loginError').innerText = error.message; }
     });
     
-
     // --- FITUR LOGOUT DENGAN MODAL ---
-    const btnLogout = document.getElementById('btnLogout');
+    // Ubah pemanggilan ID dari btnLogout menjadi btnLogoutItem (yg ada di dropdown menu)
+    const btnLogoutItem = document.getElementById('btnLogoutItem');
     const modalLogout = document.getElementById('modalLogout');
     const btnBatalLogout = document.getElementById('btnBatalLogout');
     const btnKonfirmLogout = document.getElementById('btnKonfirmLogout');
 
-    if (btnLogout && modalLogout) {
-        // Tampilkan modal dari bawah layar saat tombol logout diklik
-        btnLogout.addEventListener('click', () => {
+    if (btnLogoutItem && modalLogout) {
+        btnLogoutItem.addEventListener('click', () => {
+            document.getElementById('overflowDropdown').classList.remove('show'); // Tutup menu saat diklik
             modalLogout.style.display = 'flex';
         });
-
-        // Tutup modal jika user menekan tombol Batal
-        btnBatalLogout.addEventListener('click', () => {
-            modalLogout.style.display = 'none';
-        });
-
-        // Proses logout ke Firebase jika user menekan Ya, Keluar
+        btnBatalLogout.addEventListener('click', () => modalLogout.style.display = 'none');
         btnKonfirmLogout.addEventListener('click', () => {
             signOut(auth).then(() => {
                 modalLogout.style.display = 'none';
-                console.log("User berhasil logout.");
-                // Setelah logout berhasil, onAuthStateChanged otomatis melempar user ke halaman login
-            }).catch((error) => {
-                console.error("Gagal logout:", error);
-                alert("Terjadi kesalahan saat logout.");
-            });
+            }).catch((error) => console.error("Gagal logout:", error));
         });
     }
 
@@ -86,8 +75,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('loginScreen').style.display = "none";
             document.getElementById('appContent').style.display = "flex";
             document.querySelector('.user-name').innerText = user.displayName;
-            
-            // Load Data Utama
             loadHarga();
             loadKas();
             loadStokInfo();
@@ -98,32 +85,76 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- UI & NAVIGASI MOBILE ---
-    const themeBtn = document.getElementById('themeToggle');
-    const themeIcon = themeBtn.querySelector('i');
+    // --- FITUR OVERFLOW MENU (TITIK TIGA) ---
+    const btnOverflowMenu = document.getElementById('btnOverflowMenu');
+    const overflowDropdown = document.getElementById('overflowDropdown');
+    
+    if (btnOverflowMenu && overflowDropdown) {
+        // Toggle menu saat diklik
+        btnOverflowMenu.addEventListener('click', (e) => {
+            e.stopPropagation(); // Cegah merambat ke document
+            overflowDropdown.classList.toggle('show');
+        });
+
+        // Tutup menu saat user klik di luar area kotak
+        document.addEventListener('click', (e) => {
+            if (!overflowDropdown.contains(e.target) && !btnOverflowMenu.contains(e.target)) {
+                overflowDropdown.classList.remove('show');
+            }
+        });
+    }
+
+    // --- FITUR GANTI TEMA DARI MENU DROP-DOWN ---
+    const themeItem = document.getElementById('themeToggleItem');
+    const themeIcon = themeItem ? themeItem.querySelector('i') : null;
 
     if (localStorage.getItem('lpg_theme') === 'light') {
         document.body.classList.add('light-theme');
-        themeIcon.classList.remove('fa-sun');
-        themeIcon.classList.add('fa-moon'); // Ubah ke bulan jika mode terang
+        if (themeIcon) { themeIcon.classList.remove('fa-sun'); themeIcon.classList.add('fa-moon'); }
     }
 
-    themeBtn.addEventListener('click', () => {
-        document.body.classList.toggle('light-theme');
-        const isLight = document.body.classList.contains('light-theme');
-        
-        // Simpan preferensi tema
-        localStorage.setItem('lpg_theme', isLight ? 'light' : 'dark');
-        
-        // Ganti ikon sesuai tema aktif
-        if (isLight) {
-            themeIcon.classList.remove('fa-sun');
-            themeIcon.classList.add('fa-moon');
-        } else {
-            themeIcon.classList.remove('fa-moon');
-            themeIcon.classList.add('fa-sun');
-        }
-    });
+    if (themeItem) {
+        themeItem.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.body.classList.toggle('light-theme');
+            const isLight = document.body.classList.contains('light-theme');
+            
+            localStorage.setItem('lpg_theme', isLight ? 'light' : 'dark');
+            
+            if (isLight) {
+                themeIcon.classList.remove('fa-sun'); themeIcon.classList.add('fa-moon');
+            } else {
+                themeIcon.classList.remove('fa-moon'); themeIcon.classList.add('fa-sun');
+            }
+            
+            // Tutup dropdown setelah ditekan
+            overflowDropdown.classList.remove('show');
+        });
+    }
+
+    // --- FITUR SHARE APLIKASI ---
+    const btnShareApp = document.getElementById('btnShareApp');
+    if (btnShareApp) {
+        btnShareApp.addEventListener('click', async () => {
+            const shareData = {
+                title: 'Pangkalan LPG Hasmawati',
+                text: 'Pesan gas LPG secara online dengan mudah dan cepat tanpa perlu antre di Pangkalan Hasmawati.',
+                url: window.location.href // Akan mengambil URL aplikasi saat ini (misal link hosting Anda)
+            };
+            
+            try {
+                if (navigator.share) {
+                    await navigator.share(shareData); // Fitur native share HP (WhatsApp, dll)
+                } else {
+                    // Fallback jika dibuka di browser desktop lama
+                    navigator.clipboard.writeText(shareData.url);
+                    alert("Link aplikasi berhasil disalin ke clipboard!");
+                }
+            } catch (err) {
+                console.error("Gagal melakukan share:", err);
+            }
+        });
+    }
 
     const navItems = document.querySelectorAll('.bottom-nav .nav-item');
     const sections = document.querySelectorAll('.page-section');
