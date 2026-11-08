@@ -1013,19 +1013,16 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     window.batalkanPesanan = (idPesanan) => {
-        showConfirm("Batalkan pesanan ini? (Stok tidak akan dipotong)", async () => {
-            try {
-                await updateDoc(doc(db, "antrean_pesanan", idPesanan), { 
-                    statusPesanan: "Dibatalkan",
-                    tanggalBatal: serverTimestamp()
-                });
-                showAlert("Pesanan berhasil dibatalkan.", "Berhasil", "success");
-            } catch (error) {
-                console.error("Gagal membatalkan pesanan:", error);
-                showAlert("Terjadi kesalahan saat membatalkan pesanan.", "Error", "error");
-            }
-        });
-    };
+    showConfirm("Batalkan pesanan ini? (Data pesanan akan dihapus permanen dari sistem)", async () => {
+        try {
+            await deleteDoc(doc(db, "antrean_pesanan", idPesanan));
+            showAlert("Pesanan berhasil dibatalkan dan dihapus.", "Berhasil", "success");
+        } catch (error) {
+            console.error("Gagal membatalkan pesanan:", error);
+            showAlert("Terjadi kesalahan saat membatalkan pesanan.", "Error", "error");
+        }
+    });
+};
 
     // =====================================================================
     // 12. FITUR MUTASI STOK MASUK (DARI AGEN)
@@ -1187,7 +1184,7 @@ document.addEventListener('DOMContentLoaded', () => {
             tabelHistoriPesanan.innerHTML = '';
             
             if (snapshot.empty) {
-                tabelHistoriPesanan.innerHTML = `<tr><td colspan="7" style="text-align:center;" class="text-muted">Belum ada riwayat pesanan (selesai/batal).</td></tr>`;
+                tabelHistoriPesanan.innerHTML = `<tr><td colspan="7" style="text-align:center;" class="text-muted">Belum ada riwayat pesanan (selesai).</td></tr>`;
                 return;
             }
 

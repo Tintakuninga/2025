@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lpg-pwa-v23';
+const CACHE_NAME = 'lpg-pwa-v24';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -9,7 +9,6 @@ const ASSETS_TO_CACHE = [
   '../icon-512.png'
 ];
 
-// Install Service Worker dan simpan file ke Cache (Untuk Offline)
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -18,7 +17,6 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Hapus cache lama jika ada update versi
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -30,13 +28,11 @@ self.addEventListener('activate', (event) => {
         })
       );
     }).then(() => {
-      // Baris ini penting agar halaman langsung dikendalikan oleh versi baru
       return self.clients.claim(); 
     })
   );
 });
 
-// Strategi: Buka dari Cache dulu (biar cepat/offline), lalu fallback ke Internet
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((response) => {
@@ -45,7 +41,6 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// Mendengarkan perintah untuk mengaktifkan update baru
 self.addEventListener('message', (event) => {
   if (event.data && event.data.action === 'skipWaiting') {
     self.skipWaiting();

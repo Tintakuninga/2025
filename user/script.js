@@ -737,7 +737,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if(closeBtn) {
         closeBtn.addEventListener('click', () => {
             if(pwaWrapper) {
-                // Efek menghilang perlahan
                 pwaWrapper.style.opacity = '0';
                 pwaWrapper.style.transform = 'translateY(-50%) scale(0.9)';
                 
@@ -758,26 +757,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 registration.addEventListener('updatefound', () => {
                     const newWorker = registration.installing;
                     newWorker.addEventListener('statechange', () => {
-                        // Jika ada pekerja (worker) baru yang menunggu, berarti ada update
                         if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                             if(updateBanner) updateBanner.style.display = 'flex';
                             
-                            // Jika tombol update ditekan
                             if (updateBtn) {
                                 updateBtn.onclick = () => {
-                                    // 1. Sembunyikan banner dan ubah teks
                                     updateBanner.style.display = 'none'; 
                                     updateBtn.innerHTML = "Memperbarui...";
                                     
-                                    // 2. Kirim pesan ke Service Worker yang BENAR
                                     if (registration.waiting) {
-                                        // Jika worker baru sedang antre
                                         registration.waiting.postMessage({ action: 'skipWaiting' });
                                     } else if (newWorker) {
-                                        // Jika worker baru masih proses install
                                         newWorker.postMessage({ action: 'skipWaiting' });
                                     } else {
-                                        // 3. Fallback: Jika komunikasi ke sw.js gagal, paksa refresh manual
                                         window.location.reload();
                                     }
                                 };
