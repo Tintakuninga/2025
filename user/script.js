@@ -562,30 +562,35 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // PENGATURAN KALENDER
-    const inputTanggal = document.getElementById('orderTanggal');
-    if (inputTanggal) {
+        // PENGATURAN KALENDER
+        const inputTanggal = document.getElementById('orderTanggal');
+        if (inputTanggal) {
 
-        const hariIni = new Date();
-        const yyyy = hariIni.getFullYear();
-        const mm = String(hariIni.getMonth() + 1).padStart(2, '0'); 
-        const dd = String(hariIni.getDate()).padStart(2, '0');
-        const formatHariIni = `${yyyy}-${mm}-${dd}`;
-        
-        inputTanggal.min = formatHariIni;
+            const hariIni = new Date();
+            const yyyy = hariIni.getFullYear();
+            const mm = String(hariIni.getMonth() + 1).padStart(2, '0'); 
+            const dd = String(hariIni.getDate()).padStart(2, '0');
+            const formatHariIni = `${yyyy}-${mm}-${dd}`;
+            
+            inputTanggal.min = formatHariIni;
 
-        // 2. VALIDASI HARI (Hanya Senin, Rabu, Jumat)
-        inputTanggal.addEventListener('change', function() {
-            const tanggalDipilih = new Date(this.value);
-            const hariKe = tanggalDipilih.getDay();
+            /* ========================================================
+            2. VALIDASI HARI DIMATIKAN SEMENTARA
+            (Agar pelanggan bisa memilih hari Senin sampai Minggu)
+            ======================================================== */
+            /*
+            inputTanggal.addEventListener('change', function() {
+                const tanggalDipilih = new Date(this.value);
+                const hariKe = tanggalDipilih.getDay();
 
-            // Jika bukan hari Senin (1), Rabu (3), atau Jumat (5)
-            if (hariKe !== 1 && hariKe !== 3 && hariKe !== 5) {
-                showCustomAlert("Mohon maaf, jadwal masuk gas pangkalan kami hanya tersedia di hari:\n\n📅 Senin, Rabu, dan Jumat.", "Hari Tidak Tersedia");
-                this.value = '';
-            }
-        });
-    }
+                // Jika bukan hari Senin (1), Rabu (3), atau Jumat (5)
+                if (hariKe !== 1 && hariKe !== 3 && hariKe !== 5) {
+                    showCustomAlert("Mohon maaf, jadwal masuk gas pangkalan kami hanya tersedia di hari:\n\n📅 Senin, Rabu, dan Jumat.", "Hari Tidak Tersedia");
+                    this.value = '';
+                }
+            });
+            */
+        }
 
     // --- PROSES SUBMIT PESANAN ---
     const formPesanan = document.getElementById('formPesanan');
