@@ -748,12 +748,21 @@ document.addEventListener('DOMContentLoaded', () => {
                             // Jika tombol update ditekan
                             if (updateBtn) {
                                 updateBtn.onclick = () => {
-                                    // Sembunyikan banner saat ditekan agar terlihat ada respons
+                                    // 1. Sembunyikan banner dan ubah teks
                                     updateBanner.style.display = 'none'; 
                                     updateBtn.innerHTML = "Memperbarui...";
                                     
-                                    // Paksa service worker baru untuk aktif
-                                    newWorker.postMessage({ action: 'skipWaiting' });
+                                    // 2. Kirim pesan ke Service Worker yang BENAR
+                                    if (registration.waiting) {
+                                        // Jika worker baru sedang antre
+                                        registration.waiting.postMessage({ action: 'skipWaiting' });
+                                    } else if (newWorker) {
+                                        // Jika worker baru masih proses install
+                                        newWorker.postMessage({ action: 'skipWaiting' });
+                                    } else {
+                                        // 3. Fallback: Jika komunikasi ke sw.js gagal, paksa refresh manual
+                                        window.location.reload();
+                                    }
                                 };
                             }
                         }
