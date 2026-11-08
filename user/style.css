@@ -335,3 +335,20 @@ body.light-theme .overflow-item:hover, body.light-theme .overflow-item:active {
 .overflow-item.text-danger:hover {
     background: rgba(239, 68, 68, 0.1);
 }
+
+/* Pastikan kotak form atau modal bisa di-scroll */
+.modal-content, .form-container {
+    max-height: 85vh; /* Maksimal tinggi 85% dari tinggi layar HP */
+    overflow-y: auto; /* Memunculkan scrollbar vertikal otomatis jika konten kepanjangan */
+    overflow-x: hidden; /* Mencegah scroll menyamping */
+    padding-bottom: 20px; /* Memberi ruang napas di bawah tombol */
+}
+
+/* Mempercantik tampilan scrollbar (opsional) */
+.modal-content::-webkit-scrollbar {
+    width: 6px;
+}
+.modal-content::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+}
