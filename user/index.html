@@ -59,10 +59,12 @@
                     <div class="overflow-item" id="themeToggleItem">
                         <i class="fa-solid fa-sun"></i> <span>Ganti Tema</span>
                     </div>
-                    <!-- // Hubungi Pangkalan
+                    <div class="overflow-item" id="btnHistoriPesananItem">
+                        <i class="fa-solid fa-clock-rotate-left"></i> <span>Status Pesanan</span>
+                    </div>
                     <a href="https://wa.me/6282291582220" target="_blank" class="overflow-item" style="text-decoration: none; color: inherit;">
                         <i class="fa-brands fa-whatsapp text-green"></i> <span>Hubungi Pangkalan</span>
-                    </a> -->
+                    </a>
                     <div class="overflow-item text-danger" id="btnLogoutItem">
                         <i class="fa-solid fa-right-from-bracket"></i> <span>Keluar</span>
                     </div>
@@ -186,7 +188,7 @@
                             </select>
                         </div>
                         <div class="form-group" id="tanggalGroup">
-                            <label>Jadwal Pemesanan Gas</label>
+                            <label>Jadwal Pengambilan Gas</label>
                             <input type="date" id="orderTanggal" class="form-input" required>
                             <small style="color: var(--text-muted); font-size: 11px; margin-top: 5px; display: block;">
                                 *Jadwal gas masuk hanya hari <strong>Senin, Rabu, dan Jumat</strong>.
@@ -228,6 +230,20 @@
                 <i class="fa-solid fa-wallet"></i><span>Kas</span>
             </a>
         </nav>
+    </div>
+
+    <!-- MODAL STATUS / HISTORI PESANAN -->
+    <div id="modalHistori" class="modal" style="z-index: 1000;">
+        <div class="modal-content" style="max-height: 80vh; display: flex; flex-direction: column;">
+            <div class="modal-header">
+                <h3>Status Pesanan</h3>
+                <span class="close-btn" onclick="closeModal('modalHistori')">&times;</span>
+            </div>
+            <div id="listHistori" style="overflow-y: auto; flex: 1; padding: 10px 0;">
+                <!-- Data status pesanan akan muncul di sini -->
+                <p class="text-center text-muted">Memuat data...</p>
+            </div>
+        </div>
     </div>
 
     <!-- MODAL CUSTOM ALERT -->

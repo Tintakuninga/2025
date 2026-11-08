@@ -157,6 +157,91 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- FITUR STATUS / HISTORI PESANAN ---
+    const btnHistoriItem = document.getElementById('btnHistoriPesananItem');
+    const modalHistori = document.getElementById('modalHistori');
+
+    if (btnHistoriItem && modalHistori) {
+        btnHistoriItem.addEventListener('click', () => {
+            document.getElementById('overflowDropdown').classList.remove('show');
+            modalHistori.style.display = 'flex';
+            loadHistoriPesanan();
+        });
+    }
+
+    async function loadHistoriPesanan() {
+        const listHistori = document.getElementById('listHistori');
+        if (!currentUserUid) {
+            listHistori.innerHTML = '<p class="text-center text-danger">Silakan login terlebih dahulu.</p>';
+            return;
+        }
+
+        listHistori.innerHTML = '<p class="text-center text-muted" style="margin-top: 20px;"><i class="fa-solid fa-spinner fa-spin"></i> Memuat pesanan...</p>';
+
+        try {
+            // Ambil data pesanan khusus untuk user yang sedang login
+            const q = query(collection(db, "antrean_pesanan"), where("userId", "==", currentUserUid));
+            const snapshot = await getDocs(q);
+            
+            let docsData = [];
+            snapshot.forEach(doc => docsData.push({ id: doc.id, ...doc.data() }));
+            
+            // Urutkan dari yang terbaru (descending)
+            docsData.sort((a, b) => {
+                const timeA = a.tanggalOrder ? a.tanggalOrder.toMillis() : 0;
+                const timeB = b.tanggalOrder ? b.tanggalOrder.toMillis() : 0;
+                return timeB - timeA;
+            });
+
+            if (docsData.length === 0) {
+                listHistori.innerHTML = '<p class="text-center text-muted" style="margin-top: 20px;">Belum ada riwayat pesanan.</p>';
+                return;
+            }
+
+            listHistori.innerHTML = '';
+            docsData.forEach(data => {
+                // Gunakan format tanggal yang sudah ada di helper
+                const tglOrder = data.tanggalOrder ? formatTgl(data.tanggalOrder.toDate().toISOString()) : "-";
+                
+                // Set warna & ikon berdasarkan status
+                let status = data.statusPesanan || "Menunggu";
+                let statusColor = "var(--text-muted)";
+                let statusIcon = "fa-clock";
+                
+                const statusLower = status.toLowerCase();
+                if (statusLower.includes('terima') || statusLower.includes('selesai') || statusLower.includes('sukses')) {
+                    statusColor = "#10b981"; // Hijau
+                    statusIcon = "fa-circle-check";
+                } else if (statusLower.includes('tolak') || statusLower.includes('batal')) {
+                    statusColor = "var(--danger-color)"; // Merah
+                    statusIcon = "fa-circle-xmark";
+                } else {
+                    statusColor = "var(--blue-color)"; // Biru (Pending/Menunggu)
+                    statusIcon = "fa-clock-rotate-left";
+                }
+
+                // Format tampilan jadwal ambil (hanya ambil tanggalnya, abaikan jam jika ada)
+                const jadwalAmbil = data.jadwalPengambilan ? formatTgl(data.jadwalPengambilan).split(',')[0] : "-";
+
+                // Desain kartu (card) histori
+                listHistori.innerHTML += `
+                    <div class="card-panel" style="padding: 15px; margin-bottom: 12px; border-left: 4px solid ${statusColor};">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span style="font-size: 11px; color: var(--text-muted);">${tglOrder}</span>
+                            <span style="font-size: 12px; font-weight: bold; color: ${statusColor};"><i class="fa-solid ${statusIcon}"></i> ${status.toUpperCase()}</span>
+                        </div>
+                        <h4 style="margin: 0 0 5px 0;">${data.jumlahTabung} Tabung ${data.jenisTabung.toUpperCase()}</h4>
+                        <p style="margin: 0; font-size: 13px; color: var(--text-muted);">Jadwal Ambil: <strong>${jadwalAmbil}</strong></p>
+                        <p style="margin: 8px 0 0 0; font-size: 15px; font-weight: bold;">Rp ${formatRupiah(data.totalHarga)}</p>
+                    </div>
+                `;
+            });
+        } catch (error) {
+            console.error("Gagal memuat histori:", error);
+            listHistori.innerHTML = '<p class="text-center text-danger" style="margin-top: 20px;">Gagal memuat histori pesanan.</p>';
+        }
+    }
+
     // --- FITUR SHARE APLIKASI ---
     const btnShareApp = document.getElementById('btnShareApp');
     if (btnShareApp) {
