@@ -200,30 +200,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
             listHistori.innerHTML = '';
             docsData.forEach(data => {
-                // Gunakan format tanggal yang sudah ada di helper
                 const tglOrder = data.tanggalOrder ? formatTgl(data.tanggalOrder.toDate().toISOString()) : "-";
                 
-                // Set warna & ikon berdasarkan status
                 let status = data.statusPesanan || "Menunggu";
+
+                // 1. Ubah teks status di sini
+                let checkStatus = status.toLowerCase();
+                if (checkStatus === 'selesai') {
+                    status = "Diterima";
+                } else if (checkStatus === 'menunggu') {
+                    status = "Sedang Diproses";
+                } else if (checkStatus === 'tolak' || checkStatus === 'ditolak') {
+                    status = "Dibatalkan";
+                }
+
                 let statusColor = "var(--text-muted)";
                 let statusIcon = "fa-clock";
-                
+
                 const statusLower = status.toLowerCase();
                 if (statusLower.includes('terima') || statusLower.includes('selesai') || statusLower.includes('sukses')) {
-                    statusColor = "#10b981"; // Hijau
+                    statusColor = "#10b981";
                     statusIcon = "fa-circle-check";
                 } else if (statusLower.includes('tolak') || statusLower.includes('batal')) {
-                    statusColor = "var(--danger-color)"; // Merah
+                    statusColor = "var(--danger-color)";
                     statusIcon = "fa-circle-xmark";
                 } else {
-                    statusColor = "var(--blue-color)"; // Biru (Pending/Menunggu)
+                    statusColor = "var(--blue-color)";
                     statusIcon = "fa-clock-rotate-left";
                 }
 
-                // Format tampilan jadwal ambil (hanya ambil tanggalnya, abaikan jam jika ada)
                 const jadwalAmbil = data.jadwalPengambilan ? formatTgl(data.jadwalPengambilan).split(',')[0] : "-";
 
-                // Desain kartu (card) histori
                 listHistori.innerHTML += `
                     <div class="card-panel" style="padding: 15px; margin-bottom: 12px; border-left: 4px solid ${statusColor};">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
