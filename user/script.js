@@ -424,41 +424,26 @@ document.addEventListener('DOMContentLoaded', () => {
         hitungTotalPesanan();
     }
 
-    // Trigger Perubahan saat Jenis Tabung Dipilih & Auto-Scroll
+    // Trigger Perubahan saat Jenis Tabung Dipilih
     if (orderJenis) orderJenis.addEventListener('change', () => {
         const jenis = orderJenis.value;
         const nikGroup = document.getElementById('nikGroup');
         const orderNikInput = document.getElementById('orderNik');
-        const btnSubmitPesanan = document.getElementById('btnSubmitPesanan'); // Dibutuhkan untuk scroll
 
         if (jenis === '3kg') {
             // Tampilkan dan Wajibkan NIK untuk 3kg
             nikGroup.style.display = 'block';
-            if(orderNikInput) orderNikInput.required = true;
-
-            // Beri sedikit waktu agar elemen tampil sempurna, lalu scroll otomatis ke arah tombol submit
-            setTimeout(() => {
-                if (btnSubmitPesanan) {
-                    btnSubmitPesanan.scrollIntoView({ 
-                        behavior: "smooth", // Scroll halus, tidak loncat
-                        block: "end"     // Posisikan tombol di tengah layar bawah
-                    });
-                }
-            }, 150); 
-            
+            orderNikInput.required = true;
         } else {
             // Sembunyikan dan Hapus Kewajiban NIK untuk 5.5kg & 12kg
-            if(nikGroup) nikGroup.style.display = 'none';
-            if(orderNikInput) {
-                orderNikInput.required = false;
-                orderNikInput.value = ''; // Kosongkan nilainya
-                orderNikInput.style.borderColor = "var(--border-color)";
-            }
-            const nikError = document.getElementById('nikError');
-            if(nikError) nikError.style.display = 'none';
+            nikGroup.style.display = 'none';
+            orderNikInput.required = false;
+            orderNikInput.value = ''; // Kosongkan nilainya
+            document.getElementById('nikError').style.display = 'none';
+            orderNikInput.style.borderColor = "var(--border-color)";
         }
 
-        if(orderJumlah) orderJumlah.value = 0; // Paksa reset jumlah saat ganti tabung
+        orderJumlah.value = 0; // Paksa reset jumlah saat ganti tabung
         updateQtyUI();
     });
 

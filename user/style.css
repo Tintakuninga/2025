@@ -69,8 +69,25 @@ body {
    KONTEN UTAMA & ANIMASI
    ============================ */
 .content-body { padding: 20px; flex: 1; }
-.page-section { display: none; animation: fadeIn 0.3s ease; }
+
+.page-section { 
+    display: none; 
+    animation: fadeIn 0.3s ease; 
+    
+    /* Tambahan untuk fitur Auto-Scroll */
+    height: 100vh; 
+    overflow-y: auto; 
+    overflow-x: hidden; 
+    padding-bottom: 150px; /* Memberi ruang agar form bawah tidak tertutup Bottom Nav */
+}
+
 .page-section.active { display: block; }
+
+/* Menyembunyikan garis scroll bawaan agar terlihat seperti aplikasi asli */
+.page-section::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
+}
 @keyframes fadeIn { 
     from { opacity: 0; } 
     to { opacity: 1; } 
@@ -334,21 +351,4 @@ body.light-theme .overflow-item:hover, body.light-theme .overflow-item:active {
 }
 .overflow-item.text-danger:hover {
     background: rgba(239, 68, 68, 0.1);
-}
-
-/* Pastikan kotak form atau modal bisa di-scroll */
-.modal-content, .form-container {
-    max-height: 85vh; /* Maksimal tinggi 85% dari tinggi layar HP */
-    overflow-y: auto; /* Memunculkan scrollbar vertikal otomatis jika konten kepanjangan */
-    overflow-x: hidden; /* Mencegah scroll menyamping */
-    padding-bottom: 20px; /* Memberi ruang napas di bawah tombol */
-}
-
-/* Mempercantik tampilan scrollbar (opsional) */
-.modal-content::-webkit-scrollbar {
-    width: 6px;
-}
-.modal-content::-webkit-scrollbar-thumb {
-    background: #ccc;
-    border-radius: 4px;
 }
