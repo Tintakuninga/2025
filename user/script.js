@@ -683,6 +683,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const jenisLabel = jenis === '3kg' ? '3 kg' : jenis === '5kg' ? '5.5 kg' : '12 kg';
                 const infoKat = jenis === '3kg' ? `\n*Kategori:* ${kategori}` : "";
+                const formatJadwal = jadwalAmbil ? formatTgl(jadwalAmbil).split(',')[0] : "-";
                 
                 const pesanWa = `Halo Admin Pangkalan, saya ingin memesan gas:\n\n*Nama:* ${nama}\n*NIK:* ${finalNik}${infoKat}\n*Jadwal Ambil:* ${jadwalAmbil}\n*Pesanan:* ${jumlah} Tabung Refill ${jenisLabel}\n*Total Bayar:* Rp ${formatRupiah(totalHarga)}\n\nMohon konfirmasi pesanan saya. Terima kasih.`;
                 const waUrl = `https://wa.me/${nomorWaAdmin}?text=${encodeURIComponent(pesanWa)}`;
