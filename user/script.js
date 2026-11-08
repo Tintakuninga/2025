@@ -765,10 +765,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Refresh halaman secara otomatis saat versi baru berhasil diaktifkan
-        let refreshing;
+        let refreshing = false;
         navigator.serviceWorker.addEventListener('controllerchange', () => {
             if (!refreshing) {
-                window.location.reload();
+                window.location.reload(); 
                 refreshing = true;
             }
         });
