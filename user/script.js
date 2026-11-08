@@ -43,6 +43,13 @@ document.addEventListener('DOMContentLoaded', () => {
         return new Intl.NumberFormat('id-ID').format(angka);
     }
 
+    // Helper: Tampilkan Modal Alert Custom
+    function showCustomAlert(pesan, judul = "Peringatan") {
+        document.getElementById('alertTitle').innerText = judul;
+        document.getElementById('alertMessage').innerText = pesan;
+        document.getElementById('modalAlert').style.display = 'flex';
+    }
+
     // --- AUTENTIKASI ---
     document.getElementById('btnGoogleLogin').addEventListener('click', async () => {
         try { await signInWithPopup(auth, provider); } 
@@ -561,7 +568,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const btnSubmit = document.getElementById('btnSubmitPesanan');
             const nama = document.getElementById('orderNama').value.trim();
             const nik = document.getElementById('orderNik').value.trim();
-            const kategori = document.getElementById('orderKategori').value;
+            const kategori = document.getElementById('orderKategori') ? document.getElementById('orderKategori').value : "-";
             const jenis = document.getElementById('orderJenis').value;
             const jumlah = parseInt(document.getElementById('orderJumlah').value) || 0;
             const totalHarga = hitungTotalPesanan();
@@ -571,19 +578,19 @@ document.addEventListener('DOMContentLoaded', () => {
             // 1. Validasi Keamanan NIK KTP dan Aturan 3KG
             if (jenis === '3kg') {
                 if (nik.length !== 16) {
-                    alert("Pemesanan Gagal: NIK KTP harus persis 16 digit angka untuk gas 3 kg.");
+                    showCustomAlert("NIK KTP harus persis 16 digit angka untuk gas 3 kg.", "Format NIK Salah");
                     return;
                 }
                 
                 const dd = parseInt(nik.substring(6, 8), 10);
                 const mm = parseInt(nik.substring(8, 10), 10);
                 if (mm < 1 || mm > 12) {
-                    alert("Pemesanan Gagal: NIK tidak sesuai standar (Kode Bulan Lahir salah).");
+                    showCustomAlert("NIK tidak sesuai standar.\n(Kode Bulan Lahir salah).", "Format NIK Salah");
                     return;
                 }
                 const isValidHari = (dd >= 1 && dd <= 31) || (dd >= 41 && dd <= 71);
                 if (!isValidHari) {
-                    alert("Pemesanan Gagal: NIK tidak sesuai standar (Kode Tanggal Lahir salah).");
+                    showCustomAlert("NIK tidak sesuai standar.\n(Kode Tanggal Lahir salah).", "Format NIK Salah");
                     return;
                 }
 
@@ -594,10 +601,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 const hasilValidasi = await validasiAturan3kg(nik, kategori, jumlah);
                 
                 if (!hasilValidasi.valid) {
-                    alert("PESANAN DITOLAK:\n\n" + hasilValidasi.pesan);
+                    // Gunakan modal custom untuk penolakan
+                    showCustomAlert(hasilValidasi.pesan, "PESANAN DITOLAK");
                     btnSubmit.disabled = false;
                     btnSubmit.innerHTML = `<i class="fa-brands fa-whatsapp"></i> Pesan & Lanjut ke WA`;
-                    return; // Hentikan jika melanggar
+                    return; 
                 }
             } else {
                 finalNik = "-";
@@ -605,7 +613,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // 2. Validasi Stok
             if (jumlah <= 0 || jumlah > (stokSekarangAdmin[jenis] || 0)) {
-                alert("Pesanan ditolak: Jumlah pesanan tidak valid atau stok telah habis.");
+                showCustomAlert("Jumlah pesanan tidak valid atau stok telah habis.", "Pesanan Ditolak");
                 btnSubmit.disabled = false;
                 btnSubmit.innerHTML = `<i class="fa-brands fa-whatsapp"></i> Pesan & Lanjut ke WA`;
                 return;
@@ -613,7 +621,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // 3. Proses Simpan ke Database
             try {
-                // Pastikan status tombol loading saat menyimpan
                 btnSubmit.disabled = true;
                 btnSubmit.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Memproses...`;
 
@@ -621,7 +628,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     userId: currentUserUid,
                     namaLengkap: nama,
                     nikKtp: finalNik,
-                    kategoriPembeli: jenis === '3kg' ? kategori : "-", // Simpan kategori
+                    kategoriPembeli: jenis === '3kg' ? kategori : "-",
                     jenisTabung: jenis,
                     jumlahTabung: jumlah,
                     totalHarga: totalHarga,
@@ -639,7 +646,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 orderJumlah.value = 1;
                 updateQtyUI();
 
-                // Kembalikan tombol ke semula
                 btnSubmit.disabled = false;
                 btnSubmit.innerHTML = `<i class="fa-brands fa-whatsapp"></i> Pesan & Lanjut ke WA`;
 
@@ -653,7 +659,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             } catch (error) {
                 console.error("Gagal membuat pesanan:", error);
-                alert("Terjadi kesalahan saat memproses pesanan.");
+                showCustomAlert("Terjadi kesalahan sistem saat memproses pesanan Anda. Silakan coba lagi.", "Terjadi Kesalahan");
                 btnSubmit.disabled = false;
                 btnSubmit.innerHTML = `<i class="fa-brands fa-whatsapp"></i> Pesan & Lanjut ke WA`;
             }

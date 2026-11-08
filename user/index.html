@@ -167,8 +167,8 @@
                             
                             <label style="margin-top: 15px; display: block;">Kategori Pembeli</label>
                             <select id="orderKategori" class="form-input" required>
-                                <option value="Rumah Tangga">Rumah Tangga (Maks 5/Bulan)</option>
-                                <option value="Usaha Mikro">Usaha Mikro (Maks 10/Bulan)</option>
+                                <option value="Rumah Tangga">Rumah Tangga</option>
+                                <option value="Usaha Mikro">Usaha Mikro</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -215,6 +215,23 @@
                 <i class="fa-solid fa-wallet"></i><span>Kas</span>
             </a>
         </nav>
+    </div>
+
+    <!-- MODAL CUSTOM ALERT -->
+    <div id="modalAlert" class="modal">
+        <div class="modal-content text-center" style="padding: 30px 20px;">
+            <div style="font-size: 40px; color: var(--danger-color); margin-bottom: 10px;">
+                <i class="fa-solid fa-circle-exclamation"></i>
+            </div>
+            <h3 style="margin-bottom: 10px;" id="alertTitle">Perhatian</h3>
+            <p style="color: var(--text-muted); margin-bottom: 25px; white-space: pre-wrap; font-size: 14px;" id="alertMessage">Pesan di sini</p>
+            
+            <div style="display: flex; justify-content: center;">
+                <button type="button" class="btn-primary" onclick="closeModal('modalAlert')" style="width: 100%; background: var(--danger-color); color: white;">
+                    Mengerti
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- MODAL FORM KAS -->
