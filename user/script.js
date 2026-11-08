@@ -441,7 +441,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (btnSubmitPesanan) {
                     btnSubmitPesanan.scrollIntoView({ 
                         behavior: "smooth", // Scroll halus, tidak loncat
-                        block: "center"     // Posisikan tombol di tengah layar bawah
+                        block: "end"     // Posisikan tombol di tengah layar bawah
                     });
                 }
             }, 150); 
