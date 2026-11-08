@@ -894,8 +894,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const qPesanan = query(collection(db, "antrean_pesanan"), where("statusPesanan", "==", "Menunggu"));
         
         onSnapshot(qPesanan, (snapshot) => {
-            
-            snapshot.docChanges().forEach((change) => {
 
             tabelPesananMasuk.innerHTML = '';
             if (snapshot.empty) {
