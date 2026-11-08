@@ -1124,7 +1124,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             lastUpdated: new Date().toISOString()
                         });
                         
-                        // Segarkan tampilan kotak dashboard inventaris
                         loadInventaris(); 
                     }
 

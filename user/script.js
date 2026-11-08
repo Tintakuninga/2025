@@ -549,8 +549,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     const selisihMilidetik = hariIni.getTime() - hariTerakhir.getTime();
                     const selisihHari = selisihMilidetik / (1000 * 3600 * 24);
                     
-                    if (selisihHari < 2) {
-                        return { valid: false, pesan: "Harus menunggu jeda 2 hari kalender dari pembelian terakhir untuk pembeli umum." };
+                    if (selisihHari < 1) {
+                        return { valid: false, pesan: "Harap tunggu 1 hari setelah pembelian terakhir untuk memesan kembali." };
                     }
                 }
                 return { valid: true };
