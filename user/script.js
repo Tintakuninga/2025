@@ -757,21 +757,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 registration.addEventListener('updatefound', () => {
                     const newWorker = registration.installing;
                     newWorker.addEventListener('statechange', () => {
+                        // Jika ada pekerja (worker) baru yang menunggu, berarti ada update
                         if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                             if(updateBanner) updateBanner.style.display = 'flex';
                             
+                            // Jika tombol update ditekan
                             if (updateBtn) {
                                 updateBtn.onclick = () => {
                                     updateBanner.style.display = 'none'; 
                                     updateBtn.innerHTML = "Memperbarui...";
                                     
-                                    if (registration.waiting) {
-                                        registration.waiting.postMessage({ action: 'skipWaiting' });
-                                    } else if (newWorker) {
-                                        newWorker.postMessage({ action: 'skipWaiting' });
-                                    } else {
-                                        window.location.reload();
-                                    }
+                                    newWorker.postMessage({ action: 'skipWaiting' });
                                 };
                             }
                         }
@@ -783,10 +779,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Refresh halaman secara otomatis saat versi baru berhasil diaktifkan
-        let refreshing = false;
+        let refreshing;
         navigator.serviceWorker.addEventListener('controllerchange', () => {
             if (!refreshing) {
-                window.location.reload(); 
+                window.location.reload();
                 refreshing = true;
             }
         });
