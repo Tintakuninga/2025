@@ -488,23 +488,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let totalBulanIni = 0;
         let waktuTransaksiTerakhir = null;
+        
+        let isPelangganTetap = false;
 
         try {
-            // Kita cek di koleksi antrean_pesanan (bisa disesuaikan jika data fix ada di koleksi lain)
+            const qPelanggan = query(collection(db, "pelanggan"), where("nik", "==", nik));
+            const snapPelanggan = await getDocs(qPelanggan);
+            
+            if (!snapPelanggan.empty) {
+                isPelangganTetap = true;
+            }
+
+            if (isPelangganTetap) {
+                return { valid: true }; 
+            }
+
             const q = query(
                 collection(db, "antrean_pesanan"), 
                 where("nikKtp", "==", nik),
                 where("jenisTabung", "==", "3kg"),
                 where("tanggalOrder", ">=", awalBulan)
             );
-
             const querySnapshot = await getDocs(q);
 
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
                 totalBulanIni += parseInt(data.jumlahTabung || 0);
                 
-                // Ambil waktu transaksi terakhir
                 if (data.tanggalOrder) {
                     const tglPesan = data.tanggalOrder.toDate(); 
                     if (!waktuTransaksiTerakhir || tglPesan > waktuTransaksiTerakhir) {
@@ -513,7 +523,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            // ATURAN 1: USAHA MIKRO (Max 10 tabung per bulan)
             if (kategori === "Usaha Mikro") {
                 if (totalBulanIni + jumlahPesananBaru > 10) {
                     return { valid: false, pesan: `Batas Usaha Mikro 10 tabung/bulan. NIK ini sudah membeli ${totalBulanIni} tabung.` };
@@ -521,7 +530,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return { valid: true };
             }
 
-            // ATURAN 2: RUMAH TANGGA
             if (kategori === "Rumah Tangga") {
                 if (jumlahPesananBaru > 2) {
                     return { valid: false, pesan: "Rumah Tangga maksimal 2 tabung per pesanan." };
@@ -530,33 +538,55 @@ document.addEventListener('DOMContentLoaded', () => {
                     return { valid: false, pesan: `Batas Rumah Tangga 5 tabung/bulan. NIK ini sudah membeli ${totalBulanIni} tabung.` };
                 }
                 
-                // Jeda 2 Hari (Berdasarkan Hari Kalender, bukan jam)
                 if (waktuTransaksiTerakhir) {
-                    // Buang unsur jam, ambil tanggalnya saja untuk hari ini
                     const hariIni = new Date(skrg.getFullYear(), skrg.getMonth(), skrg.getDate());
-                    
-                    // Buang unsur jam, ambil tanggalnya saja untuk transaksi terakhir
                     const hariTerakhir = new Date(
                         waktuTransaksiTerakhir.getFullYear(), 
                         waktuTransaksiTerakhir.getMonth(), 
                         waktuTransaksiTerakhir.getDate()
                     );
 
-                    // Hitung selisih harinya
                     const selisihMilidetik = hariIni.getTime() - hariTerakhir.getTime();
                     const selisihHari = selisihMilidetik / (1000 * 3600 * 24);
                     
                     if (selisihHari < 2) {
-                        return { valid: false, pesan: "Harus menunggu jeda 2 hari dari tanggal pembelian 3KG terakhir." };
+                        return { valid: false, pesan: "Harus menunggu jeda 2 hari kalender dari pembelian terakhir untuk pembeli umum." };
                     }
                 }
                 return { valid: true };
             }
+
         } catch (error) {
             console.error("Error cek validasi:", error);
-            // Jika error karena index belum dibuat, firebase akan memberitahu via console
-            return { valid: false, pesan: "Terjadi kesalahan saat memeriksa batas pembelian (Mungkin Firebase Index belum jadi. Cek Console)." };
+            return { valid: false, pesan: "Terjadi kesalahan saat memeriksa batas pembelian. Coba lagi nanti." };
         }
+    }
+
+    // ==========================================
+    // PENGATURAN KALENDER (Hanya Senin, Rabu, Jumat & Blokir Masa Lalu)
+    // ==========================================
+    const inputTanggal = document.getElementById('orderTanggal');
+    if (inputTanggal) {
+        // 1. BLOKIR TANGGAL MASA LALU (Set atribut 'min' ke hari ini)
+        const hariIni = new Date();
+        const yyyy = hariIni.getFullYear();
+        const mm = String(hariIni.getMonth() + 1).padStart(2, '0'); 
+        const dd = String(hariIni.getDate()).padStart(2, '0');
+        const formatHariIni = `${yyyy}-${mm}-${dd}`;
+        
+        inputTanggal.min = formatHariIni; // User tidak bisa klik tanggal sebelum hari ini
+
+        // 2. VALIDASI HARI (Hanya Senin, Rabu, Jumat)
+        inputTanggal.addEventListener('change', function() {
+            const tanggalDipilih = new Date(this.value);
+            const hariKe = tanggalDipilih.getDay(); // 0:Minggu, 1:Senin, 2:Selasa, 3:Rabu, 4:Kamis, 5:Jumat, 6:Sabtu
+
+            // Jika bukan hari Senin (1), Rabu (3), atau Jumat (5)
+            if (hariKe !== 1 && hariKe !== 3 && hariKe !== 5) {
+                showCustomAlert("Mohon maaf, jadwal masuk gas pangkalan kami hanya tersedia di hari:\n\n📅 Senin, Rabu, dan Jumat.", "Hari Tidak Tersedia");
+                this.value = ''; // Kosongkan kembali form kalendernya
+            }
+        });
     }
 
     // --- PROSES SUBMIT PESANAN ---
@@ -572,6 +602,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const jenis = document.getElementById('orderJenis').value;
             const jumlah = parseInt(document.getElementById('orderJumlah').value) || 0;
             const totalHarga = hitungTotalPesanan();
+            const jadwalAmbil = document.getElementById('orderTanggal').value;
 
             let finalNik = nik;
             
@@ -632,6 +663,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     jenisTabung: jenis,
                     jumlahTabung: jumlah,
                     totalHarga: totalHarga,
+                    jadwalPengambilan: jadwalAmbil,
                     statusPesanan: "Menunggu",
                     tanggalOrder: serverTimestamp() 
                 });
@@ -652,7 +684,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const jenisLabel = jenis === '3kg' ? '3 kg' : jenis === '5kg' ? '5.5 kg' : '12 kg';
                 const infoKat = jenis === '3kg' ? `\n*Kategori:* ${kategori}` : "";
                 
-                const pesanWa = `Halo Admin Pangkalan, saya ingin memesan gas:\n\n*Nama:* ${nama}\n*NIK:* ${finalNik}${infoKat}\n*Pesanan:* ${jumlah} Tabung Refill ${jenisLabel}\n*Total Bayar:* Rp ${formatRupiah(totalHarga)}\n\nMohon konfirmasi pesanan saya. Terima kasih.`;
+                const pesanWa = `Halo Admin Pangkalan, saya ingin memesan gas:\n\n*Nama:* ${nama}\n*NIK:* ${finalNik}${infoKat}\n*Jadwal Ambil:* ${jadwalAmbil}\n*Pesanan:* ${jumlah} Tabung Refill ${jenisLabel}\n*Total Bayar:* Rp ${formatRupiah(totalHarga)}\n\nMohon konfirmasi pesanan saya. Terima kasih.`;
                 const waUrl = `https://wa.me/${nomorWaAdmin}?text=${encodeURIComponent(pesanWa)}`;
                 
                 window.location.href = waUrl; 
