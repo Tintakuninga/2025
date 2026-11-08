@@ -562,29 +562,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // ==========================================
-    // PENGATURAN KALENDER (Hanya Senin, Rabu, Jumat & Blokir Masa Lalu)
-    // ==========================================
+    // PENGATURAN KALENDER
     const inputTanggal = document.getElementById('orderTanggal');
     if (inputTanggal) {
-        // 1. BLOKIR TANGGAL MASA LALU (Set atribut 'min' ke hari ini)
+
         const hariIni = new Date();
         const yyyy = hariIni.getFullYear();
         const mm = String(hariIni.getMonth() + 1).padStart(2, '0'); 
         const dd = String(hariIni.getDate()).padStart(2, '0');
         const formatHariIni = `${yyyy}-${mm}-${dd}`;
         
-        inputTanggal.min = formatHariIni; // User tidak bisa klik tanggal sebelum hari ini
+        inputTanggal.min = formatHariIni;
 
         // 2. VALIDASI HARI (Hanya Senin, Rabu, Jumat)
         inputTanggal.addEventListener('change', function() {
             const tanggalDipilih = new Date(this.value);
-            const hariKe = tanggalDipilih.getDay(); // 0:Minggu, 1:Senin, 2:Selasa, 3:Rabu, 4:Kamis, 5:Jumat, 6:Sabtu
+            const hariKe = tanggalDipilih.getDay();
 
             // Jika bukan hari Senin (1), Rabu (3), atau Jumat (5)
             if (hariKe !== 1 && hariKe !== 3 && hariKe !== 5) {
                 showCustomAlert("Mohon maaf, jadwal masuk gas pangkalan kami hanya tersedia di hari:\n\n📅 Senin, Rabu, dan Jumat.", "Hari Tidak Tersedia");
-                this.value = ''; // Kosongkan kembali form kalendernya
+                this.value = '';
             }
         });
     }
