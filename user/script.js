@@ -470,28 +470,111 @@ document.addEventListener('DOMContentLoaded', () => {
         return total;
     }
 
+    // ==========================================
+    // FUNGSI VALIDASI ATURAN PEMBELIAN 3KG
+    // ==========================================
+    async function validasiAturan3kg(nik, kategori, jumlahPesananBaru) {
+        if (!nik || nik.length !== 16) return { valid: false, pesan: "NIK tidak valid!" };
+
+        const skrg = new Date();
+        const awalBulan = new Date(skrg.getFullYear(), skrg.getMonth(), 1); 
+
+        let totalBulanIni = 0;
+        let waktuTransaksiTerakhir = null;
+
+        try {
+            // Kita cek di koleksi antrean_pesanan (bisa disesuaikan jika data fix ada di koleksi lain)
+            const q = query(
+                collection(db, "antrean_pesanan"), 
+                where("nikKtp", "==", nik),
+                where("jenisTabung", "==", "3kg"),
+                where("tanggalOrder", ">=", awalBulan)
+            );
+
+            const querySnapshot = await getDocs(q);
+
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                totalBulanIni += parseInt(data.jumlahTabung || 0);
+                
+                // Ambil waktu transaksi terakhir
+                if (data.tanggalOrder) {
+                    const tglPesan = data.tanggalOrder.toDate(); 
+                    if (!waktuTransaksiTerakhir || tglPesan > waktuTransaksiTerakhir) {
+                        waktuTransaksiTerakhir = tglPesan;
+                    }
+                }
+            });
+
+            // ATURAN 1: USAHA MIKRO (Max 10 tabung per bulan)
+            if (kategori === "Usaha Mikro") {
+                if (totalBulanIni + jumlahPesananBaru > 10) {
+                    return { valid: false, pesan: `Batas Usaha Mikro 10 tabung/bulan. NIK ini sudah membeli ${totalBulanIni} tabung.` };
+                }
+                return { valid: true };
+            }
+
+            // ATURAN 2: RUMAH TANGGA
+            if (kategori === "Rumah Tangga") {
+                if (jumlahPesananBaru > 2) {
+                    return { valid: false, pesan: "Rumah Tangga maksimal 2 tabung per pesanan." };
+                }
+                if (totalBulanIni + jumlahPesananBaru > 5) {
+                    return { valid: false, pesan: `Batas Rumah Tangga 5 tabung/bulan. NIK ini sudah membeli ${totalBulanIni} tabung.` };
+                }
+                
+                // Jeda 2 Hari (Berdasarkan Hari Kalender, bukan jam)
+                if (waktuTransaksiTerakhir) {
+                    // Buang unsur jam, ambil tanggalnya saja untuk hari ini
+                    const hariIni = new Date(skrg.getFullYear(), skrg.getMonth(), skrg.getDate());
+                    
+                    // Buang unsur jam, ambil tanggalnya saja untuk transaksi terakhir
+                    const hariTerakhir = new Date(
+                        waktuTransaksiTerakhir.getFullYear(), 
+                        waktuTransaksiTerakhir.getMonth(), 
+                        waktuTransaksiTerakhir.getDate()
+                    );
+
+                    // Hitung selisih harinya
+                    const selisihMilidetik = hariIni.getTime() - hariTerakhir.getTime();
+                    const selisihHari = selisihMilidetik / (1000 * 3600 * 24);
+                    
+                    if (selisihHari < 2) {
+                        return { valid: false, pesan: "Harus menunggu jeda 2 hari dari tanggal pembelian 3KG terakhir." };
+                    }
+                }
+                return { valid: true };
+            }
+        } catch (error) {
+            console.error("Error cek validasi:", error);
+            // Jika error karena index belum dibuat, firebase akan memberitahu via console
+            return { valid: false, pesan: "Terjadi kesalahan saat memeriksa batas pembelian (Mungkin Firebase Index belum jadi. Cek Console)." };
+        }
+    }
+
     // --- PROSES SUBMIT PESANAN ---
     const formPesanan = document.getElementById('formPesanan');
     if(formPesanan) {
         formPesanan.addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            const btnSubmit = document.getElementById('btnSubmitPesanan');
             const nama = document.getElementById('orderNama').value.trim();
             const nik = document.getElementById('orderNik').value.trim();
+            const kategori = document.getElementById('orderKategori').value;
             const jenis = document.getElementById('orderJenis').value;
             const jumlah = parseInt(document.getElementById('orderJumlah').value) || 0;
             const totalHarga = hitungTotalPesanan();
 
-            // 1. Validasi Keamanan NIK KTP (Hanya Berlaku untuk Gas 3kg)
             let finalNik = nik;
             
+            // 1. Validasi Keamanan NIK KTP dan Aturan 3KG
             if (jenis === '3kg') {
                 if (nik.length !== 16) {
                     alert("Pemesanan Gagal: NIK KTP harus persis 16 digit angka untuk gas 3 kg.");
                     return;
                 }
                 
-                // Validasi format angka bulan & tanggal lahir di KTP
                 const dd = parseInt(nik.substring(6, 8), 10);
                 const mm = parseInt(nik.substring(8, 10), 10);
                 if (mm < 1 || mm > 12) {
@@ -503,23 +586,42 @@ document.addEventListener('DOMContentLoaded', () => {
                     alert("Pemesanan Gagal: NIK tidak sesuai standar (Kode Tanggal Lahir salah).");
                     return;
                 }
+
+                // --- JALANKAN VALIDASI ATURAN PEMERINTAH ---
+                btnSubmit.disabled = true;
+                btnSubmit.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Memeriksa Batas NIK...`;
+                
+                const hasilValidasi = await validasiAturan3kg(nik, kategori, jumlah);
+                
+                if (!hasilValidasi.valid) {
+                    alert("PESANAN DITOLAK:\n\n" + hasilValidasi.pesan);
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerHTML = `<i class="fa-brands fa-whatsapp"></i> Pesan & Lanjut ke WA`;
+                    return; // Hentikan jika melanggar
+                }
             } else {
-                // Jika 5.5kg atau 12kg, ubah NIK menjadi tanda strip agar rapi di WA dan Database
                 finalNik = "-";
             }
 
             // 2. Validasi Stok
             if (jumlah <= 0 || jumlah > (stokSekarangAdmin[jenis] || 0)) {
                 alert("Pesanan ditolak: Jumlah pesanan tidak valid atau stok telah habis.");
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = `<i class="fa-brands fa-whatsapp"></i> Pesan & Lanjut ke WA`;
                 return;
             }
 
+            // 3. Proses Simpan ke Database
             try {
-                // Simpan ke Antrean
+                // Pastikan status tombol loading saat menyimpan
+                btnSubmit.disabled = true;
+                btnSubmit.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Memproses...`;
+
                 await addDoc(collection(db, "antrean_pesanan"), {
                     userId: currentUserUid,
                     namaLengkap: nama,
                     nikKtp: finalNik,
+                    kategoriPembeli: jenis === '3kg' ? kategori : "-", // Simpan kategori
                     jenisTabung: jenis,
                     jumlahTabung: jumlah,
                     totalHarga: totalHarga,
@@ -527,11 +629,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     tanggalOrder: serverTimestamp() 
                 });
 
-                // Kirim Notifikasi Admin
-                const jenisLabel = jenis === '3kg' ? '3 kg' : jenis === '5kg' ? '5.5 kg' : '12 kg';
                 await addDoc(collection(db, "notifikasi"), {
                     judul: "Pesanan Masuk (Antrean)",
-                    pesan: `Pesanan baru: ${jumlah} tabung ${jenisLabel} dari ${nama}`,
+                    pesan: `Pesanan baru: ${jumlah} tabung ${jenis} dari ${nama}`,
                     isRead: false,
                     timestamp: serverTimestamp()
                 });
@@ -539,7 +639,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 orderJumlah.value = 1;
                 updateQtyUI();
 
-                const pesanWa = `Halo Admin Pangkalan, saya ingin memesan gas:\n\n*Nama:* ${nama}\n*NIK:* ${finalNik}\n*Pesanan:* ${jumlah} Tabung Refill ${jenisLabel}\n*Total Bayar:* Rp ${formatRupiah(totalHarga)}\n\nMohon konfirmasi pesanan saya. Terima kasih.`;
+                // Kembalikan tombol ke semula
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = `<i class="fa-brands fa-whatsapp"></i> Pesan & Lanjut ke WA`;
+
+                const jenisLabel = jenis === '3kg' ? '3 kg' : jenis === '5kg' ? '5.5 kg' : '12 kg';
+                const infoKat = jenis === '3kg' ? `\n*Kategori:* ${kategori}` : "";
+                
+                const pesanWa = `Halo Admin Pangkalan, saya ingin memesan gas:\n\n*Nama:* ${nama}\n*NIK:* ${finalNik}${infoKat}\n*Pesanan:* ${jumlah} Tabung Refill ${jenisLabel}\n*Total Bayar:* Rp ${formatRupiah(totalHarga)}\n\nMohon konfirmasi pesanan saya. Terima kasih.`;
                 const waUrl = `https://wa.me/${nomorWaAdmin}?text=${encodeURIComponent(pesanWa)}`;
                 
                 window.location.href = waUrl; 
@@ -547,6 +654,8 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 console.error("Gagal membuat pesanan:", error);
                 alert("Terjadi kesalahan saat memproses pesanan.");
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = `<i class="fa-brands fa-whatsapp"></i> Pesan & Lanjut ke WA`;
             }
         });
     }
