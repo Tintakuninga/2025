@@ -707,32 +707,48 @@ document.addEventListener('DOMContentLoaded', () => {
     const installBtn = document.getElementById('pwaInstallBtn');
     const updateBanner = document.getElementById('pwaUpdateBanner');
     const updateBtn = document.getElementById('pwaUpdateBtn');
+    const pwaWrapper = document.getElementById('pwaInstallWrapper');
+    const closeBtn = document.getElementById('pwaCloseBtn');
 
     // 1. Logika Tombol Install
     window.addEventListener('beforeinstallprompt', (e) => {
-        // Mencegah browser langsung memunculkan pop-up bawaan
         e.preventDefault();
         deferredPrompt = e;
         
-        // Munculkan tombol Install yang nempel di kanan
-        if(installBtn) installBtn.style.display = 'flex';
+        if(pwaWrapper) pwaWrapper.style.display = 'flex';
     });
 
+    // 2. Fungsi saat tombol "Install App" diklik
     if(installBtn) {
         installBtn.addEventListener('click', async () => {
             if (deferredPrompt) {
-                deferredPrompt.prompt(); // Munculkan pop-up install
+                deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
                 if (outcome === 'accepted') {
                     console.log('User menginstal aplikasi');
+                    if(pwaWrapper) pwaWrapper.style.display = 'none';
                 }
                 deferredPrompt = null;
-                installBtn.style.display = 'none'; // Sembunyikan tombol setelah di-install
             }
         });
     }
 
-    // 2. Registrasi Service Worker & Deteksi Update
+    // 3. Fungsi TAMBAHAN saat tombol "X" diklik
+    if(closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            if(pwaWrapper) {
+                // Efek menghilang perlahan
+                pwaWrapper.style.opacity = '0';
+                pwaWrapper.style.transform = 'translateY(-50%) scale(0.9)';
+                
+                setTimeout(() => {
+                    pwaWrapper.style.display = 'none';
+                }, 300);
+            }
+        });
+    }
+
+    // 4. Registrasi Service Worker & Deteksi Update
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('./sw.js').then((registration) => {

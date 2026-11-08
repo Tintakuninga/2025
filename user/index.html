@@ -11,10 +11,15 @@
     <link rel="manifest" href="manifest.json">
 </head>
 <body class="light-theme">
-    <!-- Tombol Install Melayang (Nempel Kanan) -->
-    <button id="pwaInstallBtn" class="pwa-install-btn">
-        <i class="fa-solid fa-download"></i> Install App
-    </button>
+    <!-- Tombol Install PWA Baru -->
+    <div id="pwaInstallWrapper" class="pwa-install-wrapper">
+        <button id="pwaInstallBtn" class="pwa-install-btn-inner">
+            <i class="fa-solid fa-download"></i> Install App
+        </button>
+        <button id="pwaCloseBtn" class="pwa-close-btn" aria-label="Tutup">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
 
     <!-- Banner Update Muncul Jika Ada Pembaruan -->
     <div id="pwaUpdateBanner" class="pwa-update-banner">
