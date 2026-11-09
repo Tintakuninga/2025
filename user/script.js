@@ -404,29 +404,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Fitur Reset Kas
     const btnResetKas = document.getElementById('btnResetKas');
-    if (btnResetKas) {
+    const modalResetKas = document.getElementById('modalResetKas');
+    const btnBatalResetKas = document.getElementById('btnBatalResetKas');
+    const btnKonfirmResetKas = document.getElementById('btnKonfirmResetKas');
+
+    if (btnResetKas && modalResetKas) {
         btnResetKas.addEventListener('click', () => {
-            const konfirmasi = confirm("Apakah Anda yakin ingin menghapus semua riwayat Buku Kas? Data yang dihapus tidak bisa dikembalikan.");
-            if (konfirmasi) {
-                const storageKey = 'lpg_kas_' + currentUserUid;
-                localStorage.removeItem(storageKey); // Hapus memori kas untuk user ini
-                loadKas(); // Refresh tampilan
-            }
+            modalResetKas.style.display = "flex";
         });
+
+        if (btnBatalResetKas) {
+            btnBatalResetKas.addEventListener('click', () => {
+                modalResetKas.style.display = "none";
+            });
+        }
+
+        if (btnKonfirmResetKas) {
+            btnKonfirmResetKas.addEventListener('click', () => {
+                const storageKey = 'lpg_kas_' + currentUserUid;
+                localStorage.removeItem(storageKey);
+                loadKas();
+                modalResetKas.style.display = "none";
+            });
+        }
     }
 
     // --- 3. FITUR PEMESANAN GAS & WA ---
-    
-    // Variabel Global untuk menyimpan stok real-time
     let stokSekarangAdmin = { '3kg': 0, '5kg': 0, '12kg': 0 };
 
-    // Validasi Input NIK Real-Time (Hanya Angka & 16 Digit)
     const orderNik = document.getElementById('orderNik');
     const nikError = document.getElementById('nikError');
 
     if (orderNik) {
         orderNik.addEventListener('input', function() {
-            this.value = this.value.replace(/\D/g, ''); // Buang semua huruf/karakter selain angka
+            this.value = this.value.replace(/\D/g, '');
             
             if (this.value.length > 0 && this.value.length !== 16) {
                 nikError.style.display = 'block';
@@ -442,7 +453,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load Stok dari Admin & Update UI Tombol Plus-Minus serta Halaman Harga
     function loadStokInfo() {
         onSnapshot(doc(db, "settings", "inventaris"), (docSnap) => {
-            // Ambil elemen HTML di halaman Harga
             const elStokHarga3kg = document.getElementById('stokHarga3kg');
             const elStokHarga5kg = document.getElementById('stokHarga5kg');
             const elStokHarga12kg = document.getElementById('stokHarga12kg');
