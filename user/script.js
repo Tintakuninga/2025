@@ -322,7 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 2. BUKU KAS PRIBADI (LOCAL STORAGE) ---
+    // --- 2. BUKU KAS PRIBADI ---
     const btnAddKas = document.getElementById('btnAddKas');
     if(btnAddKas) {
         btnAddKas.addEventListener('click', () => {
@@ -339,23 +339,21 @@ document.addEventListener('DOMContentLoaded', () => {
             const nominal = parseInt(nominalStr) || 0;
             
             const data = {
-                id: Date.now().toString(), // ID unik berdasarkan waktu
+                id: Date.now().toString(),
                 tipe: document.getElementById('kasTipe').value,
                 nominal: nominal,
                 keterangan: document.getElementById('kasKet').value,
                 tanggal: new Date().toISOString()
             };
             
-            // Mengambil data kas lama dari Local Storage berdasarkan UID user
             const storageKey = 'lpg_kas_' + currentUserUid;
             let kasData = JSON.parse(localStorage.getItem(storageKey)) || [];
             
-            // Tambahkan data baru dan simpan kembali ke Local Storage
             kasData.push(data);
             localStorage.setItem(storageKey, JSON.stringify(kasData));
             
             closeModal('modalKas');
-            loadKas(); // Refresh tampilan
+            loadKas();
         });
     }
 
@@ -366,16 +364,21 @@ document.addEventListener('DOMContentLoaded', () => {
             const storageKey = 'lpg_kas_' + currentUserUid;
             let docsData = JSON.parse(localStorage.getItem(storageKey)) || [];
             
-            // Urutkan dari yang terbaru ke terlama
             docsData.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
 
             let totalMasuk = 0, totalKeluar = 0;
             const listKas = document.getElementById('listKas');
+            const wrapperResetKas = document.getElementById('wrapperResetKas');
+            
             if(listKas) listKas.innerHTML = '';
 
+            // Cek apakah data kosong atau tidak
             if (docsData.length === 0) {
                 if(listKas) listKas.innerHTML = '<p class="text-center text-muted" style="margin-top: 20px;">Belum ada catatan transaksi.</p>';
+                if(wrapperResetKas) wrapperResetKas.style.display = 'none';
             } else {
+                if(wrapperResetKas) wrapperResetKas.style.display = 'block';
+
                 docsData.forEach(data => {
                     const isMasuk = data.tipe === 'masuk';
                     if(isMasuk) totalMasuk += data.nominal; else totalKeluar += data.nominal;
