@@ -322,7 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 2. BUKU KAS PRIBADI ---
+    // --- 2. BUKU KAS PRIBADI (LOCAL STORAGE) ---
     const btnAddKas = document.getElementById('btnAddKas');
     if(btnAddKas) {
         btnAddKas.addEventListener('click', () => {
@@ -333,62 +333,86 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const formKas = document.getElementById('formKas');
     if(formKas) {
-        formKas.addEventListener('submit', async (e) => {
+        formKas.addEventListener('submit', (e) => {
             e.preventDefault();
             const nominalStr = document.getElementById('kasNominal').value.replace(/\./g, '');
             const nominal = parseInt(nominalStr) || 0;
             
             const data = {
-                userId: currentUserUid,
+                id: Date.now().toString(), // ID unik berdasarkan waktu
                 tipe: document.getElementById('kasTipe').value,
                 nominal: nominal,
                 keterangan: document.getElementById('kasKet').value,
                 tanggal: new Date().toISOString()
             };
             
-            await addDoc(collection(db, "buku_kas"), data);
+            // Mengambil data kas lama dari Local Storage berdasarkan UID user
+            const storageKey = 'lpg_kas_' + currentUserUid;
+            let kasData = JSON.parse(localStorage.getItem(storageKey)) || [];
+            
+            // Tambahkan data baru dan simpan kembali ke Local Storage
+            kasData.push(data);
+            localStorage.setItem(storageKey, JSON.stringify(kasData));
+            
             closeModal('modalKas');
-            loadKas();
+            loadKas(); // Refresh tampilan
         });
     }
 
-    async function loadKas() {
+    function loadKas() {
         if (!currentUserUid) return;
+        
         try {
-            const q = query(collection(db, "buku_kas"), where("userId", "==", currentUserUid));
-            const snapshot = await getDocs(q);
+            const storageKey = 'lpg_kas_' + currentUserUid;
+            let docsData = JSON.parse(localStorage.getItem(storageKey)) || [];
             
-            let docsData = [];
-            snapshot.forEach(doc => docsData.push(doc.data()));
+            // Urutkan dari yang terbaru ke terlama
             docsData.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
 
             let totalMasuk = 0, totalKeluar = 0;
             const listKas = document.getElementById('listKas');
             if(listKas) listKas.innerHTML = '';
 
-            docsData.forEach(data => {
-                const isMasuk = data.tipe === 'masuk';
-                if(isMasuk) totalMasuk += data.nominal; else totalKeluar += data.nominal;
+            if (docsData.length === 0) {
+                if(listKas) listKas.innerHTML = '<p class="text-center text-muted" style="margin-top: 20px;">Belum ada catatan transaksi.</p>';
+            } else {
+                docsData.forEach(data => {
+                    const isMasuk = data.tipe === 'masuk';
+                    if(isMasuk) totalMasuk += data.nominal; else totalKeluar += data.nominal;
 
-                if(listKas) {
-                    listKas.innerHTML += `
-                        <div class="list-item">
-                            <div class="list-item-left">
-                                <h4>${data.keterangan}</h4>
-                                <p>${formatTgl(data.tanggal)}</p>
+                    if(listKas) {
+                        listKas.innerHTML += `
+                            <div class="list-item">
+                                <div class="list-item-left">
+                                    <h4>${data.keterangan}</h4>
+                                    <p>${formatTgl(data.tanggal)}</p>
+                                </div>
+                                <div class="list-item-right ${isMasuk ? 'text-green' : 'text-danger'}">
+                                    ${isMasuk ? '+' : '-'} Rp ${formatRupiah(data.nominal)}
+                                </div>
                             </div>
-                            <div class="list-item-right ${isMasuk ? 'text-green' : 'text-danger'}">
-                                ${isMasuk ? '+' : '-'} Rp ${formatRupiah(data.nominal)}
-                            </div>
-                        </div>
-                    `;
-                }
-            });
+                        `;
+                    }
+                });
+            }
             
             document.getElementById('totalMasuk').innerText = "Rp " + formatRupiah(totalMasuk);
             document.getElementById('totalKeluar').innerText = "Rp " + formatRupiah(totalKeluar);
             document.getElementById('saldoBersih').innerText = "Rp " + formatRupiah(totalMasuk - totalKeluar);
         } catch(e) { console.error("Error load kas:", e); }
+    }
+
+    // Fitur Reset Kas
+    const btnResetKas = document.getElementById('btnResetKas');
+    if (btnResetKas) {
+        btnResetKas.addEventListener('click', () => {
+            const konfirmasi = confirm("Apakah Anda yakin ingin menghapus semua riwayat Buku Kas? Data yang dihapus tidak bisa dikembalikan.");
+            if (konfirmasi) {
+                const storageKey = 'lpg_kas_' + currentUserUid;
+                localStorage.removeItem(storageKey); // Hapus memori kas untuk user ini
+                loadKas(); // Refresh tampilan
+            }
+        });
     }
 
     // --- 3. FITUR PEMESANAN GAS & WA ---
