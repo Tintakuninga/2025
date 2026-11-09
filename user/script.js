@@ -368,16 +368,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let totalMasuk = 0, totalKeluar = 0;
             const listKas = document.getElementById('listKas');
-            const wrapperResetKas = document.getElementById('wrapperResetKas');
+            const wrapperAksiKas = document.getElementById('wrapperAksiKas'); // Pembungkus tombol
             
             if(listKas) listKas.innerHTML = '';
 
-            // Cek apakah data kosong atau tidak
+            // LOGIKA MENYEMBUNYIKAN TOMBOL JIKA DATA KOSONG
             if (docsData.length === 0) {
                 if(listKas) listKas.innerHTML = '<p class="text-center text-muted" style="margin-top: 20px;">Belum ada catatan transaksi.</p>';
-                if(wrapperResetKas) wrapperResetKas.style.display = 'none';
+                if(wrapperAksiKas) wrapperAksiKas.style.display = 'none'; // Sembunyikan semua tombol
             } else {
-                if(wrapperResetKas) wrapperResetKas.style.display = 'block';
+                if(wrapperAksiKas) wrapperAksiKas.style.display = 'flex'; // Tampilkan tombol
 
                 docsData.forEach(data => {
                     const isMasuk = data.tipe === 'masuk';
@@ -405,31 +405,92 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch(e) { console.error("Error load kas:", e); }
     }
 
-    // Fitur Reset Kas
+    // FITUR CLOUD SYNC & HAPUS
     const btnResetKas = document.getElementById('btnResetKas');
     const modalResetKas = document.getElementById('modalResetKas');
     const btnBatalResetKas = document.getElementById('btnBatalResetKas');
     const btnKonfirmResetKas = document.getElementById('btnKonfirmResetKas');
 
     if (btnResetKas && modalResetKas) {
-        btnResetKas.addEventListener('click', () => {
-            modalResetKas.style.display = "flex";
-        });
-
-        if (btnBatalResetKas) {
-            btnBatalResetKas.addEventListener('click', () => {
-                modalResetKas.style.display = "none";
-            });
-        }
-
+        btnResetKas.addEventListener('click', () => { modalResetKas.style.display = "flex"; });
+        if (btnBatalResetKas) btnBatalResetKas.addEventListener('click', () => { modalResetKas.style.display = "none"; });
+        
         if (btnKonfirmResetKas) {
             btnKonfirmResetKas.addEventListener('click', () => {
                 const storageKey = 'lpg_kas_' + currentUserUid;
-                localStorage.removeItem(storageKey);
-                loadKas();
-                modalResetKas.style.display = "none";
+                localStorage.removeItem(storageKey); 
+                loadKas(); 
+                modalResetKas.style.display = "none"; 
             });
         }
+    }
+
+    const btnSyncCloud = document.getElementById('btnSyncCloud');
+    if (btnSyncCloud) {
+        btnSyncCloud.addEventListener('click', async () => {
+            const syncKey = 'lpg_last_sync_' + currentUserUid;
+            const lastSync = localStorage.getItem(syncKey);
+            const now = Date.now();
+
+            if (lastSync) {
+                const diffHours = (now - parseInt(lastSync)) / (1000 * 60 * 60);
+                if (diffHours < 1) {
+                    const sisaMenit = Math.ceil((1 - diffHours) * 60);
+                    showCustomAlert(`Anda baru saja menyimpan cadangan.\nHarap tunggu ${sisaMenit} menit lagi untuk sinkronisasi berikutnya agar database tidak penuh.`, "Sinkronisasi Terkunci");
+                    return;
+                }
+            }
+
+            try {
+                btnSyncCloud.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>...`;
+                btnSyncCloud.disabled = true;
+
+                const storageKey = 'lpg_kas_' + currentUserUid;
+                const dataKasLocal = localStorage.getItem(storageKey) || "[]";
+
+                await setDoc(doc(db, "kas_backup", currentUserUid), {
+                    dataKas: dataKasLocal,
+                    lastUpdated: new Date().toISOString()
+                });
+
+                localStorage.setItem(syncKey, now.toString());
+                showCustomAlert("Catatan Kas Anda berhasil dicadangkan ke Cloud!", "Tersimpan");
+
+            } catch (error) {
+                console.error("Gagal sinkronisasi:", error);
+                showCustomAlert("Gagal menyimpan ke Cloud. Periksa koneksi internet Anda.", "Terjadi Kesalahan");
+            } finally {
+                btnSyncCloud.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Simpan ke Cloud`;
+                btnSyncCloud.disabled = false;
+            }
+        });
+    }
+
+    const btnRestoreCloud = document.getElementById('btnRestoreCloud');
+    if (btnRestoreCloud) {
+        btnRestoreCloud.addEventListener('click', async () => {
+            try {
+                btnRestoreCloud.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Mengecek...`;
+                
+                const docSnap = await getDoc(doc(db, "kas_backup", currentUserUid));
+                
+                if (docSnap.exists()) {
+                    const cloudData = docSnap.data().dataKas;
+                    const storageKey = 'lpg_kas_' + currentUserUid;
+                    
+                    localStorage.setItem(storageKey, cloudData);
+                    loadKas();
+                    showCustomAlert("Catatan Kas berhasil dipulihkan dari Cloud!", "Sukses Memulihkan");
+                } else {
+                    showCustomAlert("Tidak ditemukan data cadangan di Cloud untuk akun ini.", "Informasi");
+                }
+            } catch (error) {
+                console.error("Gagal memulihkan:", error);
+                showCustomAlert("Gagal memulihkan data. Periksa jaringan Anda.", "Error");
+            } finally {
+                btnRestoreCloud.innerHTML = `<i class="fa-solid fa-cloud-arrow-down"></i> Pulihkan Cloud`;
+            }
+        });
     }
 
     // --- 3. FITUR PEMESANAN GAS & WA ---
