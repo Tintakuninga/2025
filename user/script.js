@@ -514,6 +514,26 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // FITUR SIMPAN NAMA LOCALSTORAGE
+    const inputOrderNama = document.getElementById('orderNama');
+    const inputOrderNikMemori = document.getElementById('orderNik'); 
+
+    if (inputOrderNama && inputOrderNikMemori) {
+        if (localStorage.getItem("simpan_order_nama")) {
+            inputOrderNama.value = localStorage.getItem("simpan_order_nama");
+        }
+        if (localStorage.getItem("simpan_order_nik")) {
+            inputOrderNikMemori.value = localStorage.getItem("simpan_order_nik");
+        }
+
+        inputOrderNama.addEventListener('input', function() {
+            localStorage.setItem("simpan_order_nama", this.value);
+        });
+        inputOrderNikMemori.addEventListener('input', function() {
+            localStorage.setItem("simpan_order_nik", this.value);
+        });
+    }
+
     // Load Stok dari Admin & Update UI Tombol Plus-Minus serta Halaman Harga
     function loadStokInfo() {
         onSnapshot(doc(db, "settings", "inventaris"), (docSnap) => {
@@ -809,12 +829,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const dd = parseInt(nik.substring(6, 8), 10);
                 const mm = parseInt(nik.substring(8, 10), 10);
                 if (mm < 1 || mm > 12) {
-                    showCustomAlert("NIK tidak sesuai standar.\n(Kode Bulan Lahir salah).", "Format NIK Salah");
+                    showCustomAlert("NIK tidak sesuai standar.\n(Silakan periksa kembali NIK Anda).", "Format NIK Salah");
                     return;
                 }
                 const isValidHari = (dd >= 1 && dd <= 31) || (dd >= 41 && dd <= 71);
                 if (!isValidHari) {
-                    showCustomAlert("NIK tidak sesuai standar.\n(Kode Tanggal Lahir salah).", "Format NIK Salah");
+                    showCustomAlert("NIK tidak sesuai standar.\n(Silakan periksa kembali NIK Anda).", "Format NIK Salah");
                     return;
                 }
 
