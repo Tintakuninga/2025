@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Database LPG & Pangkalan</title>
+    <title>Pangkalan Gas</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
@@ -63,43 +63,35 @@
             <header class="topbar">
                 <div class="topbar-left">
                     <button class="icon-btn" id="sidebarToggle" title="Buka/Tutup Menu"><i class="fa-solid fa-bars"></i></button>
-                    <!-- Tombol Ganti Tema (Dark/Light) -->
                     <button class="icon-btn" id="themeToggle" title="Ganti Tema Mode"><i class="fa-solid fa-sun"></i></button>
-                    <h2>Pangkalan Gas LPG</h2>
+                    <h2>PANEL PANGKALAN</h2>
                 </div>
                 <div class="topbar-right">
 
-                    <!-- Area Tombol Lonceng -->
                     <div style="position: relative; display: inline-block;">
                         <button id="btnNotification" class="icon-btn" style="position: relative;">
                             <i class="fa-regular fa-bell"></i>
                             <span id="notifBadge" class="badge-notif" style="display: none;">0</span>
                         </button>
-
-                        <!-- Menu Dropdown Notifikasi -->
                         <div id="notifDropdown" class="notif-dropdown">
                             <div class="notif-header">
                                 <span>Notifikasi</span>
                                 <a href="#" id="btnLihatSemua" class="text-blue">Lihat Semua</a>
                             </div>
                             <div id="notifDropdownList" class="notif-body">
-                                <!-- Data notifikasi singkat / State Kosong akan muncul di sini -->
                             </div>
                         </div>
                     </div>
                     
                     <div class="topbar-divider"></div>
 
-                    <!-- Pembungkus Dropdown Profil -->
                     <div class="profile-dropdown-container" id="profileDropdownBtn">
                         <div class="profile-info-text">
                             <span class="p-name user-name">Admin</span>
                             <span class="p-email user-email">admin@email.com</span>
                         </div>
                         <div class="avatar-small user-initial">A</div>
-                        <i class="fa-solid fa-chevron-down profile-arrow"></i>
-                        
-                        <!-- Menu Kotak Dropdown -->
+                        <i class="fa-solid fa-chevron-down profile-arrow"></i>                       
                         <div class="profile-menu" id="profileMenu">
                             <a href="./user/" class="menu-item" target="_blank" rel="noopener noreferrer">
                                 <i class="fa-regular fa-user"></i> Halaman User
@@ -147,7 +139,7 @@
                         </div>
                     </div>
 
-                    <!-- TAMBAHAN: Grid Statistik Stok Tabung -->
+                    <!-- Grid Statistik Stok Tabung -->
                     <h3 style="margin-top: 25px; margin-bottom: 15px; font-size: 14px; color: var(--text-muted);"><i class="fa-solid fa-box-open"></i> Stok Refill</h3>
                     <div class="stats-grid">
                         <div class="stat-card">
@@ -232,7 +224,7 @@
                     </div>
                 </section>
 
-                <!-- 4. HARGA GAS (Ditambah Harga Modal) -->
+                <!-- 4. HARGA GAS -->
                 <section id="harga-gas" class="page-section">
                     <div class="page-header">
                         <h2>Daftar Harga Gas</h2>
@@ -324,7 +316,7 @@
                     </div>
                 </section>
 
-                <!-- HALAMAN MUTASI STOK MASUK -->
+                <!-- MUTASI STOK MASUK -->
                 <section id="mutasi-stok" class="page-section">
                     <div class="page-header">
                         <h2>Riwayat Stok Masuk (DO Agen)</h2>
@@ -349,9 +341,7 @@
                                         <th>AKSI</th>
                                     </tr>
                                 </thead>
-                                <tbody id="tabelMutasiStok">
-                                    <!-- Data ditarik dari Firebase -->
-                                </tbody>
+                                <tbody id="tabelMutasiStok"></tbody>
                             </table>
                         </div>
                     </div>
@@ -416,9 +406,7 @@
                                         <th>AKSI</th>
                                     </tr>
                                 </thead>
-                                <tbody id="tabelPesananMasuk">
-                                    <!-- Data ditarik dari Firebase -->
-                                </tbody>
+                                <tbody id="tabelPesananMasuk"></tbody>
                             </table>
                         </div>
                     </div>
@@ -447,7 +435,6 @@
                                     </tr>
                                 </thead>
                                 <tbody id="tabelHistoriPesanan">
-                                    <!-- Data riwayat dari Firebase -->
                                     <tr><td colspan="7" style="text-align:center;" class="text-muted">Memuat data...</td></tr>
                                 </tbody>
                             </table>
@@ -533,7 +520,7 @@
         </div>
     </div>
 
-    <!-- MODAL KONFIRMASI (Untuk Hapus) -->
+    <!-- MODAL KONFIRMASI -->
     <div id="confirmModal" class="modal">
         <div class="modal-content card-panel alert-modal">
             <div class="alert-icon" style="color: var(--danger-color);">
@@ -548,7 +535,7 @@
         </div>
     </div>
 
-    <!-- MODAL KONFIRMASI AKSI POSITIF (Untuk Selesai/Setuju) -->
+    <!-- MODAL Antrean -->
     <div id="confirmActionModal" class="modal">
         <div class="modal-content card-panel alert-modal">
             <div class="alert-icon" style="color: var(--green-color);">
@@ -563,7 +550,7 @@
         </div>
     </div>
 
-    <!-- MODAL LOGOUT (Khusus Keluar Sistem) -->
+    <!-- MODAL LOGOUT -->
     <div id="modalLogout" class="modal">
         <div class="modal-content card-panel alert-modal">
             <div class="alert-icon" style="color: var(--danger-color);">
@@ -578,7 +565,7 @@
         </div>
     </div>
 
-    <!-- Modal Manajemen Notifikasi -->
+    <!-- Modal Notifikasi -->
     <div id="modalHistori" class="modal">
         <div class="modal-content" style="max-width: 600px;">
             <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; padding-bottom: 10px;">
@@ -594,7 +581,6 @@
                 <a href="#" id="btnMarkAllRead" class="text-blue" style="cursor: pointer; text-decoration: none;">Tandai semua telah dibaca</a>
             </div>
             <div id="notificationList" class="notif-list-container">
-                <!-- Full List Notifikasi akan muncul di sini -->
             </div>
         </div>
     </div>
