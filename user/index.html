@@ -188,12 +188,21 @@
                     <form id="formPesanan">
                         <div class="form-group">
                             <label>Nama Lengkap</label>
-                            <!-- Value dikosongkan agar pengguna mengisi manual -->
-                            <input type="text" id="orderNama" class="form-input" placeholder="Masukkan nama" required>
+                            <div style="position: relative;">
+                                <input type="text" id="orderNama" class="form-input" placeholder="Masukkan nama" required style="padding-right: 35px;">
+                                <button type="button" id="clearNama" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer; display: none;">
+                                    <i class="fa-solid fa-circle-xmark"></i>
+                                </button>
+                            </div>
                         </div>
                         <div class="form-group" id="nikGroup">
                             <label>NIK KTP</label>
-                            <input type="text" id="orderNik" class="form-input" placeholder="Contoh: 7371..." required maxlength="16" inputmode="numeric">
+                            <div style="position: relative;">
+                                <input type="text" id="orderNik" class="form-input" placeholder="Contoh: 7371..." required maxlength="16" inputmode="numeric" style="padding-right: 35px;">
+                                <button type="button" id="clearNik" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer; display: none;">
+                                    <i class="fa-solid fa-circle-xmark"></i>
+                                </button>
+                            </div>
                             <small id="nikError" style="color: var(--danger-color); display: none; font-size: 11px; margin-top: 5px;">NIK harus 16 digit angka yang valid!</small>
                             
                             <label style="margin-top: 15px; display: block;">Kategori Pemakaian</label>
