@@ -1,6 +1,6 @@
 {
-  "name": "Pangkalan Hasmawati",
-  "short_name": "Pangkalan Hasmawati",
+  "name": "LPG Mobile",
+  "short_name": "LPG Mobile",
   "description": "Sistem Operasional Harian Pangkalan Gas",
   "start_url": "./index.html",
   "display": "standalone",
