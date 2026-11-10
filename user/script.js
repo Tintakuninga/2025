@@ -496,8 +496,22 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 3. FITUR PEMESANAN GAS & WA ---
     let stokSekarangAdmin = { '3kg': 0, '5kg': 0, '12kg': 0 };
 
+    const orderNama = document.getElementById('orderNama');
     const orderNik = document.getElementById('orderNik');
     const nikError = document.getElementById('nikError');
+
+    if (orderNama && localStorage.getItem("simpan_nama_user")) {
+        orderNama.value = localStorage.getItem("simpan_nama_user");
+    }
+    if (orderNik && localStorage.getItem("simpan_nik_user")) {
+        orderNik.value = localStorage.getItem("simpan_nik_user");
+    }
+
+    if (orderNama) {
+        orderNama.addEventListener('input', function() {
+            localStorage.setItem("simpan_nama_user", this.value);
+        });
+    }
 
     if (orderNik) {
         orderNik.addEventListener('input', function() {
@@ -511,26 +525,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 nikError.style.display = 'none';
                 this.style.borderColor = "var(--border-color)";
             }
-        });
-    }
 
-    // FITUR SIMPAN NAMA LOCALSTORAGE
-    const inputOrderNama = document.getElementById('orderNama');
-    const inputOrderNikMemori = document.getElementById('orderNik'); 
-
-    if (inputOrderNama && inputOrderNikMemori) {
-        if (localStorage.getItem("simpan_order_nama")) {
-            inputOrderNama.value = localStorage.getItem("simpan_order_nama");
-        }
-        if (localStorage.getItem("simpan_order_nik")) {
-            inputOrderNikMemori.value = localStorage.getItem("simpan_order_nik");
-        }
-
-        inputOrderNama.addEventListener('input', function() {
-            localStorage.setItem("simpan_order_nama", this.value);
-        });
-        inputOrderNikMemori.addEventListener('input', function() {
-            localStorage.setItem("simpan_order_nik", this.value);
+            localStorage.setItem("simpan_nik_user", this.value);
         });
     }
 
