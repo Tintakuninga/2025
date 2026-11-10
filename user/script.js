@@ -460,7 +460,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error("Gagal sinkronisasi:", error);
                 showCustomAlert("Gagal menyimpan ke Cloud. Periksa koneksi internet Anda.", "Terjadi Kesalahan");
             } finally {
-                btnSyncCloud.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Simpan ke Cloud`;
+                btnSyncCloud.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Simpan`;
                 btnSyncCloud.disabled = false;
             }
         });
@@ -488,7 +488,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error("Gagal memulihkan:", error);
                 showCustomAlert("Gagal memulihkan data. Periksa jaringan Anda.", "Error");
             } finally {
-                btnRestoreCloud.innerHTML = `<i class="fa-solid fa-cloud-arrow-down"></i> Pulihkan Cloud`;
+                btnRestoreCloud.innerHTML = `<i class="fa-solid fa-cloud-arrow-down"></i> Pulihkan`;
             }
         });
     }
