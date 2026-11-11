@@ -705,11 +705,27 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const div = document.createElement("div");
             div.className = `notif-item ${!data.isRead ? 'notif-unread' : ''}`;
+            div.style.cursor = "pointer";
             div.innerHTML = `
                 <div class="notif-title">${data.judul || 'Info'}</div>
                 <div class="notif-desc">${data.pesan || ''}</div>
                 <div class="notif-time">${data.timestamp ? data.timestamp.toDate().toLocaleString('id-ID') : 'Baru saja'}</div>
             `;
+
+            div.addEventListener("click", async () => {
+            if (!data.isRead) {
+                try {
+                    const docRef = doc(db, "notifikasi", data.id);
+                    await updateDoc(docRef, { isRead: true });
+                    
+                    div.classList.remove('notif-unread');
+                    data.isRead = true;
+                } catch (error) {
+                    console.error("Gagal mengubah status notifikasi:", error);
+                }
+            }
+            
+        });
             notifDropdownList.appendChild(div);
         });
 
