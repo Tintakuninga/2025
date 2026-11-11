@@ -1023,7 +1023,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     window.batalkanPesanan = (idPesanan) => {
-    showConfirm("Batalkan pesanan ini? (Data pesanan akan dihapus permanen dari sistem)", async () => {
+    showConfirm("Tolak pesanan ini? (Data pesanan akan dihapus permanen dari sistem)", async () => {
         try {
             await deleteDoc(doc(db, "antrean_pesanan", idPesanan));
             showAlert("Pesanan berhasil dibatalkan dan dihapus.", "Berhasil", "success");
