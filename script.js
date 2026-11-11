@@ -725,16 +725,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            const judulNotif = (data.judul || "").toLowerCase();
-            
-            if (judulNotif.includes("pesanan") || judulNotif.includes("antrian")) {
-                document.querySelectorAll('.page-section').forEach(section => {
-                    section.style.display = 'none';
-                });
+            const judulNotif = (data.judul || "").toLowerCase();           
+            if (judulNotif.includes("pesanan") || judulNotif.includes("antrian") || judulNotif.includes("pesan")) {               
+                const menuPesanan = document.querySelector('.nav-item[data-target="pesanan-masuk"]');               
+                if (menuPesanan) {
+                    menuPesanan.click();
+                } else {
+                     console.error("Menu pesanan masuk tidak ditemukan di sidebar.");
+                }
                 
-                const pesananSection = document.getElementById('pesanan-masuk');
-                if (pesananSection) {
-                    pesananSection.style.display = 'block';
+                const notifDropdown = document.getElementById('notifDropdown');
+                if (notifDropdown) {
+                     notifDropdown.style.display = 'none';
                 }
             }
             
