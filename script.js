@@ -734,9 +734,9 @@ document.addEventListener('DOMContentLoaded', () => {
                      console.error("Menu pesanan masuk tidak ditemukan di sidebar.");
                 }
                 
-                const notifDropdown = document.getElementById('notifDropdown');
-                if (notifDropdown) {
-                     notifDropdown.style.display = 'none';
+                const btnNotification = document.getElementById('btnNotification');
+                if (btnNotification) {
+                     btnNotification.click();
                 }
             }
             
