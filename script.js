@@ -724,6 +724,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error("Gagal mengubah status notifikasi:", error);
                 }
             }
+
+            const judulNotif = (data.judul || "").toLowerCase();
+            
+            if (judulNotif.includes("pesanan") || judulNotif.includes("antrian")) {
+                document.querySelectorAll('.page-section').forEach(section => {
+                    section.style.display = 'none';
+                });
+                
+                const pesananSection = document.getElementById('pesanan-masuk');
+                if (pesananSection) {
+                    pesananSection.style.display = 'block';
+                }
+            }
             
         });
             notifDropdownList.appendChild(div);
