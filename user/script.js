@@ -273,6 +273,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 sec.classList.remove('active');
                 if (sec.id === target) sec.classList.add('active');
             });
+
+            if (target === 'sec-riwayat') {
+                loadHistoriPesanan();
+            }
         });
     });
 
