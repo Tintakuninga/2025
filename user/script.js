@@ -83,8 +83,8 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('appContent').style.display = "flex";
             document.querySelector('.user-name').innerText = user.displayName;
             loadHarga();
-            loadKas();
             loadStokInfo();
+            loadHistoriPesanan();
         } else {
             currentUserUid = null;
             document.getElementById('loginScreen').style.display = "flex";
@@ -154,18 +154,6 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Tutup dropdown setelah ditekan
             overflowDropdown.classList.remove('show');
-        });
-    }
-
-    // --- FITUR STATUS / HISTORI PESANAN ---
-    const btnHistoriItem = document.getElementById('btnHistoriPesananItem');
-    const modalHistori = document.getElementById('modalHistori');
-
-    if (btnHistoriItem && modalHistori) {
-        btnHistoriItem.addEventListener('click', () => {
-            document.getElementById('overflowDropdown').classList.remove('show');
-            modalHistori.style.display = 'flex';
-            loadHistoriPesanan();
         });
     }
 
@@ -319,177 +307,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }, (error) => {
             console.error("Gagal mendengarkan perubahan harga:", error);
-        });
-    }
-
-    // --- 2. BUKU KAS PRIBADI ---
-    const btnAddKas = document.getElementById('btnAddKas');
-    if(btnAddKas) {
-        btnAddKas.addEventListener('click', () => {
-            document.getElementById('formKas').reset();
-            document.getElementById('modalKas').style.display = "flex";
-        });
-    }
-
-    const formKas = document.getElementById('formKas');
-    if(formKas) {
-        formKas.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const nominalStr = document.getElementById('kasNominal').value.replace(/\./g, '');
-            const nominal = parseInt(nominalStr) || 0;
-            
-            const data = {
-                id: Date.now().toString(),
-                tipe: document.getElementById('kasTipe').value,
-                nominal: nominal,
-                keterangan: document.getElementById('kasKet').value,
-                tanggal: new Date().toISOString()
-            };
-            
-            const storageKey = 'lpg_kas_' + currentUserUid;
-            let kasData = JSON.parse(localStorage.getItem(storageKey)) || [];
-            
-            kasData.push(data);
-            localStorage.setItem(storageKey, JSON.stringify(kasData));
-            
-            closeModal('modalKas');
-            loadKas();
-        });
-    }
-
-    function loadKas() {
-        if (!currentUserUid) return;
-        
-        try {
-            const storageKey = 'lpg_kas_' + currentUserUid;
-            let docsData = JSON.parse(localStorage.getItem(storageKey)) || [];
-            
-            docsData.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
-
-            let totalMasuk = 0, totalKeluar = 0;
-            const listKas = document.getElementById('listKas');
-            const wrapperAksiKas = document.getElementById('wrapperAksiKas'); // Pembungkus tombol
-            
-            if(listKas) listKas.innerHTML = '';
-
-            // LOGIKA MENYEMBUNYIKAN TOMBOL JIKA DATA KOSONG
-            if (docsData.length === 0) {
-                if(listKas) listKas.innerHTML = '<p class="text-center text-muted" style="margin-top: 20px;">Belum ada catatan transaksi.</p>';
-                if(wrapperAksiKas) wrapperAksiKas.style.display = 'none'; // Sembunyikan semua tombol
-            } else {
-                if(wrapperAksiKas) wrapperAksiKas.style.display = 'flex'; // Tampilkan tombol
-
-                docsData.forEach(data => {
-                    const isMasuk = data.tipe === 'masuk';
-                    if(isMasuk) totalMasuk += data.nominal; else totalKeluar += data.nominal;
-
-                    if(listKas) {
-                        listKas.innerHTML += `
-                            <div class="list-item">
-                                <div class="list-item-left">
-                                    <h4>${data.keterangan}</h4>
-                                    <p>${formatTgl(data.tanggal)}</p>
-                                </div>
-                                <div class="list-item-right ${isMasuk ? 'text-green' : 'text-danger'}">
-                                    ${isMasuk ? '+' : '-'} Rp ${formatRupiah(data.nominal)}
-                                </div>
-                            </div>
-                        `;
-                    }
-                });
-            }
-            
-            document.getElementById('totalMasuk').innerText = "Rp " + formatRupiah(totalMasuk);
-            document.getElementById('totalKeluar').innerText = "Rp " + formatRupiah(totalKeluar);
-            document.getElementById('saldoBersih').innerText = "Rp " + formatRupiah(totalMasuk - totalKeluar);
-        } catch(e) { console.error("Error load kas:", e); }
-    }
-
-    // FITUR CLOUD SYNC & HAPUS
-    const btnResetKas = document.getElementById('btnResetKas');
-    const modalResetKas = document.getElementById('modalResetKas');
-    const btnBatalResetKas = document.getElementById('btnBatalResetKas');
-    const btnKonfirmResetKas = document.getElementById('btnKonfirmResetKas');
-
-    if (btnResetKas && modalResetKas) {
-        btnResetKas.addEventListener('click', () => { modalResetKas.style.display = "flex"; });
-        if (btnBatalResetKas) btnBatalResetKas.addEventListener('click', () => { modalResetKas.style.display = "none"; });
-        
-        if (btnKonfirmResetKas) {
-            btnKonfirmResetKas.addEventListener('click', () => {
-                const storageKey = 'lpg_kas_' + currentUserUid;
-                localStorage.removeItem(storageKey); 
-                loadKas(); 
-                modalResetKas.style.display = "none"; 
-            });
-        }
-    }
-
-    const btnSyncCloud = document.getElementById('btnSyncCloud');
-    if (btnSyncCloud) {
-        btnSyncCloud.addEventListener('click', async () => {
-            const syncKey = 'lpg_last_sync_' + currentUserUid;
-            const lastSync = localStorage.getItem(syncKey);
-            const now = Date.now();
-
-            if (lastSync) {
-                const diffHours = (now - parseInt(lastSync)) / (1000 * 60 * 60);
-                if (diffHours < 1) {
-                    const sisaMenit = Math.ceil((1 - diffHours) * 60);
-                    showCustomAlert(`Anda baru saja menyimpan cadangan.\nHarap tunggu ${sisaMenit} menit lagi untuk sinkronisasi berikutnya agar database tidak penuh.`, "Sinkronisasi Terkunci");
-                    return;
-                }
-            }
-
-            try {
-                btnSyncCloud.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>...`;
-                btnSyncCloud.disabled = true;
-
-                const storageKey = 'lpg_kas_' + currentUserUid;
-                const dataKasLocal = localStorage.getItem(storageKey) || "[]";
-
-                await setDoc(doc(db, "kas_backup", currentUserUid), {
-                    dataKas: dataKasLocal,
-                    lastUpdated: new Date().toISOString()
-                });
-
-                localStorage.setItem(syncKey, now.toString());
-                showCustomAlert("Catatan Kas Anda berhasil dicadangkan ke Cloud!", "Tersimpan");
-
-            } catch (error) {
-                console.error("Gagal sinkronisasi:", error);
-                showCustomAlert("Gagal menyimpan ke Cloud. Periksa koneksi internet Anda.", "Terjadi Kesalahan");
-            } finally {
-                btnSyncCloud.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Simpan`;
-                btnSyncCloud.disabled = false;
-            }
-        });
-    }
-
-    const btnRestoreCloud = document.getElementById('btnRestoreCloud');
-    if (btnRestoreCloud) {
-        btnRestoreCloud.addEventListener('click', async () => {
-            try {
-                btnRestoreCloud.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Mengecek...`;
-                
-                const docSnap = await getDoc(doc(db, "kas_backup", currentUserUid));
-                
-                if (docSnap.exists()) {
-                    const cloudData = docSnap.data().dataKas;
-                    const storageKey = 'lpg_kas_' + currentUserUid;
-                    
-                    localStorage.setItem(storageKey, cloudData);
-                    loadKas();
-                    showCustomAlert("Catatan Kas berhasil dipulihkan dari Cloud!", "Sukses Memulihkan");
-                } else {
-                    showCustomAlert("Tidak ditemukan data cadangan di Cloud untuk akun ini.", "Informasi");
-                }
-            } catch (error) {
-                console.error("Gagal memulihkan:", error);
-                showCustomAlert("Gagal memulihkan data. Periksa jaringan Anda.", "Error");
-            } finally {
-                btnRestoreCloud.innerHTML = `<i class="fa-solid fa-cloud-arrow-down"></i> Pulihkan`;
-            }
         });
     }
 

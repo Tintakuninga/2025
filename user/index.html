@@ -59,12 +59,6 @@
                     <div class="overflow-item" id="themeToggleItem">
                         <i class="fa-solid fa-sun"></i> <span>Ganti Tema</span>
                     </div>
-                    <div class="overflow-item" id="btnHistoriPesananItem">
-                        <i class="fa-solid fa-clock-rotate-left"></i> <span>Status Pesanan</span>
-                    </div>
-                    <!-- <a href="https://wa.me/6282291582220" target="_blank" class="overflow-item" style="text-decoration: none; color: inherit;">
-                        <i class="fa-brands fa-whatsapp text-green"></i> <span>Hubungi Pangkalan</span>  -->
-                    </a>
                     <div class="overflow-item text-danger" id="btnLogoutItem">
                         <i class="fa-solid fa-right-from-bracket"></i> <span>Keluar</span>
                     </div>
@@ -76,7 +70,7 @@
         <main class="content-body">
             
             <!-- SECTION: INFO HARGA & STOK -->
-            <section id="sec-harga" class="page-section active">
+            <section id="sec-beranda" class="page-section active">
                 <h2 class="section-title text-center">PANGKALAN HASMAWATI</h2>
                 <p class="text-muted text-center" style="margin-bottom: 20px;">Pembaruan terakhir: <br><span id="priceLastUpdate">-</span></p>
                 
@@ -117,55 +111,6 @@
                         </div>
                     </div>
                 </div>
-            </section>
-
-            <!-- SECTION: BUKU KAS -->
-            <section id="sec-kas" class="page-section">
-                <h2 class="section-title text-center">Buku Kas</h2>
-                
-                <div class="stats-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 15px;">
-                    <div class="stat-card" style="padding: 15px;">
-                        <p class="stat-label">Pemasukan</p>
-                        <h4 id="totalMasuk" class="text-green" style="margin-top:5px;">Rp 0</h4>
-                    </div>
-                    <div class="stat-card" style="padding: 15px;">
-                        <p class="stat-label">Pengeluaran</p>
-                        <h4 id="totalKeluar" class="text-danger" style="margin-top:5px;">Rp 0</h4>
-                    </div>
-                </div>
-                <div class="card-panel" style="text-align:center; padding: 15px; margin-bottom: 20px;">
-                    <p class="stat-label">SALDO BERSIH</p>
-                    <h2 id="saldoBersih" class="text-blue">Rp 0</h2>
-                </div>
-
-                <div id="wrapperAksiKas" style="display: none; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <button id="btnRestoreCloud" style="background: var(--bg-dark); border: 1px solid var(--border-color); color: var(--text-main); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                        <i class="fa-solid fa-cloud-arrow-down"></i> Pulihkan
-                    </button>
-                    
-                    <div style="display: flex; gap: 8px; align-items: center;">
-                        <button id="btnSyncCloud" style="background: var(--bg-dark); border: 1px solid var(--border-color); color: var(--text-main); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                            <i class="fa-solid fa-cloud-arrow-up"></i> Simpan
-                        </button>
-                        
-                        <button id="btnResetKas" style="background: var(--bg-dark); border: 1px solid var(--danger-color); color: var(--danger-color); padding: 6px 12px; border-radius: 6px; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- TOMBOL RESET KAS -->
-                <div id="wrapperResetKas" style="text-align: right; margin-bottom: 10px; display: none;">
-                    <button id="btnResetKas" style="background: none; border: none; color: var(--danger-color); font-weight: bold; font-size: 13px; cursor: pointer;">
-                        <i class="fa-solid fa-trash-can"></i> Hapus Riwayat Kas
-                    </button>
-                </div>
-
-                <div class="list-container" id="listKas" style="padding-bottom: 80px;">
-                    <!-- List Kas -->
-                </div>
-                <!-- Tombol Bulat Melayang KAS -->
-                <button class="fab-btn" id="btnAddKas"><i class="fa-solid fa-plus"></i></button>
             </section>
 
             <!-- SECTION: FORM PEMESANAN -->
@@ -248,34 +193,28 @@
                 </div>
             </section>
 
+            <!-- SECTION: STATUS PESANAN -->
+            <section id="sec-riwayat" class="page-section">
+                <h2 class="section-title text-center">Status Pesanan</h2>
+                <div id="listHistori" class="list-container" style="padding-bottom: 80px;">
+                    <p class="text-center text-muted" style="margin-top: 20px;">Memuat data...</p>
+                </div>
+            </section>
+
         </main>
 
         <!-- Bottom Navigation -->
         <nav class="bottom-nav">
-            <a href="#" class="nav-item active" data-target="sec-harga">
-                <i class="fa-solid fa-tag"></i><span>Harga</span>
+            <a href="#" class="nav-item active" data-target="sec-beranda">
+                <i class="fa-solid fa-house"></i><span>Beranda</span>
             </a>
             <a href="#" class="nav-item" data-target="sec-pesan">
                 <i class="fa-brands fa-whatsapp"></i><span>Pesan</span>
             </a>
-            <a href="#" class="nav-item" data-target="sec-kas">
-                <i class="fa-solid fa-wallet"></i><span>Kas</span>
+            <a href="#" class="nav-item" data-target="sec-riwayat">
+                <i class="fa-solid fa-clock-rotate-left"></i><span>Riwayat</span>
             </a>
         </nav>
-    </div>
-
-    <!-- MODAL STATUS / HISTORI PESANAN -->
-    <div id="modalHistori" class="modal" style="z-index: 1000;">
-        <div class="modal-content" style="max-height: 80vh; display: flex; flex-direction: column;">
-            <div class="modal-header">
-                <h3>Status Pesanan</h3>
-                <span class="close-btn" onclick="closeModal('modalHistori')">&times;</span>
-            </div>
-            <div id="listHistori" style="overflow-y: auto; flex: 1; padding: 10px 0;">
-                <!-- Data status pesanan akan muncul di sini -->
-                <p class="text-center text-muted">Memuat data...</p>
-            </div>
-        </div>
     </div>
 
     <!-- MODAL CUSTOM ALERT -->
@@ -290,56 +229,6 @@
             <div style="display: flex; justify-content: center;">
                 <button type="button" class="btn-primary" onclick="closeModal('modalAlert')" style="width: 100%; background: var(--danger-color); color: white;">
                     Mengerti
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL FORM KAS -->
-    <div id="modalKas" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Catat Transaksi Kas</h3>
-                <span class="close-btn" onclick="closeModal('modalKas')">&times;</span>
-            </div>
-            <form id="formKas">
-                <div class="form-group">
-                    <label>Jenis Transaksi</label>
-                    <select id="kasTipe" class="form-input" required>
-                        <option value="masuk">Pemasukan</option>
-                        <option value="keluar">Pengeluaran</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Nominal (Rp)</label>
-                    <input type="text" id="kasNominal" class="form-input price-input" required>
-                </div>
-                <div class="form-group">
-                    <label>Keterangan</label>
-                    <input type="text" id="kasKet" class="form-input" placeholder="Contoh: Laku 10 tabung 3kg" required>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn-primary" style="width:100%;">Simpan</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL KONFIRMASI RESET KAS -->
-    <div id="modalResetKas" class="modal">
-        <div class="modal-content text-center" style="padding: 30px 20px;">
-            <div style="font-size: 40px; color: var(--danger-color); margin-bottom: 10px;">
-                <i class="fa-solid fa-triangle-exclamation"></i>
-            </div>
-            <h3 style="margin-bottom: 10px;">Hapus Riwayat Kas</h3>
-            <p style="color: var(--text-muted); margin-bottom: 25px; font-size: 14px;">Apakah Anda yakin ingin menghapus semua riwayat Buku Kas? Data yang dihapus tidak bisa dikembalikan.</p>
-            
-            <div style="display: flex; gap: 15px; justify-content: center;">
-                <button type="button" class="btn-primary" id="btnBatalResetKas" style="flex: 1; background: var(--bg-dark); border: 1px solid var(--border-color); color: var(--text-main);">
-                    Batal
-                </button>
-                <button type="button" class="btn-primary" id="btnKonfirmResetKas" style="flex: 1; background: var(--danger-color); color: white;">
-                    Ya, Hapus
                 </button>
             </div>
         </div>
