@@ -189,6 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
             listHistori.innerHTML = '';
             docsData.forEach(data => {
                 const tglOrder = data.tanggalOrder ? formatTgl(data.tanggalOrder.toDate().toISOString()) : "-";
+                const rawDate = data.tanggalOrder ? data.tanggalOrder.toDate().toISOString().split('T')[0] : "";
                 
                 let status = data.statusPesanan || "Menunggu";
 
@@ -220,7 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const jadwalAmbil = data.jadwalPengambilan ? formatTgl(data.jadwalPengambilan).split(',')[0] : "-";
 
                 listHistori.innerHTML += `
-                    <div class="card-panel" style="padding: 15px; margin-bottom: 12px; border-left: 4px solid ${statusColor};">
+                    <div class="card-panel" data-date="${rawDate}" style="padding: 15px; margin-bottom: 12px; border-left: 4px solid ${statusColor};">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                             <span style="font-size: 11px; color: var(--text-muted);">${tglOrder}</span>
                             <span style="font-size: 12px; font-weight: bold; color: ${statusColor};"><i class="fa-solid ${statusIcon}"></i> ${status.toUpperCase()}</span>
@@ -235,6 +236,59 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Gagal memuat histori:", error);
             listHistori.innerHTML = '<p class="text-center text-danger" style="margin-top: 20px;">Gagal memuat histori pesanan.</p>';
         }
+    }
+
+    // Mengatur tampilan input berdasarkan pilihan dropdown
+    function toggleFilterRiwayat() {
+        const jenis = document.getElementById('filterJenis').value;
+        const uiBulan = document.getElementById('filterBulananUI');
+        const uiRentang = document.getElementById('filterRentangUI');
+        const btnTerapkan = document.getElementById('btnTerapkanFilter');
+
+        // Reset tampilan
+        uiBulan.style.display = 'none';
+        uiRentang.style.display = 'none';
+        btnTerapkan.style.display = 'block';
+
+        if (jenis === 'semua') {
+            btnTerapkan.style.display = 'none';
+            terapkanFilterRiwayat(); // Langsung reset tampilkan semua
+        } else if (jenis === 'bulanan') {
+            uiBulan.style.display = 'flex';
+        } else if (jenis === 'rentang') {
+            uiRentang.style.display = 'flex';
+        }
+    }
+
+    // --- FITUR FILTER RIWAYAT PESANAN ---
+    function terapkanFilterRiwayat() {
+        const jenis = document.getElementById('filterJenis').value;
+        // Mengambil semua elemen kartu pesanan di dalam container riwayat
+        const listKartu = document.querySelectorAll('#historiPesananList > div'); 
+
+        const bulanVal = document.getElementById('inputFilterBulan').value; // Format: YYYY-MM
+        const startVal = document.getElementById('inputStartDate').value;   // Format: YYYY-MM-DD
+        const endVal = document.getElementById('inputEndDate').value;       // Format: YYYY-MM-DD
+
+        listKartu.forEach(kartu => {
+            const tanggalKartu = kartu.getAttribute('data-date');
+            
+            if (!tanggalKartu) return; // Lewati jika tidak ada atribut tanggal
+
+            let tampilkan = true;
+
+            if (jenis === 'bulanan') {
+                if (bulanVal && !tanggalKartu.startsWith(bulanVal)) {
+                    tampilkan = false;
+                }
+            } else if (jenis === 'rentang') {
+                if (startVal && tanggalKartu < startVal) tampilkan = false;
+                if (endVal && tanggalKartu > endVal) tampilkan = false;
+            }
+
+            // Tampilkan atau sembunyikan kartu
+            kartu.style.display = tampilkan ? 'block' : 'none';
+        });
     }
 
     // --- FITUR SHARE APLIKASI ---

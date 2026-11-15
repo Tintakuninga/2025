@@ -378,3 +378,56 @@ body.light-theme .overflow-item:hover, body.light-theme .overflow-item:active {
 .overflow-item.text-danger:hover {
     background: rgba(239, 68, 68, 0.1);
 }
+
+/* ============================
+   UI FILTER RIWAYAT PESANAN
+   ============================ */
+.filter-riwayat-container {
+    background: #fff;
+    border-radius: 12px;
+    padding: 15px;
+    margin: 10px 20px 20px 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.filter-select {
+    font-weight: bold;
+    color: var(--text-main);
+    border: 1px solid #ddd;
+}
+
+.filter-ui-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: fadeIn 0.3s ease;
+}
+
+.filter-separator {
+    font-weight: bold;
+    color: #666;
+}
+
+.btn-filter {
+    background: var(--accent-blue, #007bff);
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+    width: 100%;
+}
+
+.btn-filter:hover {
+    background: #0056b3;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
