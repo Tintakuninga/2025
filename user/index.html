@@ -183,33 +183,34 @@
             <!-- SECTION: STATUS PESANAN -->
             <section id="sec-riwayat" class="page-section">
                 <h2 class="section-title text-center">Status Pesanan</h2>
+
+                <!-- Panel Filter Riwayat -->
+                <div class="filter-riwayat-container">
+                    <select id="filterJenis" class="form-control filter-select" onchange="toggleFilterRiwayat()">
+                        <option value="semua">Tampilkan Semua Riwayat</option>
+                        <option value="bulanan">Berdasarkan Bulan</option>
+                        <option value="rentang">Rentang Tanggal</option>
+                    </select>
+
+                    <!-- Input Filter Bulanan -->
+                    <div id="filterBulananUI" class="filter-ui-group" style="display: none;">
+                        <input type="month" id="inputFilterBulan" class="form-control">
+                    </div>
+
+                    <!-- Input Filter Rentang Tanggal -->
+                    <div id="filterRentangUI" class="filter-ui-group" style="display: none;">
+                        <input type="date" id="inputStartDate" class="form-control">
+                        <span class="filter-separator">-</span>
+                        <input type="date" id="inputEndDate" class="form-control">
+                    </div>
+
+                    <button id="btnTerapkanFilter" class="btn-filter" style="display: none;" onclick="terapkanFilterRiwayat()">Terapkan Filter</button>
+                </div>
+
                 <div id="listHistori" class="list-container" style="padding-bottom: 80px;">
                     <p class="text-center text-muted" style="margin-top: 20px;">Memuat data...</p>
                 </div>
             </section>
-
-            <!-- Panel Filter Riwayat -->
-            <div class="filter-riwayat-container">
-                <select id="filterJenis" class="form-control filter-select" onchange="toggleFilterRiwayat()">
-                    <option value="semua">Tampilkan Semua Riwayat</option>
-                    <option value="bulanan">Berdasarkan Bulan</option>
-                    <option value="rentang">Rentang Tanggal</option>
-                </select>
-
-                <!-- Input Filter Bulanan -->
-                <div id="filterBulananUI" class="filter-ui-group" style="display: none;">
-                    <input type="month" id="inputFilterBulan" class="form-control">
-                </div>
-
-                <!-- Input Filter Rentang Tanggal -->
-                <div id="filterRentangUI" class="filter-ui-group" style="display: none;">
-                    <input type="date" id="inputStartDate" class="form-control">
-                    <span class="filter-separator">-</span>
-                    <input type="date" id="inputEndDate" class="form-control">
-                </div>
-
-                <button id="btnTerapkanFilter" class="btn-filter" style="display: none;" onclick="terapkanFilterRiwayat()">Terapkan Filter</button>
-            </div>
         </main>
 
         <!-- Bottom Navigation -->
