@@ -21,7 +21,7 @@ const provider = new GoogleAuthProvider();
 let currentUserUid = null;
 let hargaSekarang = { '3kg': 0, '5kg': 0, '12kg': 0 };
 
-const nomorWaAdmin = "6282291582220"; 
+const nomorWaAdmin = "6285156109215"; 
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -810,7 +810,78 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 4. Registrasi Service Worker & Deteksi Update
+    // 4. Fitur Geser Tombol Install PWA
+    const dragElement = document.querySelector('.pwa-install-wrapper');
+
+    if (dragElement) {
+        let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+
+        // Deteksi sentuhan (HP) dan klik mouse (PC)
+        dragElement.addEventListener("touchstart", dragStart, { passive: false });
+        dragElement.addEventListener("mousedown", dragStart);
+
+        function dragStart(e) {
+            // Abaikan drag jika yang ditekan adalah tombol X (Close)
+            if (e.target.closest('.pwa-close-btn')) return; 
+
+            e = e || window.event;
+            if (e.type === 'touchstart') {
+                pos3 = e.touches[0].clientX;
+                pos4 = e.touches[0].clientY;
+            } else {
+                e.preventDefault();
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+            }
+
+            document.addEventListener("touchend", dragEnd);
+            document.addEventListener("touchmove", dragAction, { passive: false });
+            document.addEventListener("mouseup", dragEnd);
+            document.addEventListener("mousemove", dragAction);
+        }
+
+        function dragAction(e) {
+            e = e || window.event;
+            e.preventDefault(); // Cegah scroll layar
+
+            let clientX, clientY;
+            if (e.type === 'touchmove') {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+
+            pos1 = pos3 - clientX;
+            pos2 = pos4 - clientY;
+            pos3 = clientX;
+            pos4 = clientY;
+
+            // Reset transform awal agar posisi tidak melompat saat pertama digeser
+            if (dragElement.style.transform !== "none") {
+                let rect = dragElement.getBoundingClientRect();
+                dragElement.style.transform = "none";
+                dragElement.style.left = rect.left + "px";
+                dragElement.style.top = rect.top + "px";
+                dragElement.style.bottom = "auto";
+                dragElement.style.right = "auto";
+            }
+
+            // Terapkan posisi baru
+            dragElement.style.top = (dragElement.offsetTop - pos2) + "px";
+            dragElement.style.left = (dragElement.offsetLeft - pos1) + "px";
+        }
+
+        function dragEnd() {
+            document.removeEventListener("touchend", dragEnd);
+            document.removeEventListener("touchmove", dragAction);
+            document.removeEventListener("mouseup", dragEnd);
+            document.removeEventListener("mousemove", dragAction);
+        }
+    }
+
+    // 5. Registrasi Service Worker & Deteksi Update
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('./sw.js').then((registration) => {

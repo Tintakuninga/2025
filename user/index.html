@@ -115,20 +115,7 @@
 
             <!-- SECTION: FORM PEMESANAN -->
             <section id="sec-pesan" class="page-section">
-                <h2 class="section-title text-center">Pesan Gas</h2>
-                
-                <!-- Info Stok dari Admin  //aktifkan jika ingin menampilkan stok
-                <div class="card-panel" style="margin-bottom: 20px;">
-                    <h4 class="text-center" style="margin-bottom: 10px;"><i class="fa-solid fa-boxes-stacked"></i> Stok Tersedia Saat Ini</h4>
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <p class="stat-label">Refill 3 kg</p>
-                            <h3 id="infoStok3kg" class="stat-value text-blue">-</h3>
-                        </div>
-                    </div>
-                </div>-->
-
-                <!-- Form Pesanan -->
+                <h2 class="section-title text-center">Pesan Gas Online</h2>
                 <div class="card-panel">
                     <form id="formPesanan">
                         <div class="form-group">
@@ -143,7 +130,7 @@
                         <div class="form-group" id="nikGroup">
                             <label>NIK KTP</label>
                             <div style="position: relative;">
-                                <input type="text" id="orderNik" class="form-input" placeholder="Contoh: 7371..." required maxlength="16" inputmode="numeric" style="padding-right: 35px;">
+                                <input type="text" id="orderNik" class="form-input" placeholder="Masukkan NIK" required maxlength="16" inputmode="numeric" style="padding-right: 35px;">
                                 <button type="button" id="clearNik" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer; display: none;">
                                     <i class="fa-solid fa-circle-xmark"></i>
                                 </button>
@@ -173,7 +160,6 @@
                         </div>
                         <div class="form-group">
                             <label>Jumlah Tabung</label>
-                            <!-- Tombol Plus Minus untuk Jumlah -->
                             <div style="display: flex; gap: 10px; align-items: center;">
                                 <button type="button" id="btnMinQty" class="btn-qty">-</button>
                                 <input type="text" id="orderJumlah" class="form-input" value="0" readonly style="flex: 2; text-align: center; font-size: 20px; font-weight: bold; margin: 0; pointer-events: none;">

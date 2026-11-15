@@ -263,9 +263,9 @@ body.light-theme .fab-btn {
 /* Wrapper Kapsul Melayang (Berisi Tombol Install & Tombol X) */
 .pwa-install-wrapper {
     position: fixed;
-    top: 50%;
-    right: 20px;
-    transform: translateY(-50%);
+    bottom: 80px; /* Tepat di atas Bottom Navigation */
+    left: 50%;
+    transform: translateX(-50%);
     background: var(--accent-blue);
     border-radius: 30px;
     box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
@@ -273,7 +273,9 @@ body.light-theme .fab-btn {
     display: none;
     align-items: stretch;
     overflow: hidden;
-    transition: transform 0.3s ease, opacity 0.3s ease;
+    /* Hanya transisi opacity, transform dihapus agar drag mulus */
+    transition: opacity 0.3s ease; 
+    touch-action: none; /* Mencegah layar scroll saat digeser di HP */
 }
 
 /* Tombol Install di Dalam Kapsul */
