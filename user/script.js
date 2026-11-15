@@ -260,37 +260,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- FITUR FILTER RIWAYAT PESANAN ---
-    function terapkanFilterRiwayat() {
-        const jenis = document.getElementById('filterJenis').value;
-        // Mengambil semua elemen kartu pesanan di dalam container riwayat
-        const listKartu = document.querySelectorAll('#historiPesananList > div'); 
-
-        const bulanVal = document.getElementById('inputFilterBulan').value; // Format: YYYY-MM
-        const startVal = document.getElementById('inputStartDate').value;   // Format: YYYY-MM-DD
-        const endVal = document.getElementById('inputEndDate').value;       // Format: YYYY-MM-DD
-
-        listKartu.forEach(kartu => {
-            const tanggalKartu = kartu.getAttribute('data-date');
-            
-            if (!tanggalKartu) return; // Lewati jika tidak ada atribut tanggal
-
-            let tampilkan = true;
-
-            if (jenis === 'bulanan') {
-                if (bulanVal && !tanggalKartu.startsWith(bulanVal)) {
-                    tampilkan = false;
-                }
-            } else if (jenis === 'rentang') {
-                if (startVal && tanggalKartu < startVal) tampilkan = false;
-                if (endVal && tanggalKartu > endVal) tampilkan = false;
-            }
-
-            // Tampilkan atau sembunyikan kartu
-            kartu.style.display = tampilkan ? 'block' : 'none';
-        });
-    }
-
     // --- FITUR SHARE APLIKASI ---
     const btnShareApp = document.getElementById('btnShareApp');
     if (btnShareApp) {
@@ -975,4 +944,73 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // ==========================================
+    // FITUR FILTER RIWAYAT PESANAN
+    // ==========================================
+
+    // 1. Fungsi untuk mengatur tampilan form filter saat dropdown dipilih
+    window.toggleFilterRiwayat = function() {
+        const jenis = document.getElementById('filterJenis').value;
+        const uiBulan = document.getElementById('filterBulananUI');
+        const uiRentang = document.getElementById('filterRentangUI');
+        const btnTerapkan = document.getElementById('btnTerapkanFilter');
+
+        // Reset UI: Sembunyikan semuanya dulu
+        uiBulan.style.display = 'none';
+        uiRentang.style.display = 'none';
+        btnTerapkan.style.display = 'block';
+
+        if (jenis === 'semua') {
+            btnTerapkan.style.display = 'none'; // Sembunyikan tombol
+            window.terapkanFilterRiwayat();     // Langsung eksekusi untuk reset tampilan
+        } 
+        else if (jenis === 'bulanan') {
+            uiBulan.style.display = 'flex';     // Munculkan input bulan
+        } 
+        else if (jenis === 'rentang') {
+            uiRentang.style.display = 'flex';   // Munculkan input rentang tanggal
+        }
+    };
+
+    // 2. Fungsi utama untuk mengeksekusi logika filter
+    window.terapkanFilterRiwayat = function() {
+        const jenis = document.getElementById('filterJenis').value;
+        const listKartu = document.querySelectorAll('#listHistori .card-panel');
+
+        // Ambil nilai dari input pengguna
+        const filterBulan = document.getElementById('inputFilterBulan').value; // Hasil: YYYY-MM
+        const startDate = document.getElementById('inputStartDate').value;     // Hasil: YYYY-MM-DD
+        const endDate = document.getElementById('inputEndDate').value;         // Hasil: YYYY-MM-DD
+
+        listKartu.forEach(kartu => {
+            const tanggalKartu = kartu.getAttribute('data-date'); // Hasil: YYYY-MM-DD
+            if (!tanggalKartu) return; // Lewati jika kartu tidak punya atribut tanggal
+
+            let tampilkan = true; // Status default: tampilkan
+
+            if (jenis === 'semua') {
+                tampilkan = true;
+            } 
+            else if (jenis === 'bulanan') {
+                // Jika user sudah memilih bulan, cek apakah tanggal kartu diawali dengan bulan tsb
+                if (filterBulan) {
+                    tampilkan = tanggalKartu.startsWith(filterBulan);
+                }
+            } 
+            else if (jenis === 'rentang') {
+                // Jika tanggal kartu kurang dari tanggal mulai, maka sembunyikan
+                if (startDate && tanggalKartu < startDate) {
+                    tampilkan = false;
+                }
+                // Jika tanggal kartu lebih dari tanggal akhir, maka sembunyikan
+                if (endDate && tanggalKartu > endDate) {
+                    tampilkan = false;
+                }
+            }
+
+            // Terapkan status visibilitas pada kartu (muncul/hilang)
+            kartu.style.display = tampilkan ? 'block' : 'none';
+        });
+    };
 }); // End DOMContentLoaded
