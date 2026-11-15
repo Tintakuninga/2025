@@ -383,22 +383,39 @@ body.light-theme .overflow-item:hover, body.light-theme .overflow-item:active {
    UI FILTER RIWAYAT PESANAN
    ============================ */
 .filter-riwayat-container {
-    background: #fff;
+    background: var(--card-bg); /* Menggunakan variabel warna card bawaan Anda */
     border-radius: 12px;
     padding: 15px;
-    margin: 10px 20px 20px 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    margin: 10px 0px 20px 0px; /* Dibuat 0px di kiri/kanan karena section-nya sudah ada padding */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05); /* Sedikit memperhalus bayangan */
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
+    border: 1px solid var(--border-color); /* Memakai variabel border-color bawaan Anda */
 }
 
+/* Modifikasi Dropdown (Select) */
 .filter-select {
     font-weight: bold;
     color: var(--text-main);
-    border: 1px solid #ddd;
+    background-color: var(--bg-dark); /* Memakai latar gelap/terang input */
+    border: 1px solid var(--border-color);
+    padding: 12px;
+    border-radius: 8px;
+    appearance: none; /* Menghilangkan panah default browser */
+    -webkit-appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%238c93a8" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); 
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    transition: border-color 0.2s;
+    outline: none;
 }
 
+.filter-select:focus {
+    border-color: var(--accent-blue);
+}
+
+/* Grup Input Tanggal */
 .filter-ui-group {
     display: flex;
     align-items: center;
@@ -406,28 +423,44 @@ body.light-theme .overflow-item:hover, body.light-theme .overflow-item:active {
     animation: fadeIn 0.3s ease;
 }
 
-.filter-separator {
-    font-weight: bold;
-    color: #666;
+.filter-ui-group input[type="date"],
+.filter-ui-group input[type="month"] {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    outline: none;
+}
+.filter-ui-group input[type="date"]:focus,
+.filter-ui-group input[type="month"]:focus {
+    border-color: var(--accent-blue);
 }
 
+.filter-separator {
+    font-weight: bold;
+    color: var(--text-muted);
+}
+
+/* Tombol Terapkan Filter */
 .btn-filter {
-    background: var(--accent-blue, #007bff);
+    background: var(--accent-blue);
     color: white;
     border: none;
-    padding: 10px;
+    padding: 12px;
     border-radius: 8px;
     font-weight: bold;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: background 0.2s, transform 0.1s;
     width: 100%;
+    margin-top: 5px;
 }
 
 .btn-filter:hover {
-    background: #0056b3;
+    background: var(--accent-blue-hover);
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-5px); }
-    to { opacity: 1; transform: translateY(0); }
+.btn-filter:active {
+    transform: scale(0.98);
 }
