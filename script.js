@@ -1221,32 +1221,46 @@ document.addEventListener('DOMContentLoaded', () => {
             tabelHistoriPesanan.innerHTML = '';
             
             if (snapshot.empty) {
-                tabelHistoriPesanan.innerHTML = `<tr><td colspan="7" style="text-align:center;" class="text-muted">Belum ada riwayat pesanan (selesai).</td></tr>`;
+                tabelHistoriPesanan.innerHTML = `<tr><td colspan="7" style="text-align:center;" class="text-muted">Belum ada riwayat pesanan (selesai/ditolak).</td></tr>`;
                 return;
             }
 
             let dataArray = [];
             snapshot.forEach(docSnap => {
                 let data = docSnap.data();
+                
+                // 1. Perbarui sorting waktu: mencakup tanggalSelesai, tanggalDitolak, tanggalBatal, dan tanggalOrder
                 data.sortTime = data.tanggalSelesai ? data.tanggalSelesai.toDate().getTime() : 
-                               (data.tanggalBatal ? data.tanggalBatal.toDate().getTime() : 
-                               (data.tanggalOrder ? data.tanggalOrder.toDate().getTime() : 0));
+                            (data.tanggalDitolak ? data.tanggalDitolak.toDate().getTime() :
+                            (data.tanggalBatal ? data.tanggalBatal.toDate().getTime() : 
+                            (data.tanggalOrder ? data.tanggalOrder.toDate().getTime() : 0)));
                 dataArray.push(data);
             });
             
+            // Urutkan dari yang terbaru
             dataArray.sort((a, b) => b.sortTime - a.sortTime);
 
             dataArray.forEach((data) => {
+                // 2. Ambil waktu mana saja yang tersedia di Firestore
+                const rawDate = data.tanggalSelesai || data.tanggalDitolak || data.tanggalBatal || data.tanggalOrder;
                 let waktuTampil = "-";
-                if (data.statusPesanan === "Selesai" && data.tanggalSelesai) {
-                    waktuTampil = data.tanggalSelesai.toDate().toLocaleString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-                } else if (data.statusPesanan === "Dibatalkan" && data.tanggalBatal) {
-                    waktuTampil = data.tanggalBatal.toDate().toLocaleString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                
+                if (rawDate) {
+                    waktuTampil = rawDate.toDate().toLocaleString('id-ID', { 
+                        day: 'numeric', month: 'short', year: 'numeric', 
+                        hour: '2-digit', minute: '2-digit' 
+                    }).replace(/\./g, ':');
                 }
 
-                let statusBadge = data.statusPesanan === 'Selesai' 
-                    ? `<span class="badge-status badge-um"><i class="fa-solid fa-check"></i> Selesai</span>` 
-                    : `<span class="badge-status" style="background: rgba(239, 68, 68, 0.1); color: var(--danger-color); border: 1px solid rgba(239, 68, 68, 0.3);"><i class="fa-solid fa-xmark"></i> Dibatalkan</span>`;
+                // 3. Sesuaikan teks badge jika statusnya "Ditolak" atau "Dibatalkan"
+                let statusBadge = '';
+                if (data.statusPesanan === 'Selesai') {
+                    statusBadge = `<span class="badge-status badge-um"><i class="fa-solid fa-check"></i> Selesai</span>`;
+                } else {
+                    // Mencakup Ditolak atau Dibatalkan
+                    const teksStatus = data.statusPesanan === 'Ditolak' ? 'Ditolak' : 'Dibatalkan';
+                    statusBadge = `<span class="badge-status" style="background: rgba(239, 68, 68, 0.1); color: var(--danger-color); border: 1px solid rgba(239, 68, 68, 0.3);"><i class="fa-solid fa-xmark"></i> ${teksStatus}</span>`;
+                }
                 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
