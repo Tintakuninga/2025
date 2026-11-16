@@ -209,38 +209,35 @@ body.light-theme .notif-item:hover { background: rgba(0, 0, 0, 0.03); }
 .notif-list-container { max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; }
 
 /* =========================================
-   TOMBOL LIHAT SEMUA (RINGKASAN DISTRIBUSI)
+   TOMBOL LIHAT SEMUA (DI DALAM STAT CARD)
    ========================================= */
-.view-all-container {
-    border-top: 1px solid var(--border-color); /* Otomatis ganti warna sesuai mode */
-    padding-top: 15px;
-    margin-top: -5px; /* Mengurangi jarak dari grid di atasnya */
-    margin-bottom: 25px;
-    display: flex;
-}
-
-.view-all-link {
-    color: var(--accent-blue); /* Menggunakan warna biru utama Anda */
-    text-decoration: none;
-    font-size: 13.5px;
-    font-weight: 600;
+.view-all-link-card {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
+    margin-top: 12px; /* Memberi jarak dari angka di atasnya */
+    padding-top: 12px;
+    border-top: 1px solid var(--border-color); /* Garis pemisah tipis di dalam card */
+    width: 100%; /* Agar garis pemisah membentang penuh */
+    font-size: 12.5px;
+    color: var(--accent-blue);
+    text-decoration: none;
+    font-weight: 600;
     transition: color 0.2s ease;
 }
 
-.view-all-link:hover {
+.view-all-link-card:hover {
     color: var(--accent-blue-hover);
 }
 
-.view-all-link i {
+.view-all-link-card i {
     margin-left: 6px;
-    font-size: 12px;
+    font-size: 11px;
     transition: transform 0.2s ease;
 }
 
-.view-all-link:hover i {
-    transform: translateX(4px); /* Efek panah bergeser sedikit saat disentuh */
+.view-all-link-card:hover i {
+    transform: translateX(4px);
 }
 
 /* ==========================================================================
