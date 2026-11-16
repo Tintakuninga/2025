@@ -208,6 +208,41 @@ body.light-theme .notif-item:hover { background: rgba(0, 0, 0, 0.03); }
 .notif-empty { text-align: center; padding: 30px 15px; color: var(--text-muted); font-size: 13px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 .notif-list-container { max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; }
 
+/* =========================================
+   TOMBOL LIHAT SEMUA (RINGKASAN DISTRIBUSI)
+   ========================================= */
+.view-all-container {
+    border-top: 1px solid var(--border-color); /* Otomatis ganti warna sesuai mode */
+    padding-top: 15px;
+    margin-top: -5px; /* Mengurangi jarak dari grid di atasnya */
+    margin-bottom: 25px;
+    display: flex;
+}
+
+.view-all-link {
+    color: var(--accent-blue); /* Menggunakan warna biru utama Anda */
+    text-decoration: none;
+    font-size: 13.5px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    transition: color 0.2s ease;
+}
+
+.view-all-link:hover {
+    color: var(--accent-blue-hover);
+}
+
+.view-all-link i {
+    margin-left: 6px;
+    font-size: 12px;
+    transition: transform 0.2s ease;
+}
+
+.view-all-link:hover i {
+    transform: translateX(4px); /* Efek panah bergeser sedikit saat disentuh */
+}
+
 /* ==========================================================================
    RESPONSIVE DESIGN KHUSUS SMARTPHONE & TABLET (Max-width: 768px)
    ========================================================================== */
