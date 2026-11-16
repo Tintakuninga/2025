@@ -1061,7 +1061,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 };
-};
 
     // =====================================================================
     // 12. FITUR MUTASI STOK MASUK (DARI AGEN)
