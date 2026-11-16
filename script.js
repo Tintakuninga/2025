@@ -917,49 +917,57 @@ document.addEventListener('DOMContentLoaded', () => {
     // =====================================================================
     // 11. FITUR PESANAN MASUK (ANTREAN DARI USER)
     // =====================================================================
-    const tabelPesananMasuk = document.getElementById('tabelPesananMasuk');
+    const tabelRiwayatPesanan = document.getElementById('tabelRiwayatPesanan'); // Sesuaikan ID tabel riwayat Anda
     
-    function loadPesananMasuk() {
-        if (!tabelPesananMasuk) return;
+    function loadRiwayatPesanan() {
+        if (!tabelRiwayatPesanan) return;
         
-        const qPesanan = query(collection(db, "antrean_pesanan"), where("statusPesanan", "==", "Menunggu"));
+        const qRiwayat = query(
+            collection(db, "antrean_pesanan"), 
+            where("statusPesanan", "in", ["Selesai", "Ditolak", "Dibatalkan"])
+        );
         
-        onSnapshot(qPesanan, (snapshot) => {
-
-            tabelPesananMasuk.innerHTML = '';
+        onSnapshot(qRiwayat, (snapshot) => {
+            tabelRiwayatPesanan.innerHTML = '';
+            
             if (snapshot.empty) {
-                tabelPesananMasuk.innerHTML = `<tr><td colspan="7" style="text-align:center;" class="text-muted">Belum ada pesanan masuk saat ini.</td></tr>`;
+                tabelRiwayatPesanan.innerHTML = `<tr><td colspan="7" style="text-align:center;" class="text-muted">Belum ada riwayat pesanan.</td></tr>`;
                 return;
             }
 
             snapshot.forEach((docSnap) => {
                 const data = docSnap.data();
                 const idPesanan = docSnap.id;
+                const rawDate = data.tanggalSelesai || data.tanggalDitolak || data.tanggalOrder;
                 
-                const waktuOrder = data.tanggalOrder ? data.tanggalOrder.toDate() : new Date();
-                const waktuStr = waktuOrder.toLocaleString('id-ID', { 
-                    day: 'numeric', month: 'short', year: 'numeric', 
-                    hour: '2-digit', minute: '2-digit' 
-                });
+                let waktuStr = "-";
+                if (rawDate) {
+                    const dateObj = rawDate.toDate ? rawDate.toDate() : new Date(rawDate);
+                    waktuStr = dateObj.toLocaleString('id-ID', { 
+                        day: 'numeric', month: 'short', year: 'numeric', 
+                        hour: '2-digit', minute: '2-digit' 
+                    }).replace(/\./g, ':');
+                }
+
+                let statusBadge = '';
+                if (data.statusPesanan === "Selesai") {
+                    statusBadge = `<span class="badge bg-success"><i class="fa-solid fa-check"></i> Selesai</span>`;
+                } else {
+                    statusBadge = `<span class="badge bg-danger"><i class="fa-solid fa-xmark"></i> Dibatalkan</span>`;
+                }
                 
+                // 3. Render HTML
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
+                    <td>${waktuStr}</td>
                     <td><strong>${data.namaLengkap || 'Tanpa Nama'}</strong></td>
                     <td>${data.nikKtp || '-'}</td>
                     <td>${data.jenisTabung || '-'}</td>
                     <td>${data.jumlahTabung || 0} Tabung</td>
                     <td>Rp ${(data.totalHarga || 0).toLocaleString('id-ID')}</td>
-                    <td>${waktuStr}</td>
-                    <td>
-                        <button class="btn-primary" onclick="selesaikanPesanan('${idPesanan}', '${data.jenisTabung}', ${data.jumlahTabung}, ${data.totalHarga})" style="padding: 6px 12px; font-size: 0.85rem;" title="Selesai & Potong Stok">
-                            <i class="fa-solid fa-check"></i> Setuju
-                        </button>
-                        <button class="btn-danger" onclick="batalkanPesanan('${idPesanan}')" style="padding: 6px 12px; font-size: 0.85rem;" title="Batalkan">
-                            <i class="fa-solid fa-xmark"></i> Tolak
-                        </button>
-                    </td>
+                    <td>${statusBadge}</td>
                 `;
-                tabelPesananMasuk.appendChild(tr);
+                tabelRiwayatPesanan.appendChild(tr);
             });
         });
     }
