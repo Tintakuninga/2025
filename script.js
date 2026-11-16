@@ -952,10 +952,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${waktuStr}</td>
                     <td>
                         <button class="btn-primary" onclick="selesaikanPesanan('${idPesanan}', '${data.jenisTabung}', ${data.jumlahTabung}, ${data.totalHarga})" style="padding: 6px 12px; font-size: 0.85rem;" title="Selesai & Potong Stok">
-                            <i class="fa-solid fa-check"></i>
+                            <i class="fa-solid fa-check"></i> Setuju
                         </button>
                         <button class="btn-danger" onclick="batalkanPesanan('${idPesanan}')" style="padding: 6px 12px; font-size: 0.85rem;" title="Batalkan">
-                            <i class="fa-solid fa-xmark"></i>
+                            <i class="fa-solid fa-xmark"></i> Tolak
                         </button>
                     </td>
                 `;
@@ -965,63 +965,76 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Fungsi Global agar bisa dipanggil via Atribut HTML onclick
-    window.selesaikanPesanan = (idPesanan, jenisTabung, jumlah, totalHarga) => {
-        showConfirmAction("Tandai pesanan selesai? Stok gas akan otomatis berkurang.", async () => {
-            try {
-                // A. Ubah Status Pesanan
-                await updateDoc(doc(db, "antrean_pesanan", idPesanan), { 
-                    statusPesanan: "Selesai",
-                    tanggalSelesai: serverTimestamp() 
-                });
+    window.selesaikanPesanan = async (idPesanan, jenisTabung, jumlah, totalHarga) => {
+        try {
+            // A. Cek inventaris terlebih dahulu sebelum menampilkan konfirmasi
+            const invRef = doc(db, "settings", "inventaris");
+            const invSnap = await getDoc(invRef);
+            
+            let key = null;
+            const jenisStr = (jenisTabung || "").toLowerCase();
+            
+            // Deteksi string jenis tabung untuk mencocokkan field database
+            if (jenisStr.includes('3')) key = '3kg';
+            else if (jenisStr.includes('5')) key = '5kg';
+            else if (jenisStr.includes('12')) key = '12kg';
 
-                // B. Cek Inventaris di koleksi "settings" & Potong Stok secara Dinamis
-                const invRef = doc(db, "settings", "inventaris");
-                const invSnap = await getDoc(invRef);
-                
-                if (invSnap.exists()) {
-                    const invData = invSnap.data();
-                    let key = null;
-                    const jenisStr = (jenisTabung || "").toLowerCase();
-                    
-                    // Deteksi string jenis tabung untuk mencocokkan field database
-                    if (jenisStr.includes('3')) key = '3kg';
-                    else if (jenisStr.includes('5')) key = '5kg';
-                    else if (jenisStr.includes('12')) key = '12kg';
-
-                    if (key && invData[key] !== undefined) {
-                        const stokSekarang = parseInt(invData[key]) || 0;
-                        const sisaStok = Math.max(0, stokSekarang - parseInt(jumlah));
-                        
-                        await updateDoc(invRef, { 
-                            [key]: sisaStok.toString(),
-                            lastUpdated: new Date().toISOString()
-                        });
-                        
-                        // Perbarui tampilan statistik inventaris secara otomatis
-                        loadInventaris();
-                    }
-                }
-
-                // C. Catat Rekap Penjualan Opsional ke Laporan Keuangan
-                try {
-                    await addDoc(collection(db, "laporan_keuangan"), {
-                        jenis: "pemasukan",
-                        keterangan: `Penjualan ${jenisTabung} via Antrean (NIK: ${idPesanan.substring(0,5)})`,
-                        nominal: parseInt(totalHarga) || 0,
-                        tanggal: new Date().toISOString()
-                    });
-                } catch (e) {
-                    console.warn("Pencatatan laporan_keuangan dilewati.");
-                }
-
-                showAlert("Pesanan selesai! Stok telah diperbarui otomatis.", "Berhasil", "success");
-            } catch (error) {
-                console.error("Gagal menyelesaikan pesanan:", error);
-                showAlert("Terjadi kesalahan saat memproses pesanan.", "Error", "error");
+            let stokSekarang = 0;
+            if (invSnap.exists() && key && invSnap.data()[key] !== undefined) {
+                stokSekarang = parseInt(invSnap.data()[key]) || 0;
             }
-        });
+
+            // B. Validasi: Hentikan eksekusi jika stok kurang dari pesanan
+            if (stokSekarang < parseInt(jumlah)) {
+                showAlert(`Pesanan tidak dapat disetujui! Sisa stok ${jenisTabung} saat ini hanya ${stokSekarang} tabung.`, "Stok Tidak Mencukupi", "error");
+                return;
+            }
+
+            // C. Lanjutkan ke konfirmasi jika stok cukup
+            showConfirmAction("Setujui pesanan ini? Stok gas akan otomatis berkurang.", async () => {
+                try {
+                    // 1. Ubah Status Pesanan
+                    await updateDoc(doc(db, "antrean_pesanan", idPesanan), { 
+                        statusPesanan: "Selesai",
+                        tanggalSelesai: serverTimestamp() 
+                    });
+
+                    // 2. Potong Stok secara Dinamis
+                    const sisaStok = Math.max(0, stokSekarang - parseInt(jumlah));
+                    await updateDoc(invRef, { 
+                        [key]: sisaStok.toString(),
+                        lastUpdated: new Date().toISOString()
+                    });
+                    
+                    // Perbarui tampilan statistik inventaris secara otomatis
+                    loadInventaris();
+
+                    // 3. Catat Rekap Penjualan Opsional ke Laporan Keuangan
+                    try {
+                        await addDoc(collection(db, "laporan_keuangan"), {
+                            jenis: "pemasukan",
+                            keterangan: `Penjualan ${jenisTabung} via Antrean (NIK: ${idPesanan.substring(0,5)})`,
+                            nominal: parseInt(totalHarga) || 0,
+                            tanggal: new Date().toISOString()
+                        });
+                    } catch (e) {
+                        console.warn("Pencatatan laporan_keuangan dilewati.");
+                    }
+
+                    showAlert("Pesanan selesai! Stok telah diperbarui otomatis.", "Berhasil", "success");
+                } catch (error) {
+                    console.error("Gagal menyelesaikan pesanan:", error);
+                    showAlert("Terjadi kesalahan saat memproses pesanan.", "Error", "error");
+                }
+            });
+        } catch (error) {
+            console.error("Gagal mengecek stok:", error);
+            showAlert("Terjadi kesalahan saat membaca data stok dari server.", "Error", "error");
+        }
     };
 
+    // Jika ingin menghapus langsung dari database aktifkan code ini
+    /*
     window.batalkanPesanan = (idPesanan) => {
     showConfirm("Tolak pesanan ini? (Data pesanan akan dihapus permanen dari sistem)", async () => {
         try {
@@ -1031,7 +1044,23 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Gagal membatalkan pesanan:", error);
             showAlert("Terjadi kesalahan saat membatalkan pesanan.", "Error", "error");
         }
+    });*/
+
+    window.batalkanPesanan = (idPesanan) => {
+    showConfirm("Tolak pesanan ini? (Status pesanan akan diubah menjadi Ditolak)", async () => {
+        try {
+            await updateDoc(doc(db, "antrean_pesanan", idPesanan), {
+                statusPesanan: "Ditolak",
+                tanggalDitolak: serverTimestamp()
+            });
+            
+            showAlert("Pesanan berhasil ditolak.", "Berhasil", "success");
+        } catch (error) {
+            console.error("Gagal menolak pesanan:", error);
+            showAlert("Terjadi kesalahan saat menolak pesanan.", "Error", "error");
+        }
     });
+};
 };
 
     // =====================================================================
