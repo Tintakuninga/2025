@@ -1008,15 +1008,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 const tr = document.createElement("tr");
                 
                 tr.innerHTML = `
-                    <td>${waktuStr}</td>
-                    <td style="font-weight: bold; color: var(--text-main);">${data.namaLengkap || '-'}</td>
-                    <td>${data.jumlahTabung || 0} Tabung ${data.jenisTabung || ''}</td>
-                    <td class="text-green" style="font-weight: 600;">Rp ${(data.totalHarga || 0).toLocaleString('id-ID')}</td>
-                    <td><span class="badge badge-warning" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); padding: 4px 8px; border-radius: 4px; font-size: 11px;">Tertunda</span></td>
-                    <td>
-                        <div style="display: flex; gap: 8px;">
-                            <button onclick="selesaikanPesanan('${idPesanan}', '${data.jenisTabung}', ${data.jumlahTabung}, ${data.totalHarga})" style="background: var(--green-color); color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 11px;" title="Setuju"><i class="fa-solid fa-check"></i>Setuju</button>
-                            <button onclick="batalkanPesanan('${idPesanan}')" style="background: var(--danger-color); color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 11px;" title="Tolak"><i class="fa-solid fa-xmark"></i>Tolak</button>
+                    <td style="text-align: left;">${waktuStr}</td>
+                    <td style="text-align: left; font-weight: bold; color: var(--text-main);">${data.namaLengkap || '-'}</td>
+                    <td style="text-align: left;">${data.jumlahTabung || 0} Tabung ${data.jenisTabung || ''}</td>
+                    <td class="text-green" style="text-align: left; font-weight: 600;">Rp ${(data.totalHarga || 0).toLocaleString('id-ID')}</td>                   
+                    <td style="text-align: right !important;">
+                        <span class="badge badge-warning" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); padding: 4px 8px; border-radius: 4px; font-size: 11px;">Tertunda</span>
+                    </td>
+                    <td style="text-align: right !important;">
+                        <div style="display: flex; gap: 8px; justify-content: flex-end; width: 100%;">
+                            <button onclick="selesaikanPesanan('${idPesanan}', '${data.jenisTabung}', ${data.jumlahTabung}, ${data.totalHarga})" style="background: var(--green-color); color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 11px;" title="Setuju"><i class="fa-solid fa-check"></i></button>
+                            <button onclick="batalkanPesanan('${idPesanan}')" style="background: var(--danger-color); color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 11px;" title="Tolak"><i class="fa-solid fa-xmark"></i></button>
                         </div>
                     </td>
                 `;
