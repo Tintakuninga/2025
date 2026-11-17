@@ -959,13 +959,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${data.jumlahTabung || 0} Tabung</td>
                     <td>Rp ${(data.totalHarga || 0).toLocaleString('id-ID')}</td>
                     <td>${waktuStr}</td>
-                    <td>
-                        <button class="btn-primary" onclick="selesaikanPesanan('${idPesanan}', '${data.jenisTabung}', ${data.jumlahTabung}, ${data.totalHarga})" style="padding: 6px 12px; font-size: 0.85rem;" title="Selesai & Potong Stok">
-                            <i class="fa-solid fa-check"></i> Setuju
-                        </button>
-                        <button class="btn-danger" onclick="batalkanPesanan('${idPesanan}')" style="padding: 6px 12px; font-size: 0.85rem;" title="Batalkan">
-                            <i class="fa-solid fa-xmark"></i> Tolak
-                        </button>
+                    <td style="text-align: right !important;">
+                        <div style="display: flex; gap: 8px; justify-content: flex-end; width: 100%;">
+                            <button class="btn-primary" onclick="selesaikanPesanan('${idPesanan}', '${data.jenisTabung}', ${data.jumlahTabung}, ${data.totalHarga})" style="padding: 6px 12px; font-size: 0.85rem;" title="Selesai & Potong Stok">
+                                <i class="fa-solid fa-check"></i> Setuju
+                            </button>
+                            <button class="btn-danger" onclick="batalkanPesanan('${idPesanan}')" style="padding: 6px 12px; font-size: 0.85rem;" title="Batalkan">
+                                <i class="fa-solid fa-xmark"></i> Tolak
+                            </button>
+                        </div>
                     </td>
                 `;
                 tabelPesananMasuk.appendChild(tr);
