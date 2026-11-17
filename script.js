@@ -1008,10 +1008,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const tr = document.createElement("tr");
                 
                 tr.innerHTML = `
-                    <td style="text-align: left;">${waktuStr}</td>
                     <td style="text-align: left; font-weight: bold; color: var(--text-main);">${data.namaLengkap || '-'}</td>
                     <td style="text-align: left;">${data.jumlahTabung || 0} Tabung ${data.jenisTabung || ''}</td>
-                    <td class="text-green" style="text-align: left; font-weight: 600;">Rp ${(data.totalHarga || 0).toLocaleString('id-ID')}</td>                   
+                    <td class="text-green" style="text-align: left; font-weight: 600;">Rp ${(data.totalHarga || 0).toLocaleString('id-ID')}</td>
+                    <td style="text-align: left;">${waktuStr}</td>                 
                     <td style="text-align: right !important;">
                         <span class="badge badge-warning" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); padding: 4px 8px; border-radius: 4px; font-size: 11px;">Tertunda</span>
                     </td>
