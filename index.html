@@ -201,8 +201,12 @@
                     <h3 style="margin-top: 30px; margin-bottom: 15px; font-size: 14px; color: var(--text-muted);">
                         <i class="fa-solid fa-clock-rotate-left"></i> Pesanan Tertunda
                     </h3>
-                    <div class="table-responsive" style="margin-bottom: 20px;">
-                        <table class="custom-table">
+                    
+                    <!-- TAMBAHKAN overflow-x: auto; DISINI -->
+                    <div class="table-container" style="margin-bottom: 20px; overflow-x: auto;">
+                        
+                        <!-- UBAH class="data-table" MENJADI class="dashboard-table" DISINI -->
+                        <table class="dashboard-table">
                             <thead>
                                 <tr>
                                     <th>Tanggal</th>
@@ -220,7 +224,6 @@
                             </tbody>
                         </table>
                     </div>
-                    
                     <div style="text-align: right; margin-top: -10px;">
                         <a href="#" class="view-all-link" style="font-size: 12.5px;" onclick="document.querySelector('.nav-item[data-target=\'pesanan\']').click(); return false;">
                             Lihat semua pesanan masuk <i class="fa-solid fa-arrow-right"></i>
