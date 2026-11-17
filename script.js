@@ -2,7 +2,7 @@
 // 1. IMPORT FIREBASE SDK (Versi 10 Modular)
 // =====================================================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, setDoc, getDoc, addDoc, updateDoc, deleteDoc, query, orderBy, onSnapshot, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, setDoc, getDoc, addDoc, updateDoc, deleteDoc, query, orderBy, onSnapshot, limit, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 // =====================================================================
@@ -107,6 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 listenToNotifications();
                 loadMutasiStok();
                 loadPesananMasuk();
+                loadPesananTertundaDashboard();
             } else {
                 window.location.href = "./user/";
             }
@@ -969,6 +970,61 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
                 tabelPesananMasuk.appendChild(tr);
             });
+        });
+    }
+
+    // =====================================================================
+    // FUNGSI BARU: PESANAN TERTUNDA DI DASHBOARD (MAKS 2 DATA)
+    // =====================================================================
+    function loadPesananTertundaDashboard() {
+        const tbody = document.getElementById("tbody-pesanan-tertunda-dashboard");
+        if (!tbody) return;
+
+        const q = query(
+            collection(db, "antrean_pesanan"),
+            where("statusPesanan", "==", "Menunggu"),
+            orderBy("tanggalOrder", "asc"),
+            limit(2)
+        );
+
+        onSnapshot(q, (snapshot) => {
+            tbody.innerHTML = ""; 
+
+            if (snapshot.empty) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 20px;">Tidak ada pesanan tertunda.</td></tr>`;
+                return;
+            }
+
+            snapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                const idPesanan = docSnap.id;
+                
+                const waktuOrder = data.tanggalOrder ? data.tanggalOrder.toDate() : new Date();
+                const waktuStr = waktuOrder.toLocaleString('id-ID', { 
+                    day: 'numeric', month: 'short', year: 'numeric', 
+                    hour: '2-digit', minute: '2-digit' 
+                });
+                
+                const tr = document.createElement("tr");
+                
+                tr.innerHTML = `
+                    <td>${waktuStr}</td>
+                    <td style="font-weight: bold; color: var(--text-main);">${data.namaLengkap || '-'}</td>
+                    <td>${data.jumlahTabung || 0} Tabung ${data.jenisTabung || ''}</td>
+                    <td class="text-green" style="font-weight: 600;">Rp ${(data.totalHarga || 0).toLocaleString('id-ID')}</td>
+                    <td><span class="badge badge-warning" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); padding: 4px 8px; border-radius: 4px; font-size: 11px;">Tertunda</span></td>
+                    <td>
+                        <div style="display: flex; gap: 8px;">
+                            <button onclick="selesaikanPesanan('${idPesanan}', '${data.jenisTabung}', ${data.jumlahTabung}, ${data.totalHarga})" style="background: var(--green-color); color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 11px;" title="Setuju"><i class="fa-solid fa-check"></i></button>
+                            <button onclick="batalkanPesanan('${idPesanan}')" style="background: var(--danger-color); color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 11px;" title="Tolak"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }, (error) => {
+            console.error("Error loading pesanan tertunda dashboard:", error);
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--danger-color);">Gagal memuat data.</td></tr>`;
         });
     }
 
