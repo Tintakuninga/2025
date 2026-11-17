@@ -1017,8 +1017,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     </td>
                     <td style="text-align: right !important;">
                         <div style="display: flex; gap: 8px; justify-content: flex-end; width: 100%;">
-                            <button onclick="selesaikanPesanan('${idPesanan}', '${data.jenisTabung}', ${data.jumlahTabung}, ${data.totalHarga})" style="background: var(--green-color); color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 11px;" title="Setuju"><i class="fa-solid fa-check"></i></button>
-                            <button onclick="batalkanPesanan('${idPesanan}')" style="background: var(--danger-color); color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 11px;" title="Tolak"><i class="fa-solid fa-xmark"></i></button>
+                            <button onclick="selesaikanPesanan('${idPesanan}', '${data.jenisTabung}', ${data.jumlahTabung}, ${data.totalHarga})" style="background: var(--green-color); color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 11px;" title="Setuju"><i class="fa-solid fa-check"></i> Setuju</button>
+                            <button onclick="batalkanPesanan('${idPesanan}')" style="background: var(--danger-color); color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 11px;" title="Tolak"><i class="fa-solid fa-xmark"></i> Tolak</button>
                         </div>
                     </td>
                 `;
