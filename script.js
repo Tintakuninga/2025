@@ -27,6 +27,14 @@ const provider = new GoogleAuthProvider();
 // Global Variabel
 let customers = [];
 
+// Menampilkan tanggal hari ini pada badge Dashboard
+const dateBadge = document.getElementById('currentDateBadge');
+if (dateBadge) {
+    const options = { weekday: 'long', year: 'numeric', month: 'short', day: '2-digit' };
+    // Menghasilkan format: "Selasa, 17 Nov 2026"
+    dateBadge.innerText = new Date().toLocaleDateString('id-ID', options);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
 
     // =====================================================================

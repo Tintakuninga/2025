@@ -240,6 +240,42 @@ body.light-theme .notif-item:hover { background: rgba(0, 0, 0, 0.03); }
     transform: translateX(4px);
 }
 
+/* =========================================
+   PEMBATAS DAN TANGGAL (HEADER DIVIDER)
+   ========================================= */
+.header-divider-container {
+    display: flex;
+    align-items: center;
+    margin-top: -10px; /* Menarik elemen sedikit lebih dekat ke judul */
+    margin-bottom: 25px; /* Jarak dengan grid statistik di bawahnya */
+}
+
+.divider-dashed {
+    flex-grow: 1; /* Membuat garis mengisi seluruh sisa ruang kosong */
+    height: 1px;
+    border-bottom: 1px dashed var(--border-color); /* Garis putus-putus */
+    margin-right: 15px; /* Jarak antara ujung garis dan tombol tanggal */
+    opacity: 0.7;
+}
+
+.header-date-badge {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    padding: 6px 14px;
+    border-radius: 20px; /* Membuat bentuk kapsul */
+    font-size: 13px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.header-date-badge i {
+    color: var(--accent-blue); /* Memberikan aksen warna pada ikon kalender */
+    font-size: 14px;
+}
+
 /* ==========================================================================
    RESPONSIVE DESIGN KHUSUS SMARTPHONE & TABLET (Max-width: 768px)
    ========================================================================== */
